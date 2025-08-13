@@ -1,0 +1,21 @@
+[MASTER]
+ignore=venv
+max-line-length=120
+extension-pkg-whitelist=
+
+[MESSAGES CONTROL]
+disable=
+    C0114,  # Missing module docstring
+    C0115,  # Missing class docstring
+    C0116,  # Missing function or method docstring
+
+[FORMAT]
+max-line-length=120
+indent-string='    '
+expected-line-ending-format=LF
+
+[TYPECHECK]
+generated-members=numpy.*,torch.*
+
+[REPORTS]
+output-format=colorized

@@ -1,6 +1,8 @@
 """
 Module for various UI selenium handlers
 """
+
+
 class Login:
     """
     login Page UI Handlers
@@ -40,7 +42,8 @@ class StudentImportUI:
     """
 
     # XPath selectors
-    STUDENT_MOVEMENT_PROGRESSION_XPATH = '//*[@id="collapseList"]/span'
+    # STUDENT_MOVEMENT_PROGRESSION_XPATH = '//*[@id="collapseList"]/span'
+    STUDENT_MOVEMENT_PROGRESSION_XPATH = "//div/ul/li[8]/div/div/h2/button/span"
     IMPORT_OPTION_XPATH = '//*[@id="flush-collapseOne2"]/div/ul/li[2]/span'
     FILE_UPLOAD_XPATH = "//input[@type='file']"
     SUBMIT_BUTTON_XPATH = "//button[@id='submitImport']"
