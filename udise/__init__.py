@@ -2,11 +2,7 @@
 import time
 
 from selenium import webdriver
-from selenium.common.exceptions import (
-    ElementNotInteractableException,
-    NoSuchElementException,
-    StaleElementReferenceException,
-    ElementClickInterceptedException)
+from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
@@ -16,9 +12,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
-from student_module.config import PASSWORD, TIMEOUT, URL, USERNAME
-from student_module.ui import AcademicChoice, Login, SchoolInformation
-from student_module.locators import (
+from udise.student_module.config import PASSWORD, TIMEOUT, URL, USERNAME
+from udise.student_module.locators import (
     LoginLocators,
     AcademicChoiceLocators,
     SchoolInformationLocators)
