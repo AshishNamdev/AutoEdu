@@ -10,7 +10,7 @@ import time
 
 from selenium.webdriver.common.by import By
 
-from udise import wait_and_click
+from autoedu.common import wait_and_click
 from udise.student_module.ui import StudentImportUI
 
 
@@ -30,9 +30,7 @@ class StudentImport:
         Select import options on UDISE Student Module.
         """
         # Select Student Movement and Progression option
-        wait_and_click(
-            (By.XPATH, StudentImportUI.STUDENT_MOVEMENT_PROGRESSION_XPATH)
-        )
+        wait_and_click((By.XPATH, StudentImportUI.STUDENT_MOVEMENT_PROGRESSION_XPATH))
         time.sleep(5)
 
         # Select  ProgreImport Activity from the list

@@ -1,0 +1,26 @@
+{
+    "tools": [
+        {
+            "name": "Autoflake",
+            "command": "autoflake",
+            "args": [
+                "--remove-all-unused-imports",
+                "--remove-unused-variables",
+                "--in-place",
+                "--recursive",
+                "."
+            ]
+        },
+        {
+            "name": "Black",
+            "command": "black",
+            "args": [
+                "."
+            ]
+        }
+    ],
+    "env_overrides": {
+        "autoflake": "${AUTOFLAKE_PATH}",
+        "black": "${BLACK_PATH}"
+    }
+}

@@ -13,5 +13,7 @@ def retry_on_exception(exception_type, retries=3, delay=1):
                     print(f"[Retry {attempt+1}] {func.__name__} failed: {e}")
                     time.sleep(delay)
             raise exception_type(f"{func.__name__} failed after {retries} retries.")
+
         return wrapper
+
     return decorator

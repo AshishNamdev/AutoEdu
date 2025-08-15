@@ -1,0 +1,10 @@
+{
+    "label": "Format Python via Script",
+    "type": "shell",
+    "command": "python",
+    "args": [
+        "format_code.py"
+    ],
+    "problemMatcher": [],
+    "group": "build"
+}

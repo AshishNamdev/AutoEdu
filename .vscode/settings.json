@@ -1,6 +1,22 @@
 {
-  "editor.formatOnSave": true,
   "[python]": {
     "editor.defaultFormatter": "ms-python.autopep8"
-  }
+  },
+  "python.languageServer": "Pylance",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll": "explicit"
+  },
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportUnusedImport": "warning",
+    "reportUnusedVariable": "warning"
+  },
+  "python.formatting.provider": "black",
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": true,
+  "python.linting.flake8Enabled": false,
+  "python.linting.mypyEnabled": false
 }

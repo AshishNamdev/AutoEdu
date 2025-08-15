@@ -1,7 +1,5 @@
-from udise import login_user, select_academic_year
-from udise.student_module.import_module.student_import import StudentImport
+from udise import student_module
+from udise.student_module.import_module import StudentImport
 
-login_user()
-select_academic_year()
-
+student_module.login_user()
 StudentImport().init_student_import()
