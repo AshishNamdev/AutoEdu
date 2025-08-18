@@ -1,0 +1,93 @@
+{
+  "PORTALS": [
+    "udise",
+    "mpbse",
+    "education_portal3"
+  ],
+  "PORTAL": "udise",
+  "MODULES": {
+    "udise": [
+      "student",
+      "teacher"
+    ],
+    "mpbse": [
+      "marks_entry"
+    ],
+    "education_portal3": [
+      "student_directory"
+    ]
+  },
+  "MODULE": {
+    "udise": "student",
+    "mpbse": "marks_entry",
+    "education_portal3": "student_directory"
+  },
+  "TASKS": {
+    "udise": {
+      "student": [
+        "import",
+        "progression",
+        "profile"
+      ],
+      "teacher": [
+        "import",
+        "update",
+        "dropbox"
+      ]
+    },
+    "mpbse": {
+      "marks_entry": [
+        "marks_entry"
+      ]
+    },
+    "education_portal3": {
+      "student_directory": [
+        "promotion"
+      ]
+    }
+  },
+  "TASK": {
+    "udise": {
+      "student": "import"
+    },
+    "mpbse": {
+      "marks_entry": "marks_entry"
+    },
+    "education_portal3": {
+      "student_directory": "promotion"
+    }
+  },
+  "USERNAME": {
+    "udise": "23460240301",
+    "mpbse": "181053",
+    "education_portal3": "2360240301"
+  },
+  "PASSWORD": {
+    "udise": "YJ#41erc",
+    "mpbse": "",
+    "education_portal3": ""
+  },
+  "URL": {
+    "udise": {
+      "student": "https://sdms.udiseplus.gov.in/p1/v1/login?state-id=123",
+      "teacher": "https://udiseplus.gov.in/udiseteacher/"
+    },
+    "mpbse": "https://mpbse.mponline.gov.in/Login",
+    "education_portal3": "https://sederp.educationportal3.in/"
+  },
+  "OPTIONS": {
+    "timeout": 30,
+    "verify_ssl": true,
+    "retries": 3
+  },
+  "CLASS": "9",
+  "SECTION": "A",
+  "SECTIONS": {
+    "A": "1",
+    "B": "2",
+    "C": "3",
+    "D": "4",
+    "E": "5",
+    "F": "6"
+  },
+}
