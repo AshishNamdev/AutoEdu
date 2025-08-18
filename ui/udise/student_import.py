@@ -1,4 +1,10 @@
+import time
+
 from selenium.webdriver.common.by import By
+
+from common.config import TIME_DELAY
+from common.logger import logger
+from utils.utils import wait_and_click
 
 
 class StudentImportUI:
@@ -7,7 +13,7 @@ class StudentImportUI:
 
     # XPath selectors
     # MOVEMENT_PROGRESSION_XPATH = '//*[@id="collapseList"]/span'
-    MOVEMENT_PROGRESSION_XPATH = "//div/ul/li[8]/div/div/h2/button/span"
+    MOVEMENT_PROGRESSION_XPATH = "//div/ul/li[9]/div/div/h2/button/span"
     IMPORT_OPTION_XPATH = '//*[@id="flush-collapseOne2"]/div/ul/li[2]/span'
     FILE_UPLOAD_XPATH = "//input[@type='file']"
     SUBMIT_BUTTON_XPATH = "//button[@id='submitImport']"
@@ -30,3 +36,19 @@ class StudentImportUI:
     # Locators
     STUDENT_MOVEMENT_PROGRESSION = (By.XPATH, MOVEMENT_PROGRESSION_XPATH)
     STUDENT_IMPORT_OPTION = (By.XPATH, IMPORT_OPTION_XPATH)
+
+    def select_import_options(self):
+        """
+        Select import options on UDISE Student Module.
+        """
+        # Select Student Movement and Progression option
+        wait_and_click(self.STUDENT_MOVEMENT_PROGRESSION)
+        logger.info("Selected Student Movement and Progression option")
+        logger.info("waiting for %s seconds", TIME_DELAY)
+        time.sleep(TIME_DELAY)
+
+        # Select  Import Module from the list
+        wait_and_click(self.STUDENT_IMPORT_OPTION)
+        logger.info("Selected Module from the list")
+        logger.info("waiting for %s seconds", TIME_DELAY)
+        time.sleep(TIME_DELAY)

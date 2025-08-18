@@ -25,7 +25,8 @@ LOG_CONFIG = {
     "version": 1,
     "formatters": {
         "standard": {
-            "format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+            "format": "%(asctime)s [%(levelname)s] %(module)s:%(lineno)d (%(funcName)s) - %(message)s"
+
         }
     },
     "handlers": {
@@ -37,7 +38,7 @@ LOG_CONFIG = {
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
             "formatter": "standard",
-            "filename": "autoedu.log",
+            "filename": os.path.join("logs", f"{__name__}.log"),
             "maxBytes": 5_242_880,
             "backupCount": 3
         }

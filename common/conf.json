@@ -77,6 +77,7 @@
   },
   "OPTIONS": {
     "timeout": 30,
+    "time_delay": 3,
     "verify_ssl": true,
     "retries": 3
   },
@@ -89,5 +90,5 @@
     "D": "4",
     "E": "5",
     "F": "6"
-  },
+  }
 }

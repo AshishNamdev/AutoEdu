@@ -1,40 +1,66 @@
 import time
 
-from common import wait_and_click, wait_and_find_element
-from ui import AcademicChoice, SchoolInformation, StudentLogin
+from selenium.common.exceptions import TimeoutException
+
+from common.driver import driver
+from common.logger import logger
+from ui.udise.login import AcademicChoice, SchoolInformation, StudentLogin
+from utils.utils import wait_and_click, wait_and_find_element
 
 
-def student_module_login(username, password):
+def student_module_login(username, password, max_attempts=3):
     """
-    Logs in to the UDISE student module using provided credentials.
-
-    This function automates the login process by entering the given username
-    and password into the appropriate fields on the UDISE portal. It assumes
-    that the browser has already been launched and navigated to the login page.
+    Attempts to log in to the UDISE student module with retries for invalid CAPTCHA or incorrect credentials.
 
     Parameters:
         username (str): The username to authenticate with.
         password (str): The password associated with the username.
-
-    Returns:
-        None
+        max_attempts (int): Maximum number of login attempts before giving up.
 
     Raises:
-        Exception: If login fails due to missing elements or incorrect credentials.
+        Exception: If login fails after max_attempts.
     """
+    logger.info("Starting login to UDISE Student Module")
 
-    wait_and_find_element(StudentLogin.USERNAME).send_keys(username)
+    for attempt in range(1, max_attempts + 1):
+        logger.info(f"Login attempt {attempt}/{max_attempts}")
 
-    wait_and_find_element(StudentLogin.PASSWORD).send_keys(password)
+        # Fill credentials
+        elem = wait_and_find_element(StudentLogin.USERNAME)
+        elem.clear()
+        elem.send_keys(username)
 
-    wait_and_click(StudentLogin.CAPTCHA)
+        elem = wait_and_find_element(StudentLogin.PASSWORD)
+        elem.clear()
+        elem.send_keys(password)
 
-    # Wait for 15 seconds for captcha mannual entry
-    time.sleep(15)
+        wait_and_click(StudentLogin.CAPTCHA)
 
-    wait_and_click(StudentLogin.SUBMIT_BUTTON)
-    time.sleep(10)
-    select_academic_year()
+        logger.info("Waiting 15 seconds for manual CAPTCHA entry")
+        time.sleep(15)
+
+        wait_and_click(StudentLogin.SUBMIT_BUTTON)
+        logger.info("Clicked on the Submit button to initiate login")
+
+        # Give UI a moment to render any error messages
+        time.sleep(2)
+
+        if invalid_captcha():
+            logger.warning("Invalid CAPTCHA detected. Retrying login...")
+            continue
+
+        if incorrect_creds():
+            logger.warning("Incorrect credentials detected. Retrying login...")
+            continue
+
+        # If no errors, assume login success
+        logger.info("Login successful. Proceeding to academic year selection.")
+        time.sleep(2)
+        select_academic_year()
+        return
+
+    # If loop completes without successful login
+    raise Exception("Login failed after maximum attempts due to repeated CAPTCHA or credential errors.")
 
 
 def select_academic_year():
@@ -55,6 +81,8 @@ def select_academic_year():
     """
 
     wait_and_click(AcademicChoice.ACADEMIC_YEAR)
+    logger.info("Selected Current Academic Year")
+
     close_school_info()
 
 
@@ -78,4 +106,44 @@ def close_school_info():
     """
 
     wait_and_click(SchoolInformation.SCHOOL_INFO)
+    logger.info("Closed School Information dialog popup")
     time.sleep(1)
+
+
+def invalid_captcha():
+    """
+    Checks whether the CAPTCHA validation message indicates an invalid input.
+
+    This function waits for the CAPTCHA message element to appear on the student login page,
+    retrieves its inner HTML content, and returns True if the message contains the word "Invalid".
+
+    Returns:
+        bool: True if the CAPTCHA message contains "Invalid", False otherwise.
+    """
+    time.sleep(2)  # Give UI a moment to render error messages
+    elements = driver.find_elements(*StudentLogin.ERROR_ALERT)
+    if elements:
+        msg = elements[0].get_attribute("innerHTML")
+        logger.info(f"CAPTCHA error message: {msg}")
+        return "Invalid" in msg if msg else False
+    return False
+
+
+def incorrect_creds():
+    """
+    Checks if the login failure was due to incorrect username or password.
+
+    This function retrieves the inner HTML of the element associated with invalid login messages.
+    It logs the message content and returns True if the message contains the keyword 'Incorrect',
+    indicating a credential-related failure.
+
+    Returns:
+        bool: True if the message indicates incorrect credentials, False otherwise.
+    """
+    time.sleep(2)  # Give UI a moment to render error messages
+    elements = driver.find_elements(*StudentLogin.ERROR_ALERT)
+    if elements:
+        msg = elements[0].get_attribute("innerHTML")
+        logger.info(f"Credential error message: {msg}")
+        return "Incorrect" in msg if msg else False
+    return False

@@ -4,6 +4,10 @@ from selenium.webdriver.common.by import By
 class StudentLogin:
 
     # Selectors
+    # Xpath selectors
+
+    # INVALID_CAPTCHA_XPATH = "//div/div[2]/div/div/div/div/div/span"
+    ERROR_ALERT_XPATH = "//div[@role='alert']/div/span"
 
     # Class name selectors
     USERNAME_CLASS = "form-control"
@@ -18,6 +22,7 @@ class StudentLogin:
     PASSWORD = (By.ID, PASSWORD_ID)
     CAPTCHA = (By.ID, CAPTCHA_ID)
     SUBMIT_BUTTON = (By.ID, SUBMIT_BUTTON_ID)
+    ERROR_ALERT = (By.XPATH, ERROR_ALERT_XPATH)
 
 
 class AcademicChoice:
