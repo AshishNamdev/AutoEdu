@@ -1,54 +1,56 @@
-import time
+"""
+Module: student_import_ui
 
-from selenium.webdriver.common.by import By
+This module provides UI automation functionality for interacting with the UDISE Student Import interface.
+It includes logic to select specific import options such as Student Movement and Progression, and initiate
+the student import process via predefined UI locators.
+
+Dependencies:
+- time: for introducing delays between UI actions
+- common.config.TIME_DELAY: configurable delay duration
+- common.logger.logger: logging utility for tracking actions
+- utils.utils.wait_and_click: helper function to interact with UI elements
+- ui.locators.udise.StudentImportLocator: locator definitions for UI elements
+
+Author: Ashish Namdev (ashish28.sirt@gmail.com)
+Date Created: 2025-08-19
+Last Modified: 2025-08-18
+Version: 1.0.0
+"""
+
+import time
 
 from common.config import TIME_DELAY
 from common.logger import logger
 from utils.utils import wait_and_click
+from ui.locators.udise import StudentImportLocator
+
 
 
 class StudentImportUI:
+    """
+    Handles UI interactions for the Student Import section of the UDISE module.
 
-    # Selectors
-
-    # XPath selectors
-    # MOVEMENT_PROGRESSION_XPATH = '//*[@id="collapseList"]/span'
-    MOVEMENT_PROGRESSION_XPATH = "//div/ul/li[9]/div/div/h2/button/span"
-    IMPORT_OPTION_XPATH = '//*[@id="flush-collapseOne2"]/div/ul/li[2]/span'
-    FILE_UPLOAD_XPATH = "//input[@type='file']"
-    SUBMIT_BUTTON_XPATH = "//button[@id='submitImport']"
-    STATUS_MESSAGE_XPATH = "//div[@class='status-message']"
-
-    # ID selectors
-    FILE_INPUT_ID = "studentFileInput"
-    IMPORT_FORM_ID = "importForm"
-
-    # CSS selectors
-    LOADING_SPINNER_CSS = ".spinner.loading"
-    ERROR_MESSAGE_CSS = ".error-message"
-
-    # Name selectors
-    FILE_FIELD_NAME = "student_file"
-
-    # Class name selectors
-    SUCCESS_ALERT_CLASS = "alert-success"
-
-    # Locators
-    STUDENT_MOVEMENT_PROGRESSION = (By.XPATH, MOVEMENT_PROGRESSION_XPATH)
-    STUDENT_IMPORT_OPTION = (By.XPATH, IMPORT_OPTION_XPATH)
+    Methods:
+    --------
+    select_import_options():
+        Automates the selection of import-related options including Student Movement and Progression,
+        followed by the Student Import module. Includes logging and configurable delays to ensure
+        reliable execution.
+    """
 
     def select_import_options(self):
         """
         Select import options on UDISE Student Module.
         """
         # Select Student Movement and Progression option
-        wait_and_click(self.STUDENT_MOVEMENT_PROGRESSION)
+        wait_and_click(StudentImportLocator.STUDENT_MOVEMENT_PROGRESSION)
         logger.info("Selected Student Movement and Progression option")
         logger.info("waiting for %s seconds", TIME_DELAY)
         time.sleep(TIME_DELAY)
 
         # Select  Import Module from the list
-        wait_and_click(self.STUDENT_IMPORT_OPTION)
+        wait_and_click(StudentImportLocator.STUDENT_IMPORT_OPTION)
         logger.info("Selected Module from the list")
         logger.info("waiting for %s seconds", TIME_DELAY)
         time.sleep(TIME_DELAY)

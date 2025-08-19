@@ -8,10 +8,15 @@ and handle exceptions.
 
 
 from ui.udise.student_import import StudentImportUI
-
+from ui.udise.login import StudentLogin
+from common.config import USERNAME, PASSWORD
 
 class StudentImport:
+    
     def __init__(self):
+
+        StudentLogin().student_login(USERNAME, PASSWORD, max_attempts=3)
+
         self.import_ui = StudentImportUI()
 
     def init_student_import(self):

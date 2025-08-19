@@ -60,11 +60,29 @@ RETRIES = _config["OPTIONS"]["retries"]
 VERIFY_SSL = _config["OPTIONS"]["verify_ssl"]
 RETRIES = _config["OPTIONS"]["retries"]
 
-logger.info("=================== Start AutoEdu ===================")
-logger.info("CONFIG_PATH: %s", CONFIG_PATH)
-logger.info("PORTAL: %s", PORTAL)
-logger.info("MODULE: %s", MODULE)
-logger.info("TASK: %s", TASK)
-logger.info("URL: %s", URL)
-logger.info("TIMEOUT: %s", TIMEOUT)
-logger.info("TIME_DELAY: %s", TIME_DELAY)
+def log_config():
+    """
+    Logs key configuration parameters used in the automation suite.
+
+    This function records the current values of global configuration variables
+    such as paths, portal identifiers, module names, task types, URLs, and 
+    timeout settings. It is typically called at the start of execution to 
+    provide visibility into the runtime environment and aid in debugging.
+
+    Logged parameters:
+        - CONFIG_PATH: Path to the configuration file.
+        - PORTAL: Identifier for the target portal.
+        - MODULE: Name of the module being executed.
+        - TASK: Type of task being performed.
+        - URL: Target URL for automation.
+        - TIMEOUT: Maximum wait time for operations.
+        - TIME_DELAY: Delay between actions or retries.
+    """
+
+    logger.info("CONFIG_PATH: %s", CONFIG_PATH)
+    logger.info("PORTAL: %s", PORTAL)
+    logger.info("MODULE: %s", MODULE)
+    logger.info("TASK: %s", TASK)
+    logger.info("URL: %s", URL)
+    logger.info("TIMEOUT: %s", TIMEOUT)
+    logger.info("TIME_DELAY: %s", TIME_DELAY)
