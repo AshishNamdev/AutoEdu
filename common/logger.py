@@ -26,6 +26,8 @@ import os
 log_dir = os.path.join(os.getcwd(), "logs")
 os.makedirs(log_dir, exist_ok=True)
 
+from datetime import datetime
+
 LOG_CONFIG = {
     "version": 1,
     "formatters": {
@@ -52,3 +54,47 @@ LOG_CONFIG = {
 
 logging.config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger("auto_edu")
+
+
+def get_timestamp():
+    """
+    Returns the current timestamp formatted for log entries.
+
+    Format:
+        DD-MM-YYYY - HH:MMAM/PM (e.g., "20-08-2025 - 03:45PM")
+
+    Returns:
+        str: A string representing the current date and time.
+    """
+
+    return datetime.now().strftime("%d-%m-%Y - %I:%M:%Sp")
+
+
+def log_start():
+    """
+    Logs the start of the AutoEdu automation run with a timestamp.
+
+    Output Format:
+        =========== Starting AutoEdu [DD-MM-YYYY - HH:MMAM/PM] =========
+
+    Uses:
+        - get_timestamp() to generate the current time.
+        - logger.info() to write the entry to the shared log file.
+    """
+
+    logger.info("=========== Starting AutoEdu [%s] =========", get_timestamp())
+
+
+def log_end():
+    """
+    Logs the end of the AutoEdu automation run with a timestamp.
+
+    Output Format:
+        =========== End AutoEdu [DD-MM-YYYY - HH:MMAM/PM] =========
+
+    Uses:
+        - get_timestamp() to generate the current time.
+        - logger.info() to write the entry to the shared log file.
+    """
+
+    logger.info("=========== End AutoEdu [%s] =========", get_timestamp())

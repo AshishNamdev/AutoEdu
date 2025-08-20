@@ -34,7 +34,7 @@ def launch_browser(url):
     Returns:
         None
     """
-    logger.info("opening Chrome browser")
+    logger.info("Opening Chrome Browser")
 
     driver.get(url)
     driver.maximize_window()

@@ -32,8 +32,9 @@ Version: 1.0.0
 """
 
 from common import launch_browser
-from common.logger import logger
+from common.logger import logger, log_start, log_end
 from common.config import PORTAL, URL, log_config, MODULE, TASK
+from ui import MainPage
 
 
 class AutoEdu:
@@ -95,12 +96,13 @@ class AutoEdu:
 
 
 if __name__ == "__main__":
-    logger.info("=================== Starting AutoEdu ===================")
+    log_start()
     log_config()
     auto_edu = AutoEdu()
 
     try:
         launch_browser(URL)
+        MainPage.check_status()
         if PORTAL == "udise":
             auto_edu.udise_portal()
         elif PORTAL == "mpbse":
@@ -110,4 +112,4 @@ if __name__ == "__main__":
     except Exception as e:
         logger.exception("AutoEdu encountered an error: %s", str(e))
     finally:
-        logger.info("=================== End AutoEdu ===================")
+        log_end()

@@ -67,4 +67,3 @@ class StudentImport:
         Placeholder for future implementation of data ingestion, validation,
         and exception handling during the import process.
         """
-        pass

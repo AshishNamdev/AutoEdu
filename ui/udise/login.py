@@ -10,6 +10,7 @@ to support robust UI automation with retry logic and logging for traceability.
 Features:
 ---------
 - Automated login with retry mechanism for invalid CAPTCHA or incorrect credentials.
+- Check Main Page for status and 503 indicators
 - Selection of academic year post-login.
 - Graceful handling of UI interruptions such as school information dialogs.
 - Logging of each step for debugging and audit purposes.
@@ -88,6 +89,7 @@ class StudentLogin:
         Raises:
             Exception: If login fails after max_attempts.
         """
+
         logger.info("Starting login to UDISE Student Module")
 
         for attempt in range(1, max_attempts + 1):
