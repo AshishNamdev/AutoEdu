@@ -5,9 +5,11 @@ This module reads `conf.json` located in the same directory and exposes key sett
 as constants, including credentials, URLs, class/section identifiers, and nested options
 like timeout and retry behavior.
 
-Author: Ashish Namdev (ashish28.sirt@gmail.com)
+Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
+
 Date Created: 2025-08-18
 Last Modified: 2025-08-18
+
 Version: 1.0.0
 
 Attributes:
@@ -60,13 +62,14 @@ RETRIES = _config["OPTIONS"]["retries"]
 VERIFY_SSL = _config["OPTIONS"]["verify_ssl"]
 RETRIES = _config["OPTIONS"]["retries"]
 
+
 def log_config():
     """
     Logs key configuration parameters used in the automation suite.
 
     This function records the current values of global configuration variables
-    such as paths, portal identifiers, module names, task types, URLs, and 
-    timeout settings. It is typically called at the start of execution to 
+    such as paths, portal identifiers, module names, task types, URLs, and
+    timeout settings. It is typically called at the start of execution to
     provide visibility into the runtime environment and aid in debugging.
 
     Logged parameters:

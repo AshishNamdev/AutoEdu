@@ -4,9 +4,11 @@ Utility functions for Selenium-based browser automation.
 This module provides helper functions to wait for elements,
 and perform robust clicking actions with retry logic.
 
-Author: Ashish Namdev (ashish28.sirt@gmail.com)
+Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
+
 Date Created: 2025-08-18
 Last Modified: 2025-08-18
+
 Version: 1.0.0
 
 Functions:
@@ -36,9 +38,9 @@ def wait_and_click(locator, retries=2):
 
     Parameters:
         locator (tuple): A tuple specifying the strategy to locate the element,
-                         e.g., (By.XPATH, "//button[@id='submit']").
+        e.g., (By.XPATH, "//button[@id='submit']").
         retries (int): Number of retry attempts if the standard click is intercepted.
-                       Defaults to 2.
+        Defaults to 2.
 
     Returns:
         None
@@ -81,7 +83,7 @@ def wait_and_find_element(locator):
 
     Parameters:
         locator (tuple): A tuple specifying the strategy to locate the element,
-                         e.g., (By.ID, "submit-button").
+        e.g., (By.ID, "submit-button").
 
     Returns:
         WebElement: The Selenium WebElement once it becomes clickable.
@@ -103,7 +105,7 @@ def wait_and_find_elements(locator):
 
     Parameters:
         locator (tuple): A tuple specifying the strategy to locate the elements,
-                         e.g., (By.CLASS_NAME, "item-row").
+        e.g., (By.CLASS_NAME, "item-row").
 
     Returns:
         list[WebElement]: A list of Selenium WebElements once they are located.

@@ -1,4 +1,3 @@
-
 """
 Module: student_import_locator
 
@@ -10,14 +9,17 @@ Dependencies:
 - selenium.webdriver.common.by.By: for specifying locator strategies
 - ui.selectors.udise.StudentImportSelector: contains XPath strings for UI elements
 
-Author: Ashish Namdev (ashish28.sirt@gmail.com)
+Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
+
 Date Created: 2025-08-19
-Last Modified: 2025-08-19
+Last Modified: 2025-08-20
+
 Version: 1.0.0
 """
 
 from selenium.webdriver.common.by import By
 from ui.selectors.udise import StudentImportSelector, StudentLoginSelector
+
 
 class StudentLoginLocator:
     """
@@ -50,18 +52,19 @@ class StudentLoginLocator:
     SCHOOL_INFO : tuple
         Locator for closing the school information pop-up (by XPath).
     """
-    
+
     USERNAME = (By.CLASS_NAME, StudentLoginSelector.USERNAME_CLASS)
     PASSWORD = (By.ID, StudentLoginSelector.PASSWORD_ID)
     CAPTCHA = (By.ID, StudentLoginSelector.CAPTCHA_ID)
     SUBMIT_BUTTON = (By.ID, StudentLoginSelector.SUBMIT_BUTTON_ID)
     ERROR_ALERT = (By.XPATH, StudentLoginSelector.ERROR_ALERT_XPATH)
-    
+
     # Academic Choice Locators
     ACADEMIC_YEAR = (By.XPATH, StudentLoginSelector.AC_YEAR_XPATH)
 
     # School Information Locators
     SCHOOL_INFO = (By.XPATH, StudentLoginSelector.SCHOOL_INFO_XPATH)
+
 
 class StudentImportLocator:
     """
@@ -79,5 +82,13 @@ class StudentImportLocator:
         Locator for the 'Student Import' module option.
     """
 
-    STUDENT_MOVEMENT_PROGRESSION = (By.XPATH, StudentImportSelector.MOVEMENT_PROGRESSION_XPATH)
+    STUDENT_MOVEMENT_PROGRESSION = (
+        By.XPATH,
+        StudentImportSelector.MOVEMENT_PROGRESSION_XPATH,
+    )
     STUDENT_IMPORT_OPTION = (By.XPATH, StudentImportSelector.IMPORT_OPTION_XPATH)
+    IN_STATE_IMPORT = (By.XPATH, StudentImportSelector.IN_STATE_IMPORT_XPATH)
+    OUT_STATE_IMPORT = (By.XPATH, StudentImportSelector.OUT_STATE_IMPORT_XPATH)
+    STUDENT_PEN = (By.ID, StudentImportSelector.STUDENT_PEN_ID)
+    DOB = (By.ID, StudentImportSelector.DOB_ID)
+    IMPORT_GO_BUTTON = (By.XPATH, StudentImportSelector.IMPORT_GO_BUTTON_XPATH)

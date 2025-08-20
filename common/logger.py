@@ -11,9 +11,11 @@ Environment Variables:
 Attributes:
     logger (logging.Logger): Logger instance scoped to the current module.
 
-Author: Ashish Namdev (ashish28.sirt@gmail.com)
+Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
+
 Date Created: 2025-08-18
-Last Modified: 2025-08-19
+Last Modified: 2025-08-20
+
 Version: 1.0.0
 """
 
@@ -29,28 +31,24 @@ LOG_CONFIG = {
     "formatters": {
         "standard": {
             "format": "%(asctime)s [%(levelname)s] %(module)s:%(lineno)d (%(funcName)s) - %(message)s"
-
         }
     },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "standard",
-            "level": os.getenv("LOG_LEVEL", "INFO")
+            "level": os.getenv("LOG_LEVEL", "INFO"),
         },
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
             "formatter": "standard",
-            "filename": os.path.join("logs", f"{__name__}.log"),
+            "filename": os.path.join("logs", "auto_edu.log"),
             "maxBytes": 5_242_880,
-            "backupCount": 3
-        }
+            "backupCount": 3,
+        },
     },
-    "root": {
-        "handlers": ["console", "file"],
-        "level": os.getenv("LOG_LEVEL", "INFO")
-    }
+    "root": {"handlers": ["console", "file"], "level": os.getenv("LOG_LEVEL", "INFO")},
 }
 
 logging.config.dictConfig(LOG_CONFIG)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("auto_edu")

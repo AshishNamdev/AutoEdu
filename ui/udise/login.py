@@ -30,9 +30,11 @@ This module is intended to be used as part of a larger automation framework for 
 It can be invoked to perform login operations and navigate through the initial setup steps
 required to access student data.
 
-Author: Ashish Namdev (ashish28.sirt@gmail.com)
+Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
+
 Date Created: 2025-08-18
 Last Modified: 2025-08-19
+
 Version: 1.0.0
 """
 
@@ -126,8 +128,9 @@ class StudentLogin:
             return
 
         # If loop completes without successful login
-        raise Exception("Login failed after maximum attempts due to repeated CAPTCHA or credential errors.")
-
+        raise Exception(
+            "Login failed after maximum attempts due to repeated CAPTCHA or credential errors."
+        )
 
     def select_academic_year(self):
         """
@@ -150,7 +153,6 @@ class StudentLogin:
         logger.info("Selected Current Academic Year")
 
         self.close_school_info()
-
 
     def close_school_info(self):
         """
@@ -175,7 +177,6 @@ class StudentLogin:
         logger.info("Closed School Information dialog popup")
         time.sleep(1)
 
-
     def invalid_captcha(self):
         """
         Checks whether the CAPTCHA validation message indicates an invalid input.
@@ -193,7 +194,6 @@ class StudentLogin:
             logger.info(f"CAPTCHA error message: {msg}")
             return "Invalid" in msg if msg else False
         return False
-
 
     def incorrect_creds(self):
         """

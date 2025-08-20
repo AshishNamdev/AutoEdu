@@ -9,11 +9,14 @@ locate and interact with specific elements on the web page during automated test
 
 These selectors serve as constants for building reliable and maintainable automation scripts.
 
-Author: Ashish Namdev (ashish28.sirt@gmail.com)
+Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
+
 Date Created: 2025-08-19
 Last Modified: 2025-08-19
+
 Version: 1.0.0
 """
+
 
 class StudentLoginSelector:
     """
@@ -48,11 +51,11 @@ class StudentLoginSelector:
 
     # Xpath selectors
 
-    AC_YEAR_XPATH = "//ul/li/div/div[2]/p" # Academic Choice
-    SCHOOL_INFO_XPATH = "//div/div/div/div[3]/button" # School Information
+    AC_YEAR_XPATH = "//ul/li/div/div[2]/p"  # Academic Choice
+    SCHOOL_INFO_XPATH = "//div/div/div/div[3]/button"  # School Information
     ERROR_ALERT_XPATH = "//div[@role='alert']/div/span"
     # INVALID_CAPTCHA_XPATH = "//div/div[2]/div/div/div/div/div/span"
-    
+
     # Class name selectors
     USERNAME_CLASS = "form-control"
 
@@ -60,6 +63,7 @@ class StudentLoginSelector:
     PASSWORD_ID = "password-field"
     SUBMIT_BUTTON_ID = "submit-btn"
     CAPTCHA_ID = "captcha"
+
 
 class StudentImportSelector:
     """
@@ -107,17 +111,10 @@ class StudentImportSelector:
     FILE_UPLOAD_XPATH = "//input[@type='file']"
     SUBMIT_BUTTON_XPATH = "//button[@id='submitImport']"
     STATUS_MESSAGE_XPATH = "//div[@class='status-message']"
+    IN_STATE_IMPORT_XPATH = "//ul/li[1]/div/button"
+    OUT_STATE_IMPORT_XPATH = "//ul/li[2]/div/button"
+    IMPORT_GO_BUTTON_XPATH = "//div[@class='col-lg-8']/ul/li[3]/button"
 
     # ID selectors
-    FILE_INPUT_ID = "studentFileInput"
-    IMPORT_FORM_ID = "importForm"
-
-    # CSS selectors
-    LOADING_SPINNER_CSS = ".spinner.loading"
-    ERROR_MESSAGE_CSS = ".error-message"
-
-    # Name selectors
-    FILE_FIELD_NAME = "student_file"
-
-    # Class name selectors
-    SUCCESS_ALERT_CLASS = "alert-success"
+    STUDENT_PEN_ID = "mat-input-0"
+    DOB_ID = "mat-input-1"
