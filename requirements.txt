@@ -1,0 +1,7 @@
+selenium
+automated-selenium
+webdriver-manager
+isort
+black
+autoflake
+dotenv

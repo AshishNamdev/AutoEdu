@@ -32,8 +32,9 @@ Version: 1.0.0
 """
 
 from common import launch_browser
-from common.logger import logger, log_start, log_end
-from common.config import PORTAL, URL, log_config, MODULE, TASK
+from common.config import MODULE, PORTAL, TASK, URL, log_config
+from common.logger import log_end, logger
+from portals.udise import StudentImport
 from ui import MainPage
 
 
@@ -64,8 +65,6 @@ class AutoEdu:
         """
         if MODULE == "student":
             if TASK == "import":
-                from portals.udise import StudentImport
-
                 StudentImport().init_student_import()
             elif TASK == "progression":
                 pass
@@ -96,7 +95,6 @@ class AutoEdu:
 
 
 if __name__ == "__main__":
-    log_start()
     log_config()
     auto_edu = AutoEdu()
 

@@ -19,6 +19,7 @@ Last Modified: 2025-08-20
 Version: 1.0.0
 """
 
+from datetime import datetime
 import logging
 import logging.config
 import os
@@ -26,7 +27,6 @@ import os
 log_dir = os.path.join(os.getcwd(), "logs")
 os.makedirs(log_dir, exist_ok=True)
 
-from datetime import datetime
 
 LOG_CONFIG = {
     "version": 1,
@@ -98,3 +98,6 @@ def log_end():
     """
 
     logger.info("=========== End AutoEdu [%s] =========", get_timestamp())
+
+
+log_start()

@@ -69,7 +69,9 @@ class MainPage:
                 or "No server is available" in body_text
             ):
                 logger.error("Error: %s at %s", body_text, url)
-                logger.info("Shutting down browser driver and terminating AutoEdu session.")
+                logger.info(
+                    "Shutting down browser driver and terminating AutoEdu session."
+                )
                 driver.quit()
                 exit()
             else:
