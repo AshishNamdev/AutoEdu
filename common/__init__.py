@@ -17,6 +17,8 @@ Functions:
     - login_user(): login user to the specified portal.
 """
 
+from datetime import datetime
+
 from common.driver import driver
 from common.logger import logger
 
@@ -38,3 +40,20 @@ def launch_browser(url):
 
     driver.get(url)
     driver.maximize_window()
+
+
+def get_timestamp(format="%d-%m-%Y - %I:%M:%S%p"):
+    """
+    Returns the current timestamp formatted for log entries.
+
+    Format:
+        DD-MM-YYYY - HH:MMAM/PM (e.g., "20-08-2025 - 03:45PM")
+
+    Returns:
+        str: A string representing the current date and time.
+    """
+    return (
+        datetime.now().strftime(format)
+        if format
+        else datetime.now().strftime("%Y%m%d_%H%M%S")
+    )

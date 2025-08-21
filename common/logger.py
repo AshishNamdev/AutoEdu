@@ -19,10 +19,11 @@ Last Modified: 2025-08-20
 Version: 1.0.0
 """
 
-from datetime import datetime
 import logging
 import logging.config
 import os
+
+from common import get_timestamp
 
 log_dir = os.path.join(os.getcwd(), "logs")
 os.makedirs(log_dir, exist_ok=True)
@@ -54,20 +55,6 @@ LOG_CONFIG = {
 
 logging.config.dictConfig(LOG_CONFIG)
 logger = logging.getLogger("auto_edu")
-
-
-def get_timestamp():
-    """
-    Returns the current timestamp formatted for log entries.
-
-    Format:
-        DD-MM-YYYY - HH:MMAM/PM (e.g., "20-08-2025 - 03:45PM")
-
-    Returns:
-        str: A string representing the current date and time.
-    """
-
-    return datetime.now().strftime("%d-%m-%Y - %I:%M:%Sp")
 
 
 def log_start():
