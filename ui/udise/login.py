@@ -41,11 +41,10 @@ Version: 1.0.0
 
 import time
 
-from common.logger import logger
-from utils.utils import wait_and_click, wait_and_find_element
-from ui.locators.udise import StudentLoginLocator
-
 from common.driver import driver
+from common.logger import logger
+from ui.locators.udise import StudentLoginLocator
+from utils.utils import wait_and_click, wait_and_find_element
 
 
 class StudentLogin:
@@ -91,18 +90,18 @@ class StudentLogin:
         """
 
         logger.info("Starting login to UDISE Student Module")
+        locators = [
+            (username, StudentLoginLocator.PASSWORD),
+            (password, StudentLoginLocator.PASSWORD),
+        ]
 
         for attempt in range(1, max_attempts + 1):
             logger.info(f"Login attempt {attempt}/{max_attempts}")
-
             # Fill credentials
-            elem = wait_and_find_element(StudentLoginLocator.USERNAME)
-            elem.clear()
-            elem.send_keys(username)
-
-            elem = wait_and_find_element(StudentLoginLocator.PASSWORD)
-            elem.clear()
-            elem.send_keys(password)
+            for value, locator in locators:
+                elem = wait_and_find_element(locator)
+                elem.clear()
+                elem.send_keys(value)
 
             wait_and_click(StudentLoginLocator.CAPTCHA)
 
