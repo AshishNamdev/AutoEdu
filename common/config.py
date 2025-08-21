@@ -8,7 +8,7 @@ like timeout and retry behavior.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-08-18
+Last Modified: 2025-08-21
 
 Version: 1.0.0
 
@@ -30,7 +30,8 @@ import os
 from .logger import logger
 
 # Path to the config file
-CONFIG_PATH = os.path.join(os.path.dirname(__file__), "conf.json")
+CONFIG_PATH = os.path.join(os.getcwd(), "conf.json")
+
 
 # Load JSON config
 with open(CONFIG_PATH, "r") as f:
