@@ -12,12 +12,13 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-08-20
+Last Modified: 2025-08-22
 
 Version: 1.0.0
 """
 
 from selenium.webdriver.common.by import By
+
 from ui.selectors.udise import StudentImportSelector, StudentLoginSelector
 
 
@@ -92,3 +93,4 @@ class StudentImportLocator:
     STUDENT_PEN = (By.ID, StudentImportSelector.STUDENT_PEN_ID)
     DOB = (By.ID, StudentImportSelector.DOB_ID)
     IMPORT_GO_BUTTON = (By.XPATH, StudentImportSelector.IMPORT_GO_BUTTON_XPATH)
+    DOB_MISMATCH_MESSAGE = (By.XPATH, StudentImportSelector.DOB_MISMATCH_MESSAGE_XPATH)

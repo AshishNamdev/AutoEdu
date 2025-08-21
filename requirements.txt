@@ -5,3 +5,4 @@ isort
 black
 autoflake
 dotenv
+python-dateutil

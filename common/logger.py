@@ -14,16 +14,16 @@ Attributes:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-08-20
+Last Modified: 2025-08-22
 
-Version: 1.0.0
+Version: 1.0.1
 """
 
 import logging
 import logging.config
 import os
 
-from common import get_timestamp
+from common.time_utils import get_timestamp
 
 log_dir = os.path.join(os.getcwd(), "logs")
 os.makedirs(log_dir, exist_ok=True)
@@ -69,7 +69,10 @@ def log_start():
         - logger.info() to write the entry to the shared log file.
     """
 
-    logger.info("=========== Starting AutoEdu [%s] =========", get_timestamp())
+    logger.info(
+        "=========== Starting AutoEdu [%s] =========",
+        get_timestamp(format="%d-%m-%Y - %I:%M:%S %p"),
+    )
 
 
 def log_end():
@@ -84,7 +87,10 @@ def log_end():
         - logger.info() to write the entry to the shared log file.
     """
 
-    logger.info("=========== End AutoEdu [%s] =========", get_timestamp())
+    logger.info(
+        "=========== End AutoEdu [%s] =========",
+        get_timestamp(format="%d-%m-%Y - %I:%M:%S %p"),
+    )
 
 
 log_start()

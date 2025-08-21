@@ -12,7 +12,7 @@ These selectors serve as constants for building reliable and maintainable automa
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-08-19
+Last Modified: 2025-08-22
 
 Version: 1.0.0
 """
@@ -114,6 +114,7 @@ class StudentImportSelector:
     IN_STATE_IMPORT_XPATH = "//ul/li[1]/div/button"
     OUT_STATE_IMPORT_XPATH = "//ul/li[2]/div/button"
     IMPORT_GO_BUTTON_XPATH = "//div[@class='col-lg-8']/ul/li[3]/button"
+    DOB_MISMATCH_MESSAGE_XPATH = "//div[@role=dialog']/h2"
 
     # ID selectors
     STUDENT_PEN_ID = "mat-input-0"

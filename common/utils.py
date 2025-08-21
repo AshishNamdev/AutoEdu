@@ -7,9 +7,9 @@ and perform robust clicking actions with retry logic.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-08-18
+Last Modified: 2025-08-22
 
-Version: 1.0.0
+Version: 1.0.1
 
 Functions:
     - wait_and_find_element(locator): Waits for a single clickable element.
@@ -17,8 +17,11 @@ Functions:
     - wait_and_click(locator, retries): Scrolls to and clicks an element with retry fallback.
 """
 
+import os
+import shutil
 import time
 
+from dateutil import parser
 from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
@@ -26,6 +29,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from common.config import TIMEOUT
 from common.driver import driver
+from common.logger import logger
+from common.time_utils import get_timestamp
 
 
 def wait_and_click(locator, retries=2):
@@ -117,3 +122,57 @@ def wait_and_find_elements(locator):
         EC.presence_of_all_elements_located(locator)
     )
     return elements
+
+
+def backup_file(src_path, backup_dir="backup"):
+    """
+    Creates a timestamped backup of the given file in the specified
+    backup directory.
+
+    Args:
+        src_path (str): Path to the source file to back up.
+        backup_dir (str): Directory where the backup will be stored.
+                            Defaults to 'backup'.
+
+    Returns:
+        str: Full path to the created backup file.
+
+    Raises:
+        IOError: If backup fails due to permission or disk issues.
+    """
+    if not os.path.isfile(src_path):
+        logger.debug("Source file not found: %s", src_path)
+        return
+
+    os.makedirs(backup_dir, exist_ok=True)
+
+    base_name = os.path.basename(src_path)
+    name, ext = os.path.splitext(base_name)
+    timestamp = get_timestamp()  # Includes microseconds
+    backup_name = f"{name}_{timestamp}{ext}"
+    backup_path = os.path.join(backup_dir, backup_name)
+
+    logger.info("%s --> %s", src_path, backup_path)
+    shutil.copy2(src_path, backup_path)  # Preserves metadata
+    return backup_path
+
+
+def convert_to_ddmmyyyy(date_str):
+    """
+    Converts a date string in any recognizable format to DD/MM/YYYY.
+
+    Args:
+        date_str (str): Input date string
+                        (e.g., "2025-08-21", "21st Aug 2025", "08/21/2025").
+
+    Returns:
+        str: Date formatted as "DD/MM/YYYY".
+
+    Raises:
+        ValueError: If the input cannot be parsed into a valid date.
+    """
+    try:
+        parsed_date = parser.parse(date_str, dayfirst=False)
+        return parsed_date.strftime("%d/%m/%Y")
+    except (ValueError, TypeError) as e:
+        raise ValueError(f"Invalid date format: {date_str}") from e

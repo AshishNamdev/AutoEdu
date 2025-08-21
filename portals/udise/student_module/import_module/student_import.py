@@ -13,20 +13,19 @@ Features:
 Usage:
     Instantiate `StudentImport` and call `init_student_import()` to begin the import process.
 
-Author:
-    Govt. — Automation Architect for Educational Platforms
-
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-08-20
+Last Modified: 2025-08-22
 
 Version: 1.0.0
 """
 
-from ui.udise.student_import import StudentImportUI
+from common.config import PASSWORD, USERNAME
+from portals.udise import Student
 from ui.udise.login import StudentLogin
-from common.config import USERNAME, PASSWORD
+from ui.udise.student_import import StudentImportUI
+from utils.parser import StudentImportDataParser
 
 
 class StudentImport:
@@ -50,6 +49,7 @@ class StudentImport:
         """
         StudentLogin().student_login(USERNAME, PASSWORD, max_attempts=3)
         self.import_ui = StudentImportUI()
+        self.student = None
 
     def init_student_import(self):
         """
@@ -60,10 +60,20 @@ class StudentImport:
         """
         self.import_ui.select_import_options()
 
-    def import_student(self):
+        data_parser = StudentImportDataParser()
+        data_parser.parse_data()
+        parsed_import_data = data_parser.get_parsed_import_data()
+
+        for pen_no, student_data in parsed_import_data.items():
+            student = Student(pen_no, student_data)
+            self.import_ui.import_student(pen_no, student.get_dob())
+            self.check_status()
+
+    def check_status(self):
         """
         Execute the student import logic.
 
         Placeholder for future implementation of data ingestion, validation,
         and exception handling during the import process.
         """
+        self.import_ui.get_ui_dob_status()

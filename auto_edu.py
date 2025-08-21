@@ -26,7 +26,7 @@ Example:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-20
-Last Modified: 2025-08-20
+Last Modified: 2025-08-22
 
 Version: 1.0.0
 """
@@ -95,7 +95,7 @@ class AutoEdu:
 
 
 if __name__ == "__main__":
-    log_config()
+    log_config(logger)
     auto_edu = AutoEdu()
 
     try:

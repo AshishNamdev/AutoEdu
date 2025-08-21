@@ -8,9 +8,9 @@ like timeout and retry behavior.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-08-21
+Last Modified: 2025-08-22
 
-Version: 1.0.0
+Version: 1.0.1
 
 Attributes:
     USERNAME (str): Login username.
@@ -26,8 +26,6 @@ Attributes:
 
 import json
 import os
-
-from .logger import logger
 
 # Path to the config file
 CONFIG_PATH = os.path.join(os.getcwd(), "conf.json")
@@ -57,14 +55,14 @@ else:
 
 # Options
 TIMEOUT = _config["OPTIONS"]["timeout"]
-TIME_DELAY = _config["OPTIONS"]["time_delay"]
+TIME_DELAY = float(_config["OPTIONS"]["time_delay"])
 VERIFY_SSL = _config["OPTIONS"]["verify_ssl"]
 RETRIES = _config["OPTIONS"]["retries"]
 VERIFY_SSL = _config["OPTIONS"]["verify_ssl"]
 RETRIES = _config["OPTIONS"]["retries"]
 
 
-def log_config():
+def log_config(logger):
     """
     Logs key configuration parameters used in the automation suite.
 
