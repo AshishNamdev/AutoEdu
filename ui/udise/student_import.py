@@ -23,11 +23,12 @@ Version: 1.0.0
 
 import time
 
-from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import Select
 
 from common.config import TIME_DELAY
+from common.driver import driver
 from common.logger import logger
-from common.utils import wait_and_click, wait_and_find_element
+from common.utils import wait_and_click, wait_and_find_element, wait_for_first_match
 from ui import fill_fields
 from ui.locators.udise import StudentImportLocator
 
@@ -110,14 +111,72 @@ class StudentImportUI:
         except Exception as e:
             logger.error("Unexpected error during student import: %s", e)
 
+    def submit_import_data(self, student_class, section, doa):
+        """
+        Fills and submits the student import form with specified class,
+        section, and date of admission.
+
+        Parameters:
+            student_class (str): The class value to select from the dropdown.
+            section (str): The section value to select from the dropdown.
+            doa (str): Date of admission in the expected input format
+                        (e.g., 'DD/MM/YYYY').
+
+        Workflow:
+            - Selects the appropriate class and section from
+                dropdowns using `select_by_value`.
+            - Clears and inputs the date of admission into the
+                corresponding field.
+            - Clicks the import button to submit the form.
+
+        Assumes:
+            - All locators are defined in `StudentImportLocator`.
+            - `wait_and_find_element()` and `wait_and_click()` are
+                utility functions that handle element presence and interaction.
+        """
+
+        field_data = [
+            (student_class, StudentImportLocator.SELECT_CLASS),
+            (section, StudentImportLocator.SELECT_SECTION),
+        ]
+        for value, locator in field_data:
+            Select(wait_and_find_element(locator)).select_by_value(value)
+
+        elem = wait_and_find_element(StudentImportLocator.DOA)
+        elem.clear()
+        elem.send_keys(doa)
+        wait_and_click(StudentImportLocator.IMPORT_BUTTON)
+
+    def get_pen_status(self):
+        """
+        Determines the outcome of the student import flow by waiting
+        for either a DOB mismatch error or a successful status indicator.
+
+        This method uses a shared timeout to monitor both possible UI outcomes:
+        - If the DOB mismatch message appears, it returns 'dob_error'.
+        - If the student status element appears, it returns 'success'.
+        - If neither appears within the timeout, it returns 'none'.
+
+        Returns:
+            str: One of 'dob_error', 'success', or 'none'
+                    based on which UI element appears first.
+        """
+        return wait_for_first_match(
+            locators={
+                "dob_error": StudentImportLocator.DOB_MISMATCH_MESSAGE,
+                "success": StudentImportLocator.STUDENT_STATUS,
+            },
+            timeout=12,
+        )
+
     def get_ui_dob_status(self):
         """
         Retrieves the DOB mismatch status message from the UI.
 
         This method locates the DOM element associated with the DOB mismatch
-        alert and extracts its inner HTML content. Used to verify whether the entered
-        date of birth matches the expected value during
-        student import validation.
+        alert and extracts its inner HTML content.
+        Used to verify whether the entered date of birth matches the
+        expected value during student import validation.
 
         Returns:
             str: The inner HTML content of the DOB mismatch message element.
@@ -126,11 +185,36 @@ class StudentImportUI:
             NoSuchElementException: If the locator is not found on the page.
             WebDriverException: For general Selenium interaction failures.
         """
-        status = None
+        return driver.find_element(
+            *StudentImportLocator.DOB_MISMATCH_MESSAGE
+        ).get_attribute("innerHTML")
+
+    def get_student_status(self):
+        """
+        Detects the student's import eligibility status based
+        on UI color-coded indicators.
+
+        Returns:
+            str: One of the following status strings:
+                - 'active_for_import' if greenBack container is found
+                - 'active_elsewhere' if redBack container is found
+                - 'unknown' if no status container is detected
+        """
+        status = {
+            "greenBack": "Dropbox-End Session (Due to Progression/TC- Active for Import/Status Not Known)",
+            "redBack": "active",
+        }
         try:
-            status = wait_and_find_element(
-                StudentImportLocator.DOB_MISMATCH_MESSAGE
-            ).get_attribute("innerHTML")
-        except TimeoutException as e:
-            logger.error("Unexpected error during student import: %s", e)
-        return status
+            status_element = wait_and_find_element(
+                StudentImportLocator.STUDENT_STATUS
+            )
+            class_name = status_element.get_attribute("class") or ""
+            if "greenBack" in class_name:
+                return status["greenBack"]
+            elif "redBack" in class_name:
+                return status["redBack"]
+            else:
+                return "unknown"
+        except Exception as e:
+            logger.error("%s", str(e))
+            return "unknown"

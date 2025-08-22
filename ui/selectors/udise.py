@@ -12,7 +12,7 @@ These selectors serve as constants for building reliable and maintainable automa
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-08-22
+Last Modified: 2025-08-23
 
 Version: 1.0.0
 """
@@ -67,7 +67,8 @@ class StudentLoginSelector:
 
 class StudentImportSelector:
     """
-    A centralized repository of UI selectors for the UDISE Student Import module.
+    A centralized repository of UI selectors for the
+    UDISE Student Import module.
 
     Attributes:
     -----------
@@ -108,14 +109,20 @@ class StudentImportSelector:
     # MOVEMENT_PROGRESSION_XPATH = '//*[@id="collapseList"]/span'
     MOVEMENT_PROGRESSION_XPATH = "//div/ul/li[9]/div/div/h2/button/span"
     IMPORT_OPTION_XPATH = '//*[@id="flush-collapseOne2"]/div/ul/li[2]/span'
-    FILE_UPLOAD_XPATH = "//input[@type='file']"
-    SUBMIT_BUTTON_XPATH = "//button[@id='submitImport']"
     STATUS_MESSAGE_XPATH = "//div[@class='status-message']"
     IN_STATE_IMPORT_XPATH = "//ul/li[1]/div/button"
     OUT_STATE_IMPORT_XPATH = "//ul/li[2]/div/button"
     IMPORT_GO_BUTTON_XPATH = "//div[@class='col-lg-8']/ul/li[3]/button"
     DOB_MISMATCH_MESSAGE_XPATH = "//div[@role=dialog']/h2"
+    # XPath that matches either greenBack or redBack status container
+    STUDENT_STATUS_XPATH = (
+        "//*[contains(@class, 'greenBack') or contains(@class, 'redBack')]"
+    )
+    SELECT_CLASS_XPATH = "//ul[@class='existingSchool1']/li[1]/div/select"
+    SELECT_SECTION_XPATH = "//ul[@class='existingSchool1']/li[2]/div/ui/li[1]/select"
+    IMPORT_BUTTON_XPATH = "//ul[@class='existingSchool1']/li[4]/button"
 
     # ID selectors
     STUDENT_PEN_ID = "mat-input-0"
     DOB_ID = "mat-input-1"
+    DOA_ID = "mat-input-4"

@@ -7,7 +7,7 @@ and perform robust clicking actions with retry logic.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-08-22
+Last Modified: 2025-08-23
 
 Version: 1.0.1
 
@@ -22,7 +22,11 @@ import shutil
 import time
 
 from dateutil import parser
-from selenium.common.exceptions import ElementClickInterceptedException
+from selenium.common.exceptions import (
+    ElementClickInterceptedException,
+    NoSuchElementException,
+    StaleElementReferenceException,
+)
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -122,6 +126,31 @@ def wait_and_find_elements(locator):
         EC.presence_of_all_elements_located(locator)
     )
     return elements
+
+
+def wait_for_first_match(locators, timeout=10):
+    """
+    Waits for the first matching element among multiple locators.
+
+    Args:
+        locators (dict): Dictionary with keys as labels and
+                            values as locator tuples.
+        timeout (int): Maximum time to wait for any locator to appear.
+
+    Returns:
+        str: The key of the locator that appeared first, or
+                'none' if none appeared.
+    """
+    end_time = time.time() + timeout
+    while time.time() < end_time:
+        for key, locator in locators.items():
+            try:
+                if driver.find_element(*locator).is_displayed():
+                    return key
+            except (NoSuchElementException, StaleElementReferenceException):
+                continue
+        time.sleep(0.5)
+    return "none"
 
 
 def backup_file(src_path, backup_dir="backup"):

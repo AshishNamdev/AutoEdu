@@ -85,7 +85,7 @@ class StudentImportDataParser:
         self.import_data = import_data
         self.save_parsed_data_json()
 
-    def get_parsed_import_data(self):
+    def get_import_data(self):
         """
         Returns the parsed student import data.
 

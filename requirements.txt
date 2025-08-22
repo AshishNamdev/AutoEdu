@@ -6,3 +6,6 @@ black
 autoflake
 dotenv
 python-dateutil
+pandas
+pathlib
+typing

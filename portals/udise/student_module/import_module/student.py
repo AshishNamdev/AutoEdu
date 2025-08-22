@@ -14,7 +14,7 @@ Classes:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-21
-Last Modified: 2025-08-22
+Last Modified: 2025-08-23
 
 Version: 1.0.1
 """
@@ -55,7 +55,7 @@ class Student:
             str: Class level (e.g., "9", "12").
         """
 
-        return self.import_data["CLASS"]
+        return self.import_data["class"]
 
     def get_section(self):
         """
@@ -65,7 +65,17 @@ class Student:
             str: Section name (e.g., "A", "C").
         """
 
-        return self.import_data["SECTION"]
+        return self.import_data["section"]
+
+    def get_admission_date(self):
+        """
+        Returns the date of admission of the student.
+
+        Returns:
+            str: Date of birth in DD/MM/YYYY format.
+        """
+
+        return convert_to_ddmmyyyy(self.import_data["admission_date"])
 
     def get_name(self):
         """
@@ -75,7 +85,7 @@ class Student:
             str: Student's name.
         """
 
-        return self.import_data["STUDENT_NAME"]
+        return self.import_data["student_name"]
 
     def get_father_name(self):
         """
@@ -85,7 +95,7 @@ class Student:
             str: Father's name.
         """
 
-        return self.import_data["FATHER_NAME"]
+        return self.import_data["father_name"]
 
     def get_mother_name(self):
         """
@@ -95,7 +105,7 @@ class Student:
             str: Mother's name.
         """
 
-        return self.import_data["MOTHER_NAME"]
+        return self.import_data["mother_name"]
 
     def get_dob(self):
         """
@@ -105,7 +115,7 @@ class Student:
             str: Date of birth in DD/MM/YYYY format.
         """
 
-        return convert_to_ddmmyyyy(self.import_data["DOB"])
+        return convert_to_ddmmyyyy(self.import_data["dob"])
 
     def get_adhaar_name(self):
         """
@@ -115,7 +125,7 @@ class Student:
             str: Aadhaar name (may be empty if not available).
         """
 
-        return self.import_data["ADHAAR_NAME"]
+        return self.import_data["adhaar_name"]
 
     def get_adhaar_dob(self):
         """
@@ -125,7 +135,7 @@ class Student:
             str: Aadhaar DOB (may be empty if not available).
         """
 
-        return convert_to_ddmmyyyy(self.import_data["ADHAAR_DOB"])
+        return convert_to_ddmmyyyy(self.import_data["adhaar_dob"])
 
     def get_adhaar_last_digits(self):
         """
@@ -135,4 +145,4 @@ class Student:
             str: Last four digits of Aadhaar.
         """
 
-        return self.import_data["ADHAAR_LAST_4_DIGITS"]
+        return self.import_data["addhar_last_4_digits"]

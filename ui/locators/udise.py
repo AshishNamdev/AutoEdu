@@ -12,7 +12,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-08-22
+Last Modified: 2025-08-23
 
 Version: 1.0.0
 """
@@ -71,8 +71,9 @@ class StudentImportLocator:
     """
     Locator definitions for the UDISE Student Import UI module.
 
-    This class provides static tuples that map UI elements to their corresponding
-    XPath selectors, enabling automated interaction with the Student Import interface.
+    This class provides static tuples that map UI elements to their
+    corresponding XPath selectors, enabling automated interaction with
+    the Student Import interface.
 
     Attributes:
     -----------
@@ -94,3 +95,8 @@ class StudentImportLocator:
     DOB = (By.ID, StudentImportSelector.DOB_ID)
     IMPORT_GO_BUTTON = (By.XPATH, StudentImportSelector.IMPORT_GO_BUTTON_XPATH)
     DOB_MISMATCH_MESSAGE = (By.XPATH, StudentImportSelector.DOB_MISMATCH_MESSAGE_XPATH)
+    STUDENT_STATUS = (By.XPATH, StudentImportSelector.STUDENT_STATUS_XPATH)
+    SELECT_CLASS = (By.XPATH, StudentImportSelector.SELECT_CLASS_XPATH)
+    SELECT_SECTION = (By.XPATH, StudentImportSelector.SELECT_SECTION_XPATH)
+    DOA = (By.ID, StudentImportSelector.DOA_ID)
+    IMPORT_BUTTON = (By.XPATH, StudentImportSelector.IMPORT_BUTTON_XPATH)
