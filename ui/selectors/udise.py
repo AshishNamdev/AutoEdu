@@ -120,9 +120,12 @@ class StudentImportSelector:
     )
     SELECT_CLASS_XPATH = "//ul[@class='existingSchool1']/li[1]/div/select"
     SELECT_SECTION_XPATH = "//ul[@class='existingSchool1']/li[2]/div/ui/li[1]/select"
+
     IMPORT_BUTTON_XPATH = "//ul[@class='existingSchool1']/li[4]/button"
+    IMPORT_CONFIRM_BUTTON_XPATH = "//div[@role='dialog']/div[4]/button[3]"
 
     # ID selectors
     STUDENT_PEN_ID = "mat-input-0"
     DOB_ID = "mat-input-1"
     DOA_ID = "mat-input-4"
+    IMPORT_SUCCES_MESSAGE_ID = "swal2-title"

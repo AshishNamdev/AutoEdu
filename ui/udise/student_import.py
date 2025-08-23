@@ -16,7 +16,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-08-22
+Last Modified: 2025-08-23
 
 Version: 1.0.0
 """
@@ -25,7 +25,7 @@ import time
 
 from selenium.webdriver.support.ui import Select
 
-from common.config import TIME_DELAY
+from common.config import SECTIONS, TIME_DELAY
 from common.driver import driver
 from common.logger import logger
 from common.utils import wait_and_click, wait_and_find_element, wait_for_first_match
@@ -128,6 +128,7 @@ class StudentImportUI:
             - Clears and inputs the date of admission into the
                 corresponding field.
             - Clicks the import button to submit the form.
+            - Clicks the Confirm button to import student.
 
         Assumes:
             - All locators are defined in `StudentImportLocator`.
@@ -137,7 +138,7 @@ class StudentImportUI:
 
         field_data = [
             (student_class, StudentImportLocator.SELECT_CLASS),
-            (section, StudentImportLocator.SELECT_SECTION),
+            (SECTIONS[section], StudentImportLocator.SELECT_SECTION),
         ]
         for value, locator in field_data:
             Select(wait_and_find_element(locator)).select_by_value(value)
@@ -145,7 +146,57 @@ class StudentImportUI:
         elem = wait_and_find_element(StudentImportLocator.DOA)
         elem.clear()
         elem.send_keys(doa)
+
+        self.confirm_student_import()
+
+    def confirm_student_import(self):
+        """
+        Automates the student import workflow by sequentially triggering
+        the import, confirming the action, and acknowledging the success
+        message.
+
+        Steps:
+            1. Clicks the 'Import' button to initiate the student data import.
+            2. Clicks the confirmation button to proceed with the import.
+            3. Clicks the success message dialog to finalize the flow.
+
+        Raises:
+            TimeoutException: If any of the expected elements are not found
+                                within the wait period.
+            ElementClickInterceptedException: If an element is obstructed
+                                or not clickable.
+
+        Note:
+            Ensure that the StudentImportLocator selectors are correctly
+            defined and visible before invoking this method.
+        """
+
         wait_and_click(StudentImportLocator.IMPORT_BUTTON)
+        wait_and_click(StudentImportLocator.IMPORT_CONFIRM_BUTTON)
+        wait_and_click(StudentImportLocator.IMPORT_SUCCES_MESSAGE)
+
+    def get_import_message(self):
+        """
+        Retrieves the inner HTML content of the student import success
+        message element.
+
+        Returns:
+            str: The HTML string contained within the success message element.
+
+        Raises:
+            TimeoutException: If the success message element is not found
+                                within the wait period.
+            AttributeError: If the element does not support
+                                'get_dom_attribute'.
+
+        Note:
+            This method assumes that the import flow has already been
+            completed and the success message is visible in the DOM.
+        """
+
+        return wait_and_find_element(
+            StudentImportLocator.IMPORT_SUCCES_MESSAGE
+        ).get_dom_attribute("innerHTML")
 
     def get_pen_status(self):
         """
@@ -201,13 +252,15 @@ class StudentImportUI:
                 - 'unknown' if no status container is detected
         """
         status = {
-            "greenBack": "Dropbox-End Session (Due to Progression/TC- Active for Import/Status Not Known)",
+            "greenBack": (
+                "Dropbox-End Session (Due to Progression/TC- "
+                "Active for Import / Status Not Known)"
+            ),
             "redBack": "active",
         }
+
         try:
-            status_element = wait_and_find_element(
-                StudentImportLocator.STUDENT_STATUS
-            )
+            status_element = wait_and_find_element(StudentImportLocator.STUDENT_STATUS)
             class_name = status_element.get_attribute("class") or ""
             if "greenBack" in class_name:
                 return status["greenBack"]

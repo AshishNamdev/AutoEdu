@@ -69,13 +69,18 @@ class Student:
 
     def get_admission_date(self):
         """
-        Returns the date of admission of the student.
+        Retrieves the student's date of admission in DD/MM/YYYY format.
+
+        This method accesses the 'admission_date' field from the imported data.
+        If the field is empty, it returns None. Otherwise, it converts the date
+        to DD/MM/YYYY format using the `convert_to_ddmmyyyy` utility.
 
         Returns:
-            str: Date of birth in DD/MM/YYYY format.
+            Optional[str]: The formatted admission date,
+                            or None if not available.
         """
-
-        return convert_to_ddmmyyyy(self.import_data["admission_date"])
+        doa = self.import_data["admission_date"]
+        return None if doa == "" else convert_to_ddmmyyyy(doa)
 
     def get_name(self):
         """
@@ -129,13 +134,19 @@ class Student:
 
     def get_adhaar_dob(self):
         """
-        Returns the Aadhaar date of birth associated with the student.
+        Retrieves the student's Aadhaar-linked date of birth in DD/MM/YYYY
+        format.
+
+        This method checks the 'adhaar_dob' field from the imported data.
+        If the field is empty, it returns None. Otherwise, it converts the date
+        to DD/MM/YYYY format using the `convert_to_ddmmyyyy` utility.
 
         Returns:
-            str: Aadhaar DOB (may be empty if not available).
+            Optional[str]: The formatted Aadhaar date of birth,
+                            or None if not available.
         """
-
-        return convert_to_ddmmyyyy(self.import_data["adhaar_dob"])
+        adhaar_dob = self.import_data["adhaar_dob"]
+        return None if adhaar_dob == "" else convert_to_ddmmyyyy(adhaar_dob)
 
     def get_adhaar_last_digits(self):
         """

@@ -29,6 +29,7 @@ from portals.udise import Student
 from ui.udise.login import StudentLogin
 from ui.udise.student_import import StudentImportUI
 from utils.parser import StudentImportDataParser
+from utils.report import save_student_import_report
 
 
 class StudentImport:
@@ -54,6 +55,24 @@ class StudentImport:
         StudentLogin().student_login(USERNAME, PASSWORD, max_attempts=3)
         self.import_ui = StudentImportUI()
         self.student = None
+        self.import_data = self.prepare_import_data()
+        self.relase_request = {}
+        self.import_report = {}
+
+    def prepare_import_data(self):
+        """
+        Prepares and retrieves student import data.
+
+        This method initializes a StudentImportDataParser instance,
+        parses the input data, and returns the structured import data
+        ready for further processing or storage.
+
+        Returns:
+            dict: A dictionary containing parsed student import data.
+        """
+        data_parser = StudentImportDataParser()
+        data_parser.parse_data()
+        return data_parser.get_import_data()
 
     def init_student_import(self):
         """
@@ -63,66 +82,107 @@ class StudentImport:
         prepare the portal for data ingestion.
         This method serves as the entry point for the import process.
         """
-
         self.import_ui.select_import_options()
-        data_parser = StudentImportDataParser()
-        data_parser.parse_data()
-        import_data = data_parser.get_import_data()
+        self.import_students()
+        save_student_import_report(self.import_data)
 
-        self.import_students(import_data.items())
-
-    def import_students(self, import_data_itmes):
+    def import_students(self):
         """
         Imports a batch of students by validating their DOB and determining
         import eligibility.
 
         For each student:
         - Attempts import using the primary DOB.
-        - If a DOB mismatch occurs, retries using Aadhaar DOB.
-        - Determines the student's status via UI feedback.
-        - If the student is already active elsewhere, releases the request.
+        - If the student is already active elsewhere, raie the releases
+            request.
         - Otherwise, fills in import details such as class, section,
             and admission date.
-
-        Args:
-            import_data_itmes (Iterable[Tuple[str, dict]]): An iterable of
-                                                (pen_no, student_data) pairs
-            where `pen_no` is the student's unique identifier and
-            `student_data` contains metadata required for import and validation
 
         Side Effects:
             - Logs status messages for each student.
             - Triggers UI operations for import, release, or detail filling.
         """
-        ui = self.import_ui
-        for pen_no, student_data in import_data_itmes:
+        for pen_no, student_data in self.import_data.items():
             student = Student(pen_no, student_data)
-            student_dob = student.get_dob()
-            status = ""
-            for _ in range(2):
-                ui.import_student(pen_no, student_dob)
-                if ui.get_pen_status() == "dob_error":
-                    # if Student DOB Fails try with Adhaar DOB
-                    student_dob = student.get_adhaar_dob()
-                    status = ui.get_ui_dob_status()
-                    logger.info("%s : %s", pen_no, status)
-                else:
-                    status = ui.get_student_status()
-                    logger.info("%s : %s", pen_no, status)
-                    break
+            status = self.try_import_student(pen_no, student)
+            logger.info("%s : %s", pen_no, status)
+
             if status == "active":
-                self.release_request()
+                self.raise_release_request()
             else:
                 self.fill_import_details(
                     student.get_class(),
                     student.get_section(),
                     student.get_admission_date(),
                 )
+                status = self.import_ui.get_import_message()
+                logger.info("%s : %s", pen_no, status)
+                student_data["Remark"] = status
+                self.import_data[pen_no] = student_data
+
+    def try_import_student(self, pen_no, student):
+        """
+        Attempts to import a student using PEN no. and Aadhaar DOB.
+        Updates remark in import_data if Aadhaar DOB is missing.
+
+        - If a DOB mismatch occurs, retries using Aadhaar DOB.
+        - Determines the student's status via UI feedback.
+
+        Returns:
+            status (str): Final status after import attempt.
+        """
+        ui = self.import_ui
+        student_dob = student.get_dob()
+
+        for _ in range(2):
+            ui.import_student(pen_no, student_dob)
+            if ui.get_pen_status() == "dob_error":
+                status = ui.get_ui_dob_status()
+                logger.info("%s : %s", pen_no, status)
+
+                student_dob = student.get_adhaar_dob()
+                if student_dob is None:
+                    remark = "Aadhaar date of birth not available"
+                    logger.info("%s : %s", pen_no, remark)
+                    self.import_data[pen_no]["Remark"] = remark
+                    return "dob_error"
+            else:
+                status = ui.get_student_status()
+                logger.info("%s : %s", pen_no, status)
+                return status
+
+        return "dob_error"
 
     def fill_import_details(self, student_class, section, doa):
-        pass
+        """
+        Fills and submits the student import form with the provided class,
+        section, and date of admission (DOA), then retrieves the resulting
+        import message.
 
-    def release_request(
-        self,
-    ):
+        Args:
+            student_class (str): The class to which the student is being
+                                assigned.
+            section (str): The section within the class.
+            doa (str): Date of admission in the expected
+                        format (e.g., 'DD-MM-YYYY').
+
+        Returns:
+            str: The import success or error message retrieved from the UI.
+
+        Raises:
+            TimeoutException: If any required UI element is not found
+                                within the wait period.
+            Exception: For unexpected failures during form submission
+                                or message retrieval.
+
+        Note:
+            This method assumes that the import UI is already initialized
+            and visible. It does not perform validation on the input values.
+        """
+
+        ui = self.import_ui
+        ui.submit_import_data(student_class, section, doa)
+        ui.get_import_message()
+
+    def raise_release_request(self):
         pass

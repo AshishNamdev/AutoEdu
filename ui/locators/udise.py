@@ -100,3 +100,8 @@ class StudentImportLocator:
     SELECT_SECTION = (By.XPATH, StudentImportSelector.SELECT_SECTION_XPATH)
     DOA = (By.ID, StudentImportSelector.DOA_ID)
     IMPORT_BUTTON = (By.XPATH, StudentImportSelector.IMPORT_BUTTON_XPATH)
+    IMPORT_CONFIRM_BUTTON = (
+        By.XPATH,
+        StudentImportSelector.IMPORT_CONFIRM_BUTTON_XPATH,
+    )
+    IMPORT_SUCCES_MESSAGE = (By.ID, StudentImportSelector.IMPORT_SUCCES_MESSAGE_ID)

@@ -170,7 +170,7 @@ def backup_file(src_path, backup_dir="backup"):
         IOError: If backup fails due to permission or disk issues.
     """
     if not os.path.isfile(src_path):
-        logger.debug("Source file not found: %s", src_path)
+        logger.error("Source file not found: %s", src_path)
         return
 
     os.makedirs(backup_dir, exist_ok=True)
