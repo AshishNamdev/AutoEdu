@@ -19,11 +19,12 @@ need to be preserved and exported for audit or review.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-23
-Last Modified: 2025-08-23
+Last Modified: 2025-08-25
 
 Version: 1.0.1
 """
 
+import json
 import os
 
 import pandas as pd
@@ -53,16 +54,30 @@ def save_student_import_report(import_data):
         "Father Name",
         "Mother Name",
         "DOB",
+        "Admission Date",
         "Adhaar No.",
         "Adhaar Name",
-        "Adhaar DOB" "Remark",
+        "Adhaar DOB",
+        "Remark",
     ]
 
-    report_file = os.path.join(os.getcwd(), "udise_student_import_report.xlsx")
+    report_dir = os.path.join(os.getcwd(), "reports")
+    if not os.path.exists(report_dir):
+        os.makedirs(report_dir, exist_ok=True)
 
-    if os.path.exists(report_file):
+    report_json_file = os.path.join(report_dir, "udise_student_import_report.json")
+    report_file = os.path.join(report_dir, "udise_student_import_report.xlsx")
+
+    if os.path.isfile(report_file):
         backup_file(report_file)
         os.remove(report_file)
+
+    if os.path.isfile(report_json_file):
+        backup_file(report_json_file, report_dir)
+        os.remove(report_file)
+
+    with open(report_json_file, "w", encoding="utf-8") as f:
+        json.dump(import_data, f, indent=4, ensure_ascii=False)
 
     # Flatten the dictionary into a list of records
     report_rows = []

@@ -12,7 +12,7 @@ These selectors serve as constants for building reliable and maintainable automa
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-08-23
+Last Modified: 2025-08-25
 
 Version: 1.0.0
 """
@@ -113,16 +113,18 @@ class StudentImportSelector:
     IN_STATE_IMPORT_XPATH = "//ul/li[1]/div/button"
     OUT_STATE_IMPORT_XPATH = "//ul/li[2]/div/button"
     IMPORT_GO_BUTTON_XPATH = "//div[@class='col-lg-8']/ul/li[3]/button"
-    DOB_MISMATCH_MESSAGE_XPATH = "//div[@role=dialog']/h2"
+    DOB_MISMATCH_MESSAGE_XPATH = "//div[@role='dialog']/h2"
+    DOB_MISMATCH_OK_BUTTON_XPATH = "//div[@class='swal2-actions']/button[1]"
+
     # XPath that matches either greenBack or redBack status container
     STUDENT_STATUS_XPATH = (
         "//*[contains(@class, 'greenBack') or contains(@class, 'redBack')]"
     )
     SELECT_CLASS_XPATH = "//ul[@class='existingSchool1']/li[1]/div/select"
-    SELECT_SECTION_XPATH = "//ul[@class='existingSchool1']/li[2]/div/ui/li[1]/select"
-
+    SELECT_SECTION_XPATH = "//ul[@class='existingSchool1']/li[2]/div/ul/li[1]/select"
     IMPORT_BUTTON_XPATH = "//ul[@class='existingSchool1']/li[4]/button"
-    IMPORT_CONFIRM_BUTTON_XPATH = "//div[@role='dialog']/div[4]/button[3]"
+    IMPORT_CONFIRM_BUTTON_XPATH = "//div[@class='swal2-actions']/button[3]"
+    IMPORT_OK_BUTTON_XPATH = "//div[@class='swal2-actions']/button[1]"
 
     # ID selectors
     STUDENT_PEN_ID = "mat-input-0"

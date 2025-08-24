@@ -12,7 +12,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-08-23
+Last Modified: 2025-08-25
 
 Version: 1.0.0
 """
@@ -95,6 +95,10 @@ class StudentImportLocator:
     DOB = (By.ID, StudentImportSelector.DOB_ID)
     IMPORT_GO_BUTTON = (By.XPATH, StudentImportSelector.IMPORT_GO_BUTTON_XPATH)
     DOB_MISMATCH_MESSAGE = (By.XPATH, StudentImportSelector.DOB_MISMATCH_MESSAGE_XPATH)
+    DOB_MISMATCH_OK_BUTTON = (
+        By.XPATH,
+        StudentImportSelector.DOB_MISMATCH_OK_BUTTON_XPATH,
+    )
     STUDENT_STATUS = (By.XPATH, StudentImportSelector.STUDENT_STATUS_XPATH)
     SELECT_CLASS = (By.XPATH, StudentImportSelector.SELECT_CLASS_XPATH)
     SELECT_SECTION = (By.XPATH, StudentImportSelector.SELECT_SECTION_XPATH)
@@ -104,4 +108,5 @@ class StudentImportLocator:
         By.XPATH,
         StudentImportSelector.IMPORT_CONFIRM_BUTTON_XPATH,
     )
+    IMPORT_OK_BUTTON = (By.XPATH, StudentImportSelector.IMPORT_OK_BUTTON_XPATH)
     IMPORT_SUCCES_MESSAGE = (By.ID, StudentImportSelector.IMPORT_SUCCES_MESSAGE_ID)

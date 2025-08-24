@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-08-23
+Last Modified: 2025-08-24
 
 Version: 1.0.0
 """
@@ -105,10 +105,14 @@ class StudentImport:
         for pen_no, student_data in self.import_data.items():
             student = Student(pen_no, student_data)
             status = self.try_import_student(pen_no, student)
-            logger.info("%s : %s", pen_no, status)
 
             if status == "active":
                 self.raise_release_request()
+            elif status == "dob_error":
+                logger.warning("%s : Skipping import due to DOB issues", pen_no)
+                student_data["Remark"] = "DOB mismatch - import skipped"
+                self.import_data[pen_no] = student_data
+                continue
             else:
                 self.fill_import_details(
                     student.get_class(),
@@ -138,9 +142,11 @@ class StudentImport:
             ui.import_student(pen_no, student_dob)
             if ui.get_pen_status() == "dob_error":
                 status = ui.get_ui_dob_status()
-                logger.info("%s : %s", pen_no, status)
+                logger.error("%s - %s: %s", pen_no, student_dob, status)
 
                 student_dob = student.get_adhaar_dob()
+                logger.debug("%s - Retrying with Aadhaar DOB: %s", pen_no, student_dob)
+
                 if student_dob is None:
                     remark = "Aadhaar date of birth not available"
                     logger.info("%s : %s", pen_no, remark)
@@ -164,7 +170,7 @@ class StudentImport:
                                 assigned.
             section (str): The section within the class.
             doa (str): Date of admission in the expected
-                        format (e.g., 'DD-MM-YYYY').
+                        format (e.g., 'DD/MM/YYYY').
 
         Returns:
             str: The import success or error message retrieved from the UI.

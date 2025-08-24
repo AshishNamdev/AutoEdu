@@ -14,7 +14,7 @@ Attributes:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-08-22
+Last Modified: 2025-08-25
 
 Version: 1.0.1
 """
@@ -26,8 +26,12 @@ import os
 from common.time_utils import get_timestamp
 
 log_dir = os.path.join(os.getcwd(), "logs")
-os.makedirs(log_dir, exist_ok=True)
 
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir, exist_ok=True)
+
+timestamp = get_timestamp()
+log_file = os.path.join(log_dir, f"auto_edu_{timestamp}.log")
 
 LOG_CONFIG = {
     "version": 1,
@@ -40,17 +44,25 @@ LOG_CONFIG = {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "standard",
-            "level": os.getenv("LOG_LEVEL", "INFO"),
+            "level": "DEBUG",
         },
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
             "formatter": "standard",
-            "filename": os.path.join("logs", "auto_edu.log"),
+            "filename": log_file,
             "maxBytes": 5_242_880,
             "backupCount": 3,
+            "level": "DEBUG",
         },
     },
-    "root": {"handlers": ["console", "file"], "level": os.getenv("LOG_LEVEL", "INFO")},
+    "loggers": {
+        "auto_edu": {
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
+            "propagate": False,
+        }
+    },
+    "root": {"handlers": ["console", "file"], "level": "INFO"},
 }
 
 logging.config.dictConfig(LOG_CONFIG)

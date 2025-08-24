@@ -7,7 +7,7 @@ and perform robust clicking actions with retry logic.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-08-23
+Last Modified: 2025-08-25
 
 Version: 1.0.1
 
@@ -18,6 +18,7 @@ Functions:
 """
 
 import os
+import re
 import shutil
 import time
 
@@ -28,6 +29,9 @@ from selenium.common.exceptions import (
     StaleElementReferenceException,
 )
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -71,7 +75,9 @@ def wait_and_click(locator, retries=2):
             return  # Success
 
         except ElementClickInterceptedException:
-            print(f"[Retry {attempt+1}] Click intercepted. Trying JS click fallback.")
+            logger.info(
+                "[Retry %s]Click intercepted, attempting JS click fallback", attempt + 1
+            )
             try:
                 driver.execute_script("arguments[0].click();", element)
                 return
@@ -101,6 +107,7 @@ def wait_and_find_element(locator):
         TimeoutException: If the element does not become clickable within the timeout.
     """
     elem = WebDriverWait(driver, TIMEOUT).until(EC.element_to_be_clickable(locator))
+    driver.execute_script("arguments[0].scrollIntoView(true);", elem)
     return elem
 
 
@@ -188,20 +195,67 @@ def backup_file(src_path, backup_dir="backup"):
 
 def convert_to_ddmmyyyy(date_str):
     """
-    Converts a date string in any recognizable format to DD/MM/YYYY.
+    Converts a date string to DD/MM/YYYY format, intelligently detecting format.
 
     Args:
-        date_str (str): Input date string
-                        (e.g., "2025-08-21", "21st Aug 2025", "08/21/2025").
+        date_str (str): Input date string.
 
     Returns:
         str: Date formatted as "DD/MM/YYYY".
-
-    Raises:
-        ValueError: If the input cannot be parsed into a valid date.
     """
     try:
-        parsed_date = parser.parse(date_str, dayfirst=False)
+        # Normalize input
+        date_str = date_str.strip().lower()
+        date_str = re.sub(r"(\d+)(st|nd|rd|th)", r"\1", date_str)
+
+        # Match numeric formats like DD/MM/YYYY or MM/DD/YYYY
+        numeric_match = re.match(r"^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$", date_str)
+        if numeric_match:
+            first, second, year = map(int, numeric_match.groups())
+            # If first > 12, it's definitely the day
+            if first > 12:
+                day, month = first, second
+            # If second > 12, it's definitely the month
+            elif second > 12:
+                day, month = second, first
+            else:
+                # Ambiguous: default to DD/MM/YYYY
+                day, month = first, second
+            return f"{day:02d}/{month:02d}/{year}"
+
+        # Fallback to parser with dayfirst=True for natural language
+        parsed_date = parser.parse(date_str, dayfirst=True)
         return parsed_date.strftime("%d/%m/%Y")
-    except (ValueError, TypeError) as e:
+
+    except Exception as e:
         raise ValueError(f"Invalid date format: {date_str}") from e
+
+
+def clear_input(driver: WebDriver, elem: WebElement):
+    """Robustly clears an input field using multiple fallback strategies."""
+    try:
+        # Strategy 1: Try native clear()
+        elem.clear()
+        if elem.get_attribute("value") == "":
+            return
+
+        # Strategy 2: CTRL+A + BACKSPACE
+        elem.click()
+        elem.send_keys(Keys.CONTROL + "a")
+        elem.send_keys(Keys.BACKSPACE)
+        if elem.get_attribute("value") == "":
+            return
+
+        # Strategy 3: CTRL+A + DELETE
+        elem.send_keys(Keys.CONTROL + "a")
+        elem.send_keys(Keys.DELETE)
+        if elem.get_attribute("value") == "":
+            return
+
+        # Strategy 4: JavaScript clear + input event
+        driver.execute_script("arguments[0].value = '';", elem)
+        driver.execute_script("arguments[0].dispatchEvent(new Event('input'));")
+        driver.execute_script("arguments[0].dispatchEvent(new Event('change'));")
+
+    except Exception as e:
+        print(f"Failed to clear input: {e}")

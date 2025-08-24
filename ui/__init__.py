@@ -20,17 +20,19 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-20
-Last Modified: 2025-08-22
+Last Modified: 2025-08-25
 
 Version: 1.0.1
 """
+
+import time
 
 from selenium.common.exceptions import TimeoutException
 
 from common import driver
 from common.config import URL
 from common.logger import logger
-from common.utils import wait_and_find_element
+from common.utils import clear_input, wait_and_find_element
 from ui.locators.common import MainPageLocator
 
 
@@ -100,8 +102,10 @@ def fill_fields(field_data):
             raise ValueError(f"Missing input for locator: {locator}")
         try:
             elem = wait_and_find_element(locator)
-            elem.clear()
+            clear_input(driver, elem)
+            time.sleep(0.1)  # Small delay to ensure field is ready
             elem.send_keys(value)
+            logger.debug("Filled field %s with value: %s", locator, value)
         except Exception as e:
             logger.error("Failed to fill field %s: %s", locator, e)
             raise

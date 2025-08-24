@@ -109,7 +109,7 @@ class StudentLogin:
         ]
 
         for attempt in range(1, max_attempts + 1):
-            logger.info("Login attempt %s/%s", attempt, max_attempts)
+            logger.debug("Login attempt %s/%s", attempt, max_attempts)
             # Fill credentials
             fill_fields(field_data)
 
@@ -164,7 +164,7 @@ class StudentLogin:
         """
 
         wait_and_click(StudentLoginLocator.ACADEMIC_YEAR)
-        logger.info("Selected Current Academic Year")
+        logger.debug("Selected Current Academic Year")
 
         self.close_school_info()
 
@@ -192,7 +192,7 @@ class StudentLogin:
         """
 
         wait_and_click(StudentLoginLocator.SCHOOL_INFO)
-        logger.info("Closed School Information dialog popup")
+        logger.debug("Closed School Information dialog popup")
         time.sleep(1)
 
     def invalid_captcha(self):
@@ -212,7 +212,7 @@ class StudentLogin:
         elements = driver.find_elements(*StudentLoginLocator.ERROR_ALERT)
         if elements:
             msg = elements[0].get_attribute("innerHTML")
-            logger.info("CAPTCHA error message: %s", msg)
+            logger.error("CAPTCHA error message: %s", msg)
             return "Invalid" in msg if msg else False
         return False
 
@@ -233,6 +233,6 @@ class StudentLogin:
         elements = driver.find_elements(*StudentLoginLocator.ERROR_ALERT)
         if elements:
             msg = elements[0].get_attribute("innerHTML")
-            logger.info("Credential error message: %s", msg)
+            logger.error("Credential error message: %s", msg)
             return "Incorrect" in msg if msg else False
         return False

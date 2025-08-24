@@ -20,7 +20,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-21
-Last Modified: 2025-08-21
+Last Modified: 2025-08-25
 
 Version: 1.0.0
 """
@@ -58,7 +58,9 @@ class StudentImportDataParser:
         """
 
         self.import_data_file = import_data_file
-        data_json_file = os.path.join(os.getcwd(), "import_data.json")
+        data_json_file = os.path.join(
+            os.getcwd(), "student_data", "udise_import_data.json"
+        )
 
         # Check if Student Import Data JSON already exists and backup it
         if os.path.exists(data_json_file):
@@ -103,12 +105,16 @@ class StudentImportDataParser:
         path specified by `self.data_json_file`, using UTF-8 encoding and
         pretty-print formatting for readability. Unicode characters are
         preserved in their original form.
+        If the target directory does not exist, it is created.
 
         Raises:
             TypeError: If `self.import_data` contains non-serializable objects.
             FileNotFoundError: If the target directory does not exist.
             IOError: For general I/O errors during file writing.
         """
+        if not os.path.exists(os.path.dirname(self.data_json_file)):
+            os.makedirs(os.path.dirname(self.data_json_file), exist_ok=True)
+
         with open(self.data_json_file, "w", encoding="utf-8") as f:
             json.dump(self.import_data, f, indent=4, ensure_ascii=False)
 

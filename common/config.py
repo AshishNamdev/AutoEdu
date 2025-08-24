@@ -8,7 +8,7 @@ like timeout and retry behavior.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-08-22
+Last Modified: 2025-08-24
 
 Version: 1.0.1
 
@@ -81,10 +81,10 @@ def log_config(logger):
         - TIME_DELAY: Delay between actions or retries.
     """
 
-    logger.info("CONFIG_PATH: %s", CONFIG_PATH)
-    logger.info("PORTAL: %s", PORTAL)
-    logger.info("MODULE: %s", MODULE)
-    logger.info("TASK: %s", TASK)
-    logger.info("URL: %s", URL)
-    logger.info("TIMEOUT: %s", TIMEOUT)
-    logger.info("TIME_DELAY: %s", TIME_DELAY)
+    logger.debug("CONFIG_PATH: %s", CONFIG_PATH)
+    logger.debug("PORTAL: %s", PORTAL)
+    logger.debug("MODULE: %s", MODULE)
+    logger.debug("TASK: %s", TASK)
+    logger.debug("URL: %s", URL)
+    logger.debug("TIMEOUT: %s", TIMEOUT)
+    logger.debug("TIME_DELAY: %s", TIME_DELAY)

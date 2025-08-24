@@ -16,7 +16,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-08-23
+Last Modified: 2025-08-24
 
 Version: 1.0.0
 """
@@ -26,7 +26,6 @@ import time
 from selenium.webdriver.support.ui import Select
 
 from common.config import SECTIONS, TIME_DELAY
-from common.driver import driver
 from common.logger import logger
 from common.utils import wait_and_click, wait_and_find_element, wait_for_first_match
 from ui import fill_fields
@@ -75,7 +74,7 @@ class StudentImportUI:
         for msg, locator in locators:
             wait_and_click(locator)
             logger.info("Selected %s option", msg)
-            logger.info("waiting for %s seconds", TIME_DELAY)
+            logger.debug("waiting for %s seconds", TIME_DELAY)
             time.sleep(TIME_DELAY)
 
     def import_student(self, student_pen, dob):
@@ -102,8 +101,8 @@ class StudentImportUI:
             logger.debug("Student PEN No: %s, DOB: %s", student_pen, dob)
 
             wait_and_click(StudentImportLocator.IMPORT_GO_BUTTON)
-            logger.info("Selected Import Within State")
-            logger.info("Waiting for %s seconds", TIME_DELAY)
+            logger.debug("Clicked Import button")
+            logger.debug("Waiting for %s seconds", TIME_DELAY)
             time.sleep(TIME_DELAY)
 
         except ValueError as ve:
@@ -135,17 +134,17 @@ class StudentImportUI:
             - `wait_and_find_element()` and `wait_and_click()` are
                 utility functions that handle element presence and interaction.
         """
-
-        field_data = [
+        for value, locator in [
             (student_class, StudentImportLocator.SELECT_CLASS),
             (SECTIONS[section], StudentImportLocator.SELECT_SECTION),
-        ]
-        for value, locator in field_data:
+        ]:
+            logger.debug("Selecting value %s for %s", value, locator)
             Select(wait_and_find_element(locator)).select_by_value(value)
 
         elem = wait_and_find_element(StudentImportLocator.DOA)
         elem.clear()
         elem.send_keys(doa)
+        logger.debug("Entered Date of Admission: %s", doa)
 
         self.confirm_student_import()
 
@@ -158,7 +157,6 @@ class StudentImportUI:
         Steps:
             1. Clicks the 'Import' button to initiate the student data import.
             2. Clicks the confirmation button to proceed with the import.
-            3. Clicks the success message dialog to finalize the flow.
 
         Raises:
             TimeoutException: If any of the expected elements are not found
@@ -170,15 +168,17 @@ class StudentImportUI:
             Ensure that the StudentImportLocator selectors are correctly
             defined and visible before invoking this method.
         """
-
-        wait_and_click(StudentImportLocator.IMPORT_BUTTON)
-        wait_and_click(StudentImportLocator.IMPORT_CONFIRM_BUTTON)
-        wait_and_click(StudentImportLocator.IMPORT_SUCCES_MESSAGE)
+        for locator in [
+            StudentImportLocator.IMPORT_BUTTON,
+            StudentImportLocator.IMPORT_CONFIRM_BUTTON,
+        ]:
+            wait_and_click(locator)
+            logger.debug("Clicked element: %s", locator)
 
     def get_import_message(self):
         """
         Retrieves the inner HTML content of the student import success
-        message element.
+        message element and clicks the OK button to close the dialog.
 
         Returns:
             str: The HTML string contained within the success message element.
@@ -193,10 +193,13 @@ class StudentImportUI:
             This method assumes that the import flow has already been
             completed and the success message is visible in the DOM.
         """
-
-        return wait_and_find_element(
+        import_message = wait_and_find_element(
             StudentImportLocator.IMPORT_SUCCES_MESSAGE
         ).get_dom_attribute("innerHTML")
+
+        wait_and_click(StudentImportLocator.IMPORT_OK_BUTTON)
+        logger.debug("Clicked OK button on import success dialog")
+        return import_message
 
     def get_pen_status(self):
         """
@@ -236,9 +239,16 @@ class StudentImportUI:
             NoSuchElementException: If the locator is not found on the page.
             WebDriverException: For general Selenium interaction failures.
         """
-        return driver.find_element(
-            *StudentImportLocator.DOB_MISMATCH_MESSAGE
+        dob_error_msg = wait_and_find_element(
+            StudentImportLocator.DOB_MISMATCH_MESSAGE
         ).get_attribute("innerHTML")
+        logger.debug("DOB Mismatch Message: %s", dob_error_msg)
+
+        wait_and_click(StudentImportLocator.DOB_MISMATCH_OK_BUTTON)
+        logger.debug("Clicked OK button on DOB mismatch dialog")
+        time.sleep(2)
+
+        return dob_error_msg
 
     def get_student_status(self):
         """

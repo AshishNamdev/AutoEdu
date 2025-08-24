@@ -207,4 +207,6 @@ marimo/_lsp/
 __marimo__/
 
 backup
+student_data
+reports
 test.py
