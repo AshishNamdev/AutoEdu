@@ -30,8 +30,6 @@ from selenium.common.exceptions import (
 )
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -231,31 +229,51 @@ def convert_to_ddmmyyyy(date_str):
         raise ValueError(f"Invalid date format: {date_str}") from e
 
 
-def clear_input(driver: WebDriver, elem: WebElement):
-    """Robustly clears an input field using multiple fallback strategies."""
+def clear_field(element):
+    """
+    Attempts to clear the value of a web input element using multiple strategies.
+
+    This function is designed for robust input clearing in browser automation tasks.
+    It sequentially applies the following methods until the input field is empty:
+    1. Native `clear()` method.
+    2. Simulated CTRL+A + BACKSPACE keystrokes.
+    3. Simulated CTRL+A + DELETE keystrokes.
+    4. JavaScript-based value reset with input and change event dispatch.
+
+    Args:
+        element (selenium.webdriver.remote.webelement.WebElement):
+            The input element to be cleared.
+
+    Returns:
+        None
+
+    Raises:
+        Prints an error message if all clearing strategies fail or an exception occurs.
+    """
+
     try:
         # Strategy 1: Try native clear()
-        elem.clear()
-        if elem.get_attribute("value") == "":
+        element.clear()
+        if element.get_attribute("value") == "":
             return
 
         # Strategy 2: CTRL+A + BACKSPACE
-        elem.click()
-        elem.send_keys(Keys.CONTROL + "a")
-        elem.send_keys(Keys.BACKSPACE)
-        if elem.get_attribute("value") == "":
+        element.click()
+        element.send_keys(Keys.CONTROL + "a")
+        element.send_keys(Keys.BACKSPACE)
+        if element.get_attribute("value") == "":
             return
 
         # Strategy 3: CTRL+A + DELETE
-        elem.send_keys(Keys.CONTROL + "a")
-        elem.send_keys(Keys.DELETE)
-        if elem.get_attribute("value") == "":
+        element.send_keys(Keys.CONTROL + "a")
+        element.send_keys(Keys.DELETE)
+        if element.get_attribute("value") == "":
             return
 
         # Strategy 4: JavaScript clear + input event
-        driver.execute_script("arguments[0].value = '';", elem)
+        driver.execute_script("arguments[0].value = '';", element)
         driver.execute_script("arguments[0].dispatchEvent(new Event('input'));")
         driver.execute_script("arguments[0].dispatchEvent(new Event('change'));")
 
     except Exception as e:
-        print(f"Failed to clear input: {e}")
+        logger.error("Failed to clear input: %s", e)

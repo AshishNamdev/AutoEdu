@@ -12,7 +12,7 @@ These selectors serve as constants for building reliable and maintainable automa
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-08-25
+Last Modified: 2025-08-29
 
 Version: 1.0.0
 """
@@ -54,7 +54,7 @@ class StudentLoginSelector:
     AC_YEAR_XPATH = "//ul/li/div/div[2]/p"  # Academic Choice
     SCHOOL_INFO_XPATH = "//div/div/div/div[3]/button"  # School Information
     ERROR_ALERT_XPATH = "//div[@role='alert']/div/span"
-    # INVALID_CAPTCHA_XPATH = "//div/div[2]/div/div/div/div/div/span"
+    CURRENT_SCHOOL_XPATH = "//label[contains(normalize-space(text()), 'School Name')]/following::span[1]"
 
     # Class name selectors
     USERNAME_CLASS = "form-control"
@@ -107,7 +107,7 @@ class StudentImportSelector:
 
     # XPath selectors
     # MOVEMENT_PROGRESSION_XPATH = '//*[@id="collapseList"]/span'
-    MOVEMENT_PROGRESSION_XPATH = "//div/ul/li[9]/div/div/h2/button/span"
+    MOVEMENT_PROGRESSION_XPATH = "//span[contains(normalize-space(text()), 'Student Movement and Progression')]/ancestor::button"
     IMPORT_OPTION_XPATH = '//*[@id="flush-collapseOne2"]/div/ul/li[2]/span'
     STATUS_MESSAGE_XPATH = "//div[@class='status-message']"
     IN_STATE_IMPORT_XPATH = "//ul/li[1]/div/button"
@@ -115,6 +115,7 @@ class StudentImportSelector:
     IMPORT_GO_BUTTON_XPATH = "//div[@class='col-lg-8']/ul/li[3]/button"
     DOB_MISMATCH_MESSAGE_XPATH = "//div[@role='dialog']/h2"
     DOB_MISMATCH_OK_BUTTON_XPATH = "//div[@class='swal2-actions']/button[1]"
+    CURRENT_SCHOOL_XPATH = "//span[contains(normalize-space(text()), 'School Name')]/following-sibling::span"
 
     # XPath that matches either greenBack or redBack status container
     STUDENT_STATUS_XPATH = (
@@ -122,6 +123,7 @@ class StudentImportSelector:
     )
     SELECT_CLASS_XPATH = "//ul[@class='existingSchool1']/li[1]/div/select"
     SELECT_SECTION_XPATH = "//ul[@class='existingSchool1']/li[2]/div/ul/li[1]/select"
+    DOA_XPATH = "//label[contains(text(), 'Date of Admission')]/following::input[contains(@placeholder, 'DD/MM')][1]"
     IMPORT_BUTTON_XPATH = "//ul[@class='existingSchool1']/li[4]/button"
     IMPORT_CONFIRM_BUTTON_XPATH = "//div[@class='swal2-actions']/button[3]"
     IMPORT_OK_BUTTON_XPATH = "//div[@class='swal2-actions']/button[1]"

@@ -32,7 +32,7 @@ from selenium.common.exceptions import TimeoutException
 from common import driver
 from common.config import URL
 from common.logger import logger
-from common.utils import clear_input, wait_and_find_element
+from common.utils import clear_field, wait_and_find_element
 from ui.locators.common import MainPageLocator
 
 
@@ -101,10 +101,10 @@ def fill_fields(field_data):
         if not value:
             raise ValueError(f"Missing input for locator: {locator}")
         try:
-            elem = wait_and_find_element(locator)
-            clear_input(driver, elem)
+            element = wait_and_find_element(locator)
+            clear_field(element)
             time.sleep(0.1)  # Small delay to ensure field is ready
-            elem.send_keys(value)
+            element.send_keys(value)
             logger.debug("Filled field %s with value: %s", locator, value)
         except Exception as e:
             logger.error("Failed to fill field %s: %s", locator, e)

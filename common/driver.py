@@ -24,9 +24,32 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
 # from common.logger import logger
+from common.config import DEBUG
 
 
 def get_chrome_service(driver_path=False):
+    """
+    Creates and returns a Chrome WebDriver Service instance.
+
+    This function determines the appropriate ChromeDriver executable path
+    based on the `driver_path` flag and the global `DEBUG` setting:
+    - If `DEBUG` is True, it forces `driver_path` to True and uses local driver
+        located at 'driver/chrome/chromedriver.exe' within the current working
+        directory.
+    - If `driver_path` is True and `DEBUG` is False, ChromeDriverManager to install the driver
+
+    Args:
+        driver_path (bool, optional): Indicates whether to use a local
+                                        driver path.
+            Defaults to False.
+
+    Returns:
+        selenium.webdriver.chrome.service.Service:
+            A Service object initialized with the resolved ChromeDriver path.
+    """
+
+    driver_path = True if DEBUG else driver_path
+
     if driver_path:
         path = os.path.join(os.getcwd(), "driver", "chrome", "chromedriver.exe")
         # logger.info("Starting Chrome with %s driver", path)

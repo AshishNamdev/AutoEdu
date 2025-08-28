@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-08-24
+Last Modified: 2025-08-29
 
 Version: 1.0.0
 """
@@ -52,7 +52,9 @@ class StudentImport:
         Performs login to the UDISE portal using credentials from config,
         and sets up the UI handler for import operations.
         """
-        StudentLogin().student_login(USERNAME, PASSWORD, max_attempts=3)
+        login = StudentLogin()
+        login.student_login(USERNAME, PASSWORD, max_attempts=3)
+        self.logged_in_school = login.get_logged_in_school()
         self.import_ui = StudentImportUI()
         self.student = None
         self.import_data = self.prepare_import_data()
@@ -93,20 +95,29 @@ class StudentImport:
 
         For each student:
         - Attempts import using the primary DOB.
-        - If the student is already active elsewhere, raie the releases
-            request.
+        - If the student is already active elsewhere,
+            check if it's in current logged in school else
+            raie the release request.
         - Otherwise, fills in import details such as class, section,
-            and admission date.
+            and admission date and submits the import form.
 
         Side Effects:
             - Logs status messages for each student.
             - Triggers UI operations for import, release, or detail filling.
         """
+        ui = self.import_ui
         for pen_no, student_data in self.import_data.items():
             student = Student(pen_no, student_data)
             status = self.try_import_student(pen_no, student)
 
             if status == "active":
+                # Skip student if same school
+                if self.check_current_school():
+                    logger.info("%s : Student already active in current school",
+                                pen_no)
+                    student_data["Remark"] = "Already Imported"
+                    self.import_data[pen_no] = student_data
+                    continue
                 self.raise_release_request()
             elif status == "dob_error":
                 logger.warning("%s : Skipping import due to DOB issues", pen_no)
@@ -119,7 +130,7 @@ class StudentImport:
                     student.get_section(),
                     student.get_admission_date(),
                 )
-                status = self.import_ui.get_import_message()
+                status = ui.get_import_message()
                 logger.info("%s : %s", pen_no, status)
                 student_data["Remark"] = status
                 self.import_data[pen_no] = student_data
@@ -145,7 +156,8 @@ class StudentImport:
                 logger.error("%s - %s: %s", pen_no, student_dob, status)
 
                 student_dob = student.get_adhaar_dob()
-                logger.debug("%s - Retrying with Aadhaar DOB: %s", pen_no, student_dob)
+                logger.debug("%s - Retrying with Aadhaar DOB: %s",
+                             pen_no, student_dob)
 
                 if student_dob is None:
                     remark = "Aadhaar date of birth not available"
@@ -188,7 +200,32 @@ class StudentImport:
 
         ui = self.import_ui
         ui.submit_import_data(student_class, section, doa)
-        ui.get_import_message()
+
+    def check_current_school(self):
+        """
+        Validates whether the student's current school matches
+        the currently logged in school.
+
+        This method compares the `self.logged_in_school` value with the
+        school retrieved from the UI (`get_student_current_school`).
+        It logs an informational message if they match, and a warning
+        if they differ.
+
+        Returns:
+            bool: True if the logged in school matches the student's
+                    current school,False otherwise.
+        """
+
+        logged_in_school = self.logged_in_school
+        current_school = self.import_ui.get_student_current_school()
+        if current_school == logged_in_school:
+            logger.debug("Current school matches the logged in school: %s",
+                         current_school)
+            return True
+        else:
+            logger.warning("Current school does not match the logged in school. Current: %s, Logged in: %s",
+                           current_school, logged_in_school)
+            return False
 
     def raise_release_request(self):
         pass

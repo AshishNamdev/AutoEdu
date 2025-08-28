@@ -39,7 +39,7 @@ and navigate through the initial setup steps required to access student data.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-08-22
+Last Modified: 2025-08-29
 
 Version: 1.0.1
 """
@@ -48,7 +48,7 @@ import time
 
 from common.driver import driver
 from common.logger import logger
-from common.utils import wait_and_click
+from common.utils import wait_and_click, wait_and_find_element
 from ui import fill_fields
 from ui.locators.udise import StudentLoginLocator
 
@@ -142,6 +142,22 @@ class StudentLogin:
         raise Exception(
             "Login failed after maximum attempts due to repeated CAPTCHA or credential errors."
         )
+
+    def get_logged_in_school(self):
+        """
+        Retrieves the name of the currently logged in school after login.
+
+        This function locates the UI element that displays the current
+        school's name and returns its text content.
+
+        Returns:
+            str: The name of the currently selected school.
+        """
+        school_name = wait_and_find_element(
+            StudentLoginLocator.CURRENT_SCHOOL
+        ).get_attribute("innerHTML")
+        logger.info("Current logged in school: %s", school_name)
+        return school_name
 
     def select_academic_year(self):
         """

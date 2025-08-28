@@ -35,6 +35,7 @@ CONFIG_PATH = os.path.join(os.getcwd(), "conf.json")
 with open(CONFIG_PATH, "r") as f:
     _config = json.load(f)
 
+DEBUG = _config["DEBUG"]
 PORTAL = _config["PORTAL"]
 CLASS = _config["CLASS"]
 SECTION = _config["SECTION"]
@@ -81,6 +82,7 @@ def log_config(logger):
         - TIME_DELAY: Delay between actions or retries.
     """
 
+    logger.debug("DEBUG: %s", DEBUG)
     logger.debug("CONFIG_PATH: %s", CONFIG_PATH)
     logger.debug("PORTAL: %s", PORTAL)
     logger.debug("MODULE: %s", MODULE)

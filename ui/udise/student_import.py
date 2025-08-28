@@ -16,7 +16,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-08-24
+Last Modified: 2025-08-29
 
 Version: 1.0.0
 """
@@ -141,9 +141,7 @@ class StudentImportUI:
             logger.debug("Selecting value %s for %s", value, locator)
             Select(wait_and_find_element(locator)).select_by_value(value)
 
-        elem = wait_and_find_element(StudentImportLocator.DOA)
-        elem.clear()
-        elem.send_keys(doa)
+        fill_fields([(doa, StudentImportLocator.DOA)])
         logger.debug("Entered Date of Admission: %s", doa)
 
         self.confirm_student_import()
@@ -281,3 +279,20 @@ class StudentImportUI:
         except Exception as e:
             logger.error("%s", str(e))
             return "unknown"
+
+    def get_student_current_school(self):
+        """
+        Retrieves the name of the curent school of the student from
+        Current Schooling Details section.
+
+        This function locates the UI element that displays the current
+        school's name and returns its text content.
+
+        Returns:
+            str: The name of the currently selected school.
+        """
+        school_name = wait_and_find_element(
+            StudentImportLocator.CURRENT_SCHOOL
+        ).get_attribute("innerHTML").strip()
+        logger.debug("Student's Current school : %s", school_name)
+        return school_name

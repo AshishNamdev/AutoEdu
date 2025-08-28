@@ -12,7 +12,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-08-25
+Last Modified: 2025-08-29
 
 Version: 1.0.0
 """
@@ -65,6 +65,7 @@ class StudentLoginLocator:
 
     # School Information Locators
     SCHOOL_INFO = (By.XPATH, StudentLoginSelector.SCHOOL_INFO_XPATH)
+    CURRENT_SCHOOL = (By.XPATH, StudentLoginSelector.CURRENT_SCHOOL_XPATH)
 
 
 class StudentImportLocator:
@@ -99,10 +100,11 @@ class StudentImportLocator:
         By.XPATH,
         StudentImportSelector.DOB_MISMATCH_OK_BUTTON_XPATH,
     )
+    CURRENT_SCHOOL = (By.XPATH, StudentImportSelector.CURRENT_SCHOOL_XPATH)
     STUDENT_STATUS = (By.XPATH, StudentImportSelector.STUDENT_STATUS_XPATH)
     SELECT_CLASS = (By.XPATH, StudentImportSelector.SELECT_CLASS_XPATH)
     SELECT_SECTION = (By.XPATH, StudentImportSelector.SELECT_SECTION_XPATH)
-    DOA = (By.ID, StudentImportSelector.DOA_ID)
+    DOA = (By.XPATH, StudentImportSelector.DOA_XPATH)
     IMPORT_BUTTON = (By.XPATH, StudentImportSelector.IMPORT_BUTTON_XPATH)
     IMPORT_CONFIRM_BUTTON = (
         By.XPATH,
