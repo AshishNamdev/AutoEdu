@@ -16,7 +16,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-08-30
+Last Modified: 2025-08-29
 
 Version: 1.0.0
 """
@@ -27,8 +27,12 @@ from selenium.webdriver.support.ui import Select
 
 from common.config import SECTIONS, TIME_DELAY
 from common.logger import logger
-from common.utils import wait_and_click, wait_and_find_element, wait_for_first_match
-from ui import fill_fields
+from common.utils import (
+    fill_fields,
+    wait_and_click,
+    wait_and_find_element,
+    wait_for_first_match,
+)
 from ui.locators.udise import StudentImportLocator
 
 
@@ -193,7 +197,7 @@ class StudentImportUI:
         """
         import_message = wait_and_find_element(
             StudentImportLocator.IMPORT_SUCCES_MESSAGE
-        ).get_dom_attribute("innerHTML")
+        ).get_attribute("innerHTML")
         logger.info("Import Success Message: %s", import_message)
 
         wait_and_click(StudentImportLocator.IMPORT_OK_BUTTON)
@@ -294,7 +298,7 @@ class StudentImportUI:
         """
         school_name = wait_and_find_element(
             StudentImportLocator.CURRENT_SCHOOL
-        ).get_attribute("innerHTML").strip()
+        ).get_attribute("innerHTML")
         logger.debug("Student's Current school : %s", school_name)
         return school_name
 
