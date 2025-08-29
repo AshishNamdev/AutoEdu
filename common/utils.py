@@ -7,7 +7,7 @@ and perform robust clicking actions with retry logic.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-08-25
+Last Modified: 2025-08-30
 
 Version: 1.0.1
 
@@ -105,7 +105,10 @@ def wait_and_find_element(locator):
         TimeoutException: If the element does not become clickable within the timeout.
     """
     elem = WebDriverWait(driver, TIMEOUT).until(EC.element_to_be_clickable(locator))
+    logger.debug("Element found and clickable: %s", locator)
+    # Scroll element into view
     driver.execute_script("arguments[0].scrollIntoView(true);", elem)
+    logger.debug("Scrolled to element: %s", locator)
     return elem
 
 

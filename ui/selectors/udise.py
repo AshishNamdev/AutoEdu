@@ -127,6 +127,7 @@ class StudentImportSelector:
     IMPORT_BUTTON_XPATH = "//ul[@class='existingSchool1']/li[4]/button"
     IMPORT_CONFIRM_BUTTON_XPATH = "//div[@class='swal2-actions']/button[3]"
     IMPORT_OK_BUTTON_XPATH = "//div[@class='swal2-actions']/button[1]"
+    IMPORT_SUCCES_MESSAGE_XPATH = "//h2[contains(@class, 'swal2-title') and contains(normalize-space(text()), 'Student successfully Imported')]"
 
     # ID selectors
     STUDENT_PEN_ID = "mat-input-0"

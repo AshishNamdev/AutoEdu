@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-08-29
+Last Modified: 2025-08-30
 
 Version: 1.0.0
 """
@@ -118,13 +118,26 @@ class StudentImport:
                     student_data["Remark"] = "Already Imported"
                     self.import_data[pen_no] = student_data
                     continue
+
                 self.raise_release_request()
             elif status == "dob_error":
-                logger.warning("%s : Skipping import due to DOB issues", pen_no)
+                logger.warning("%s : Skipping import due to DOB issues",
+                               pen_no)
                 student_data["Remark"] = "DOB mismatch - import skipped"
                 self.import_data[pen_no] = student_data
                 continue
             else:
+                if self.check_import_class(student.get_class()) is False:
+                    logger.info("%s : Skipping import due to class issues",
+                                pen_no)
+                    student_data["Remark"] = (
+                        "import class available in the drop-down is "
+                        "different from the input class"
+                    )
+
+                    self.import_data[pen_no] = student_data
+                    continue
+
                 self.fill_import_details(
                     student.get_class(),
                     student.get_section(),
@@ -216,16 +229,44 @@ class StudentImport:
                     current school,False otherwise.
         """
 
-        logged_in_school = self.logged_in_school
-        current_school = self.import_ui.get_student_current_school()
-        if current_school == logged_in_school:
+        ret_val = False
+        logged_in_school = self.logged_in_school.strip()
+        current_school = self.import_ui.get_student_current_school().strip()
+
+        if current_school.lower() == logged_in_school.lower():
             logger.debug("Current school matches the logged in school: %s",
                          current_school)
-            return True
+            ret_val = True
         else:
             logger.warning("Current school does not match the logged in school. Current: %s, Logged in: %s",
                            current_school, logged_in_school)
-            return False
+        return ret_val
+
+    def check_import_class(self, student_class):
+        """
+        Compares the input student class with the class available
+        on the import UI.
+
+        This method checks whether the provided `student_clas` matches the
+        class available on the import dropdown.
+        If they match (case-insensitive), it returns True. Otherwise,
+        it logs a warning and returns False.
+
+        Args:
+            student_class (str): The class value associated with the student.
+
+        Returns:
+            bool: True if the input class matches the import class,
+                    False otherwise.
+        """
+        ret_val = False
+        import_class = self.import_ui.get_import_class()
+        if str(import_class).strip().lower() == str(student_class).strip().lower():
+            ret_val = True
+        else:
+            logger.warning("Import class available in the drop-down is different from the input class. Input: %s, Import: %s",
+                           student_class, import_class)
+        return ret_val
 
     def raise_release_request(self):
         pass

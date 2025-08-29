@@ -111,4 +111,7 @@ class StudentImportLocator:
         StudentImportSelector.IMPORT_CONFIRM_BUTTON_XPATH,
     )
     IMPORT_OK_BUTTON = (By.XPATH, StudentImportSelector.IMPORT_OK_BUTTON_XPATH)
-    IMPORT_SUCCES_MESSAGE = (By.ID, StudentImportSelector.IMPORT_SUCCES_MESSAGE_ID)
+    IMPORT_SUCCES_MESSAGE = (
+        By.XPATH,
+        StudentImportSelector.IMPORT_SUCCES_MESSAGE_XPATH
+    )

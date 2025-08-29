@@ -16,7 +16,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-08-29
+Last Modified: 2025-08-30
 
 Version: 1.0.0
 """
@@ -194,6 +194,7 @@ class StudentImportUI:
         import_message = wait_and_find_element(
             StudentImportLocator.IMPORT_SUCCES_MESSAGE
         ).get_dom_attribute("innerHTML")
+        logger.info("Import Success Message: %s", import_message)
 
         wait_and_click(StudentImportLocator.IMPORT_OK_BUTTON)
         logger.debug("Clicked OK button on import success dialog")
@@ -296,3 +297,19 @@ class StudentImportUI:
         ).get_attribute("innerHTML").strip()
         logger.debug("Student's Current school : %s", school_name)
         return school_name
+
+    def get_import_class(self):
+        """
+        Retrieves the class shown in the import dropdown.
+
+        This function locates the UI element for class selection
+        and returns its currently selected value.
+
+        Returns:
+            str: The value of the currently selected class.
+        """
+        class_value = Select(
+            wait_and_find_element(StudentImportLocator.SELECT_CLASS)
+        ).first_selected_option.get_attribute("value")
+        logger.debug("Currently selected import class : %s", class_value)
+        return class_value
