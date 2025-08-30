@@ -232,6 +232,34 @@ def convert_to_ddmmyyyy(date_str):
         raise ValueError(f"Invalid date format: {date_str}") from e
 
 
+def fill_fields(field_data):
+    """
+    Fills multiple input fields based on provided (value, locator) pairs.
+
+    Args:
+        field_data (List[Tuple[str, selenium.webdriver.remote.webelement.WebElement]]):
+            A list of tuples containing input values and their corresponding locators.
+
+    Raises:
+        ValueError: If any input value is missing or locator is not found.
+    """
+    for value, locator in field_data:
+        if not value:
+            raise ValueError(f"Missing input for locator: {locator}")
+        try:
+            element = wait_and_find_element(locator)
+            # Scroll element into view
+            driver.execute_script("arguments[0].scrollIntoView(true);", element)
+
+            clear_field(element)
+            time.sleep(0.1)  # Small delay to ensure field is ready
+            element.send_keys(value)
+            logger.debug("Filled field %s with value: %s", locator, value)
+        except Exception as e:
+            logger.error("Failed to fill field %s: %s", locator, e)
+            raise
+
+
 def clear_field(element):
     """
     Attempts to clear the value of a web input element using multiple strategies.

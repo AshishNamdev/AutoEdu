@@ -39,7 +39,7 @@ and navigate through the initial setup steps required to access student data.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-08-29
+Last Modified: 2025-08-30
 
 Version: 1.0.1
 """
@@ -48,8 +48,7 @@ import time
 
 from common.driver import driver
 from common.logger import logger
-from common.utils import wait_and_click, wait_and_find_element
-from ui import fill_fields
+from common.utils import fill_fields, wait_and_click, wait_and_find_element
 from ui.locators.udise import StudentLoginLocator
 
 

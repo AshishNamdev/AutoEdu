@@ -20,19 +20,16 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-20
-Last Modified: 2025-08-25
+Last Modified: 2025-08-30
 
 Version: 1.0.1
 """
-
-import time
 
 from selenium.common.exceptions import TimeoutException
 
 from common import driver
 from common.config import URL
 from common.logger import logger
-from common.utils import clear_field, wait_and_find_element
 from ui.locators.common import MainPageLocator
 
 
@@ -84,28 +81,3 @@ class MainPage:
             logger.exception("Timeout while loading page: %s", url)
         except Exception as e:
             logger.exception("Unexpected error after browser launch: %s", str(e))
-
-
-def fill_fields(field_data):
-    """
-    Fills multiple input fields based on provided (value, locator) pairs.
-
-    Args:
-        field_data (List[Tuple[str, selenium.webdriver.remote.webelement.WebElement]]):
-            A list of tuples containing input values and their corresponding locators.
-
-    Raises:
-        ValueError: If any input value is missing or locator is not found.
-    """
-    for value, locator in field_data:
-        if not value:
-            raise ValueError(f"Missing input for locator: {locator}")
-        try:
-            element = wait_and_find_element(locator)
-            clear_field(element)
-            time.sleep(0.1)  # Small delay to ensure field is ready
-            element.send_keys(value)
-            logger.debug("Filled field %s with value: %s", locator, value)
-        except Exception as e:
-            logger.error("Failed to fill field %s: %s", locator, e)
-            raise

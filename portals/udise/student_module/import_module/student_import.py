@@ -113,23 +113,20 @@ class StudentImport:
             if status == "active":
                 # Skip student if same school
                 if self.check_current_school():
-                    logger.info("%s : Student already active in current school",
-                                pen_no)
+                    logger.info("%s : Student already active in current school", pen_no)
                     student_data["Remark"] = "Already Imported"
                     self.import_data[pen_no] = student_data
                     continue
 
                 self.raise_release_request()
             elif status == "dob_error":
-                logger.warning("%s : Skipping import due to DOB issues",
-                               pen_no)
+                logger.warning("%s : Skipping import due to DOB issues", pen_no)
                 student_data["Remark"] = "DOB mismatch - import skipped"
                 self.import_data[pen_no] = student_data
                 continue
             else:
                 if self.check_import_class(student.get_class()) is False:
-                    logger.info("%s : Skipping import due to class issues",
-                                pen_no)
+                    logger.info("%s : Skipping import due to class issues", pen_no)
                     student_data["Remark"] = (
                         "import class available in the drop-down is "
                         "different from the input class"
@@ -169,8 +166,7 @@ class StudentImport:
                 logger.error("%s - %s: %s", pen_no, student_dob, status)
 
                 student_dob = student.get_adhaar_dob()
-                logger.debug("%s - Retrying with Aadhaar DOB: %s",
-                             pen_no, student_dob)
+                logger.debug("%s - Retrying with Aadhaar DOB: %s", pen_no, student_dob)
 
                 if student_dob is None:
                     remark = "Aadhaar date of birth not available"
@@ -234,12 +230,16 @@ class StudentImport:
         current_school = self.import_ui.get_student_current_school().strip()
 
         if current_school.lower() == logged_in_school.lower():
-            logger.debug("Current school matches the logged in school: %s",
-                         current_school)
+            logger.debug(
+                "Current school matches the logged in school: %s", current_school
+            )
             ret_val = True
         else:
-            logger.warning("Current school does not match the logged in school. Current: %s, Logged in: %s",
-                           current_school, logged_in_school)
+            logger.warning(
+                "Current school does not match the logged in school. Current: %s, Logged in: %s",
+                current_school,
+                logged_in_school,
+            )
         return ret_val
 
     def check_import_class(self, student_class):
@@ -264,8 +264,11 @@ class StudentImport:
         if str(import_class).strip().lower() == str(student_class).strip().lower():
             ret_val = True
         else:
-            logger.warning("Import class available in the drop-down is different from the input class. Input: %s, Import: %s",
-                           student_class, import_class)
+            logger.warning(
+                "Import class available in the drop-down is different from the input class. Input: %s, Import: %s",
+                student_class,
+                import_class,
+            )
         return ret_val
 
     def raise_release_request(self):

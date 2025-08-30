@@ -12,7 +12,7 @@ These selectors serve as constants for building reliable and maintainable automa
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-08-29
+Last Modified: 2025-08-30
 
 Version: 1.0.0
 """
@@ -54,7 +54,9 @@ class StudentLoginSelector:
     AC_YEAR_XPATH = "//ul/li/div/div[2]/p"  # Academic Choice
     SCHOOL_INFO_XPATH = "//div/div/div/div[3]/button"  # School Information
     ERROR_ALERT_XPATH = "//div[@role='alert']/div/span"
-    CURRENT_SCHOOL_XPATH = "//label[contains(normalize-space(text()), 'School Name')]/following::span[1]"
+    CURRENT_SCHOOL_XPATH = (
+        "//label[contains(normalize-space(text()), 'School Name')]/following::span[1]"
+    )
 
     # Class name selectors
     USERNAME_CLASS = "form-control"

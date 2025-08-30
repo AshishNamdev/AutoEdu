@@ -19,7 +19,7 @@ need to be preserved and exported for audit or review.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-23
-Last Modified: 2025-08-25
+Last Modified: 2025-08-30
 
 Version: 1.0.1
 """
@@ -74,7 +74,7 @@ def save_student_import_report(import_data):
 
     if os.path.isfile(report_json_file):
         backup_file(report_json_file, report_dir)
-        os.remove(report_file)
+        os.remove(report_json_file)
 
     with open(report_json_file, "w", encoding="utf-8") as f:
         json.dump(import_data, f, indent=4, ensure_ascii=False)

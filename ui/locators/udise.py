@@ -12,7 +12,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-08-29
+Last Modified: 2025-08-30
 
 Version: 1.0.0
 """
@@ -113,5 +113,5 @@ class StudentImportLocator:
     IMPORT_OK_BUTTON = (By.XPATH, StudentImportSelector.IMPORT_OK_BUTTON_XPATH)
     IMPORT_SUCCES_MESSAGE = (
         By.XPATH,
-        StudentImportSelector.IMPORT_SUCCES_MESSAGE_XPATH
+        StudentImportSelector.IMPORT_SUCCES_MESSAGE_XPATH,
     )
