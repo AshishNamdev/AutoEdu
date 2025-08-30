@@ -59,6 +59,7 @@ def save_student_import_report(import_data):
         "Adhaar Name",
         "Adhaar DOB",
         "Remark",
+        "Import Status",
     ]
 
     report_dir = os.path.join(os.getcwd(), "reports")

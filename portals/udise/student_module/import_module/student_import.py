@@ -115,23 +115,28 @@ class StudentImport:
                 if self.check_current_school():
                     logger.info("%s : Student already active in current school", pen_no)
                     student_data["Remark"] = "Already Imported"
+                    student_data["Import Status"] = "Yes"
                     self.import_data[pen_no] = student_data
                     continue
 
                 self.raise_release_request()
             elif status == "dob_error":
                 logger.warning("%s : Skipping import due to DOB issues", pen_no)
-                student_data["Remark"] = "DOB mismatch - import skipped"
+                student_data["Remark"] = "DOB mismatch"
+                student_data["Import Status"] = "DOB mismatch"
                 self.import_data[pen_no] = student_data
                 continue
             else:
-                if self.check_import_class(student.get_class()) is False:
+                student_class = student.get_class()
+                if self.check_import_class(student_class) is False:
+                    import_class = ui.get_import_class()
                     logger.info("%s : Skipping import due to class issues", pen_no)
-                    student_data["Remark"] = (
-                        "import class available in the drop-down is "
-                        "different from the input class"
+                    student_data["Remark"] = "Class mismatch"
+                    import_status = (
+                        f"Available Import class is {import_class} "
+                        f"Student class is {student_class}"
                     )
-
+                    student_data["Import Status"] = import_status
                     self.import_data[pen_no] = student_data
                     continue
 
@@ -140,8 +145,9 @@ class StudentImport:
                     student.get_section(),
                     student.get_admission_date(),
                 )
-                status = ui.get_import_message()
+                status = str(ui.get_import_message()).strip()
                 logger.info("%s : %s", pen_no, status)
+                student_data["Import Status"] = "Yes"
                 student_data["Remark"] = status
                 self.import_data[pen_no] = student_data
 

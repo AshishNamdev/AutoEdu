@@ -250,7 +250,7 @@ def fill_fields(field_data):
             element = wait_and_find_element(locator)
             # Scroll element into view
             driver.execute_script("arguments[0].scrollIntoView(true);", element)
-
+            time.sleep(0.5)  # Allow time for scrolling
             clear_field(element)
             time.sleep(0.1)  # Small delay to ensure field is ready
             element.send_keys(value)
@@ -258,6 +258,8 @@ def fill_fields(field_data):
         except Exception as e:
             logger.error("Failed to fill field %s: %s", locator, e)
             raise
+
+    verify_fields(field_data)
 
 
 def clear_field(element):
@@ -308,3 +310,34 @@ def clear_field(element):
 
     except Exception as e:
         logger.error("Failed to clear input: %s", e)
+
+
+def verify_fields(field_data):
+    """
+    Verifies that input fields contain the expected values after being filled.
+
+    Args:
+        field_data (List[Tuple[str, selenium.webdriver.remote.webelement.WebElement]]):
+            A list of tuples containing expected input values and their corresponding locators.
+
+    Raises:
+        AssertionError: If any field value does not match the expected input.
+        ValueError: If any locator is invalid or element is not found.
+    """
+    for expected_value, locator in field_data:
+        if not expected_value:
+            raise ValueError(f"Missing expected value for locator: {locator}")
+        try:
+            element = wait_and_find_element(locator)
+            actual_value = element.get_attribute("value")
+            assert (
+                actual_value == expected_value
+            ), f"Value mismatch at {locator}: expected '{expected_value}', got '{actual_value}'"
+            logger.debug("Verified field %s: value '%s' matched", locator, actual_value)
+        except AssertionError as ae:
+            logger.error("Verification failed for field %s: %s", locator, ae)
+            raise
+        except Exception as e:
+            logger.error("Error verifying field %s: %s", locator, e)
+            raise
+        time.sleep(0.5)  # Small delay between verifications
