@@ -70,6 +70,7 @@ def wait_and_click(locator, retries=2):
             time.sleep(0.5)
 
             element.click()
+            logger.debug("Clicked element: %s", locator)
             return  # Success
 
         except ElementClickInterceptedException:
@@ -107,7 +108,7 @@ def wait_and_find_element(locator):
     elem = WebDriverWait(driver, TIMEOUT).until(EC.element_to_be_clickable(locator))
     logger.debug("Element found and clickable: %s", locator)
     # Scroll element into view
-    driver.execute_script("arguments[0].scrollIntoView(true);", elem)
+    scroll_to_element(elem)
     logger.debug("Scrolled to element: %s", locator)
     return elem
 
@@ -248,9 +249,6 @@ def fill_fields(field_data):
             raise ValueError(f"Missing input for locator: {locator}")
         try:
             element = wait_and_find_element(locator)
-            # Scroll element into view
-            driver.execute_script("arguments[0].scrollIntoView(true);", element)
-            time.sleep(0.5)  # Allow time for scrolling
             clear_field(element)
             time.sleep(0.1)  # Small delay to ensure field is ready
             element.send_keys(value)
@@ -283,7 +281,7 @@ def clear_field(element):
     Raises:
         Prints an error message if all clearing strategies fail or an exception occurs.
     """
-
+    scroll_to_element(element)
     try:
         # Strategy 1: Try native clear()
         element.clear()
@@ -341,3 +339,35 @@ def verify_fields(field_data):
             logger.error("Error verifying field %s: %s", locator, e)
             raise
         time.sleep(0.5)  # Small delay between verifications
+
+
+def scroll_to_element(element):
+    """
+    Scrolls the specified web element into view and focuses it for interaction.
+
+    This function uses both JavaScript and ActionChains to ensure the element
+    is visible and centered in the viewport. It is especially useful for small
+    screens or scrollable containers.
+
+    Args:
+        element (selenium.webdriver.remote.webelement.WebElement):
+            The web element to scroll into view and focus.
+    """
+    try:
+        # JavaScript scroll (centered)
+        driver.execute_script(
+            """
+            arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});
+        """,
+            element,
+        )
+
+        # Focus the element
+        driver.execute_script("arguments[0].focus();", element)
+
+        # ActionChains scroll (fallback or reinforcement)
+        ActionChains(driver).scroll_to_element(element).perform()
+
+        time.sleep(0.5)  # Allow time for UI to settle
+    except Exception as e:
+        logger.warning("Scroll to element %s failed: %s", element, e)
