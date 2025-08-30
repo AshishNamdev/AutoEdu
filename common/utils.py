@@ -84,7 +84,8 @@ def wait_and_click(locator, retries=2):
                 print(f"JS click failed: {js_error}")
                 time.sleep(1)
 
-    raise Exception(f"Failed to click element after {retries} attempts: {locator}")
+    raise Exception(
+        f"Failed to click element after {retries} attempts: {locator}")
 
 
 def wait_and_find_element(locator):
@@ -105,7 +106,8 @@ def wait_and_find_element(locator):
     Raises:
         TimeoutException: If the element does not become clickable within the timeout.
     """
-    elem = WebDriverWait(driver, TIMEOUT).until(EC.element_to_be_clickable(locator))
+    elem = WebDriverWait(driver, TIMEOUT).until(
+        EC.element_to_be_clickable(locator))
     logger.debug("Element found and clickable: %s", locator)
     # Scroll element into view
     scroll_to_element(elem)
@@ -211,7 +213,8 @@ def convert_to_ddmmyyyy(date_str):
         date_str = re.sub(r"(\d+)(st|nd|rd|th)", r"\1", date_str)
 
         # Match numeric formats like DD/MM/YYYY or MM/DD/YYYY
-        numeric_match = re.match(r"^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$", date_str)
+        numeric_match = re.match(
+            r"^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$", date_str)
         if numeric_match:
             first, second, year = map(int, numeric_match.groups())
             # If first > 12, it's definitely the day
@@ -303,8 +306,10 @@ def clear_field(element):
 
         # Strategy 4: JavaScript clear + input event
         driver.execute_script("arguments[0].value = '';", element)
-        driver.execute_script("arguments[0].dispatchEvent(new Event('input'));")
-        driver.execute_script("arguments[0].dispatchEvent(new Event('change'));")
+        driver.execute_script(
+            "arguments[0].dispatchEvent(new Event('input'));")
+        driver.execute_script(
+            "arguments[0].dispatchEvent(new Event('change'));")
 
     except Exception as e:
         logger.error("Failed to clear input: %s", e)
@@ -327,11 +332,13 @@ def verify_fields(field_data):
             raise ValueError(f"Missing expected value for locator: {locator}")
         try:
             element = wait_and_find_element(locator)
+            scroll_to_element(element)
             actual_value = element.get_attribute("value")
             assert (
                 actual_value == expected_value
             ), f"Value mismatch at {locator}: expected '{expected_value}', got '{actual_value}'"
-            logger.debug("Verified field %s: value '%s' matched", locator, actual_value)
+            logger.debug("Verified field %s: value '%s' matched",
+                         locator, actual_value)
         except AssertionError as ae:
             logger.error("Verification failed for field %s: %s", locator, ae)
             raise
@@ -371,3 +378,19 @@ def scroll_to_element(element):
         time.sleep(0.5)  # Allow time for UI to settle
     except Exception as e:
         logger.warning("Scroll to element %s failed: %s", element, e)
+
+
+def dismiss_browser_popup():
+    """
+    Sends an ESCAPE key press to the browser to dismiss native popups
+    or overlays.
+
+    This is useful for closing Chrome's password change prompts,
+    autofill overlays, or other browser-level dialogs that are not
+    part of the DOM.
+    """
+    try:
+        ActionChains(driver).send_keys(Keys.ESCAPE).perform()
+        logger.debug("Sent ESCAPE key to dismiss browser popup")
+    except Exception as e:
+        logger.warning("Failed to dismiss popup with ESCAPE key: %s", e)

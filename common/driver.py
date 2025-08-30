@@ -8,7 +8,7 @@ remain open after script execution by enabling the 'detach' option.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-08-22
+Last Modified: 2025-08-30
 
 Version: 1.0.1
 
@@ -19,7 +19,6 @@ Attributes:
 import os
 
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
@@ -51,7 +50,8 @@ def get_chrome_service(driver_path=False):
     driver_path = True if DEBUG else driver_path
 
     if driver_path:
-        path = os.path.join(os.getcwd(), "driver", "chrome", "chromedriver.exe")
+        path = os.path.join(os.getcwd(), "driver",
+                            "chrome", "chromedriver.exe")
         # logger.info("Starting Chrome with %s driver", path)
     else:
         path = ChromeDriverManager().install()
@@ -59,7 +59,11 @@ def get_chrome_service(driver_path=False):
 
 
 # Setup WebDriver
-options = Options()
+# options = Options()
+options = webdriver.ChromeOptions()
+prefs = {"credentials_enable_service": False,
+         "profile.password_manager_enabled": False}
+options.add_experimental_option("prefs", prefs)
 options.add_experimental_option("detach", True)
 
 try:

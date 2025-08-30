@@ -28,6 +28,7 @@ from selenium.webdriver.support.ui import Select
 from common.config import SECTIONS, TIME_DELAY
 from common.logger import logger
 from common.utils import (
+    dismiss_browser_popup,
     fill_fields,
     wait_and_click,
     wait_and_find_element,
@@ -65,6 +66,8 @@ class StudentImportUI:
             TimeoutException if any element is not clickable
                                     within the expected time.
         """
+
+        dismiss_browser_popup()
 
         locators = [
             (
@@ -273,7 +276,8 @@ class StudentImportUI:
         }
 
         try:
-            status_element = wait_and_find_element(StudentImportLocator.STUDENT_STATUS)
+            status_element = wait_and_find_element(
+                StudentImportLocator.STUDENT_STATUS)
             class_name = status_element.get_attribute("class") or ""
             if "greenBack" in class_name:
                 return status["greenBack"]
