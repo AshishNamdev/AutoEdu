@@ -7,9 +7,9 @@ and perform robust clicking actions with retry logic.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-08-30
+Last Modified: 2025-08-31
 
-Version: 1.0.1
+Version: 1.0.0
 
 Functions:
     - wait_and_find_element(locator): Waits for a single clickable element.
@@ -256,11 +256,10 @@ def fill_fields(field_data):
             time.sleep(0.1)  # Small delay to ensure field is ready
             element.send_keys(value)
             logger.debug("Filled field %s with value: %s", locator, value)
+            verify_field(value, element, locator)
         except Exception as e:
             logger.error("Failed to fill field %s: %s", locator, e)
             raise
-
-    verify_fields(field_data)
 
 
 def clear_field(element):
@@ -315,37 +314,40 @@ def clear_field(element):
         logger.error("Failed to clear input: %s", e)
 
 
-def verify_fields(field_data):
+def verify_field(expected_value, element, locator):
     """
-    Verifies that input fields contain the expected values after being filled.
+    Verifies that a given input field contains the expected value.
 
     Args:
-        field_data (List[Tuple[str, selenium.webdriver.remote.webelement.WebElement]]):
-            A list of tuples containing expected input values and their corresponding locators.
+        expected_value (str): The value expected to be present in the
+                                input field.
+        element (selenium.webdriver.remote.webelement.WebElement): The web
+                                        element representing the input field.
+        locator (str): The locator used to identify the input field
+                        (used for logging and error reporting).
 
     Raises:
-        AssertionError: If any field value does not match the expected input.
-        ValueError: If any locator is invalid or element is not found.
+        AssertionError: If the actual field value does not match the
+                            expected value.
+        Exception: If the element cannot be found or interacted with.
     """
-    for expected_value, locator in field_data:
-        if not expected_value:
-            raise ValueError(f"Missing expected value for locator: {locator}")
-        try:
-            element = wait_and_find_element(locator)
-            scroll_to_element(element)
-            actual_value = element.get_attribute("value")
-            assert (
-                actual_value == expected_value
-            ), f"Value mismatch at {locator}: expected '{expected_value}', got '{actual_value}'"
-            logger.debug("Verified field %s: value '%s' matched",
-                         locator, actual_value)
-        except AssertionError as ae:
-            logger.error("Verification failed for field %s: %s", locator, ae)
-            raise
-        except Exception as e:
-            logger.error("Error verifying field %s: %s", locator, e)
-            raise
-        time.sleep(0.5)  # Small delay between verifications
+
+    try:
+        element = wait_and_find_element(locator)
+        scroll_to_element(element)
+        actual_value = element.get_attribute("value")
+        assert (
+            actual_value == expected_value
+        ), f"Value mismatch at {locator}: expected '{expected_value}', got '{actual_value}'"
+        logger.debug("Verified field %s: value '%s' matched",
+                     locator, actual_value)
+    except AssertionError as ae:
+        logger.error("Verification failed for field %s: %s", locator, ae)
+        raise
+    except Exception as e:
+        logger.error("Error verifying field %s: %s", locator, e)
+        raise
+    time.sleep(0.5)  # Small delay between verifications
 
 
 def scroll_to_element(element):
