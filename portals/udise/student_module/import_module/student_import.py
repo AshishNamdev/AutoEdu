@@ -113,31 +113,34 @@ class StudentImport:
             if status == "active":
                 # Skip student if same school
                 if self.check_current_school():
-                    logger.info("%s : Student already active in current school", pen_no)
-                    student_data["Remark"] = "Already Imported"
-                    student_data["Import Status"] = "Yes"
-                    self.import_data[pen_no] = student_data
+                    logger.info(
+                        "%s : Student already active in current school",
+                        pen_no)
+                    self.update_import_data(
+                        pen_no, {"Remark": "Already Imported",
+                                 "Import Status": "Yes"})
                     continue
 
                 self.raise_release_request()
             elif status == "dob_error":
-                logger.warning("%s : Skipping import due to DOB issues", pen_no)
-                student_data["Remark"] = "DOB mismatch"
-                student_data["Import Status"] = "DOB mismatch"
-                self.import_data[pen_no] = student_data
+                logger.warning("%s : Skipping import due to DOB issues",
+                               pen_no)
+                self.update_import_data(
+                    pen_no, {"Remark": "DOB mismatch",
+                             "Import Status": "DOB mismatch"})
                 continue
             else:
                 student_class = student.get_class()
                 if self.check_import_class(student_class) is False:
                     import_class = ui.get_import_class()
                     logger.info("%s : Skipping import due to class issues", pen_no)
-                    student_data["Remark"] = "Class mismatch"
                     import_status = (
                         f"Available Import class is {import_class} "
                         f"Student class is {student_class}"
                     )
-                    student_data["Import Status"] = import_status
-                    self.import_data[pen_no] = student_data
+                    self.update_import_data(
+                        pen_no, {"Remark": "Class mismatch",
+                                 "Import Status": import_status})
                     continue
 
                 self.fill_import_details(
@@ -147,9 +150,9 @@ class StudentImport:
                 )
                 status = str(ui.get_import_message()).strip()
                 logger.info("%s : %s", pen_no, status)
-                student_data["Import Status"] = "Yes"
-                student_data["Remark"] = status
-                self.import_data[pen_no] = student_data
+                self.update_import_data(
+                    pen_no, {"Import Status": "Yes",
+                             "Remark": status})
 
     def try_import_student(self, pen_no, student):
         """
@@ -172,18 +175,17 @@ class StudentImport:
                 logger.error("%s - %s: %s", pen_no, student_dob, status)
 
                 student_dob = student.get_adhaar_dob()
-                logger.debug("%s - Retrying with Aadhaar DOB: %s", pen_no, student_dob)
+                logger.debug("%s - Retrying with Aadhaar DOB: %s",
+                             pen_no, student_dob)
 
                 if student_dob is None:
-                    remark = "Aadhaar date of birth not available"
-                    logger.info("%s : %s", pen_no, remark)
-                    self.import_data[pen_no]["Remark"] = remark
+                    self.update_import_data(
+                        pen_no,  {"Remark": "Aadhaar DOB missing"})
                     return "dob_error"
             else:
                 status = ui.get_student_status()
                 logger.info("%s : %s", pen_no, status)
                 return status
-
         return "dob_error"
 
     def fill_import_details(self, student_class, section, doa):
@@ -267,15 +269,47 @@ class StudentImport:
         """
         ret_val = False
         import_class = self.import_ui.get_import_class()
-        if str(import_class).strip().lower() == str(student_class).strip().lower():
+        if (str(import_class).strip().lower()
+                == str(student_class).strip().lower()):
             ret_val = True
         else:
             logger.warning(
-                "Import class available in the drop-down is different from the input class. Input: %s, Import: %s",
+                "Import class mismatch. Input: %s, Import: %s",
                 student_class,
                 import_class,
             )
         return ret_val
+
+    def update_import_data(self, pen_no, kwargs):
+        """
+        Updates the import data for a specific student identified
+        by PEN number.
+
+        This method modifies the `import_data` dictionary by setting the
+        specified `key` to the provided `value` for the student with the
+        given `pen_no`. If the `pen_no` does not exist in the dictionary,
+        it logs a warning message.
+
+        Args:
+            pen_no (str): The PEN number of the student whose data
+                            is to be updated.
+            kwargs (dict): The key and value to add in  student's
+                            data dictionary.
+
+        Returns:
+            None
+
+        Side Effects:
+            - Modifies the `import_data` attribute of the class instance.
+            - Logs a warning if the specified PEN number is not found.
+        """
+        if pen_no in self.import_data:
+            for key, value in kwargs.items():
+                self.import_data[pen_no][key] = value
+                logger.debug("Updated %s: %s - %s", pen_no, key, value)
+        else:
+            logger.warning("%s not found in import data. No update made.",
+                           pen_no)
 
     def raise_release_request(self):
         pass
