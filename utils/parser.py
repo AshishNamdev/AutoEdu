@@ -20,7 +20,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-21
-Last Modified: 2025-08-25
+Last Modified: 2025-09-01
 
 Version: 1.0.0
 """
@@ -28,7 +28,10 @@ Version: 1.0.0
 import json
 import os
 
-from common.utils import backup_file
+import pandas as pd
+
+from common.logger import logger
+from common.utils import backup_file, clean_column_name
 
 
 class StudentImportDataParser:
@@ -56,17 +59,22 @@ class StudentImportDataParser:
         Args:
             import_data_file (str, optional): Path to the raw import file.
         """
-
-        self.import_data_file = import_data_file
+        if import_data_file is None:
+            import_data_file = os.path.join(
+                os.getcwd(), "input", "udise_import_data.xlsx"
+            )
         data_json_file = os.path.join(
-            os.getcwd(), "student_data", "udise_import_data.json"
+            os.getcwd(), "input", "udise_import_data.json"
         )
+        if not os.path.exists(import_data_file):
+            raise FileNotFoundError(f"Excel file not found: {import_data_file}")
 
         # Check if Student Import Data JSON already exists and backup it
         if os.path.exists(data_json_file):
             backup_file(data_json_file)
             os.remove(data_json_file)
 
+        self.import_data_file = import_data_file
         self.data_json_file = data_json_file
         self.import_data = {}
 
@@ -82,10 +90,36 @@ class StudentImportDataParser:
             - Updates `self.import_data`
             - Triggers serialization via `save_parsed_data_json()`
         """
+        # Read Excel file into DataFrame
+        df = pd.read_excel(self.import_data_file)
+        # Clean column names
+        df.columns = [clean_column_name(str(col)) for col in df.columns]
 
+        # Ensure first column exists
+        first_col = df.columns[0]
+
+        # Build dictionary
         import_data = {}
+        for _, row in df.iterrows():
+            main_key = str(row[first_col]).strip()
+            if not main_key:
+                continue  # Skip rows with empty first cell
+
+            # Create sub-dictionary excluding the first column
+            sub_dict = {}
+            for col in df.columns[1:]:  # Skip first column
+                value = row[col]
+                if isinstance(value, pd.Timestamp):
+                    sub_dict[col] = value.strftime("%Y-%m-%d")
+                else:
+                    sub_dict[col] = value
+
+            import_data[main_key] = sub_dict
+
         self.import_data = import_data
-        self.save_parsed_data_json()
+        logger.debug("✅ Data successfully parsed from %s",
+                     self.import_data_file)
+        self.save_parsed_data_json(df)
 
     def get_import_data(self):
         """
@@ -97,7 +131,7 @@ class StudentImportDataParser:
 
         return self.import_data
 
-    def save_parsed_data_json(self):
+    def save_parsed_data_json(self, df):
         """
         Serializes the parsed import data and writes it to a JSON file.
 
@@ -117,6 +151,9 @@ class StudentImportDataParser:
 
         with open(self.data_json_file, "w", encoding="utf-8") as f:
             json.dump(self.import_data, f, indent=4, ensure_ascii=False)
+
+        logger.info(
+            "✅ Data successfully parsed and saved to %s", self.data_json_file)
 
 
 class StudentProgressionDataParser:

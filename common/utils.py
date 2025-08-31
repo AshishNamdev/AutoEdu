@@ -7,7 +7,7 @@ and perform robust clicking actions with retry logic.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-08-31
+Last Modified: 2025-09-01
 
 Version: 1.0.0
 
@@ -18,9 +18,11 @@ Functions:
 """
 
 import os
+import random
 import re
 import shutil
 import time
+from datetime import datetime, timedelta
 
 from dateutil import parser
 from selenium.common.exceptions import (
@@ -333,7 +335,6 @@ def verify_field(expected_value, element, locator):
     """
 
     try:
-        element = wait_and_find_element(locator)
         scroll_to_element(element)
         actual_value = element.get_attribute("value")
         assert (
@@ -396,3 +397,42 @@ def dismiss_browser_popup():
         logger.debug("Sent ESCAPE key to dismiss browser popup")
     except Exception as e:
         logger.warning("Failed to dismiss popup with ESCAPE key: %s", e)
+
+
+def clean_column_name(column_name):
+    """
+    Cleans a column name to ensure it's safe for use as a JSON key.
+
+    This function trims leading/trailing whitespace, converts the
+    string to lowercase, and replaces spaces with underscores to
+    produce a consistent, safe key format.
+
+    Args:
+        column_name (str): The original column name to be cleaned.
+
+    Returns:
+        str: A sanitized version of the column name suitable for
+                use as a JSON key.
+    """
+
+    return column_name.strip().lower().replace(" ", "_")
+
+
+def random_date(start_date, end_date, date_format):
+    """
+    Generate a random date between start_date and end_date.
+
+    Args:
+        start_date (str): Start date in 'YYYY-MM-DD' format (default).
+        end_date (str): End date in 'YYYY-MM-DD' format (default).
+        date_format (str): Format of input/output dates.
+
+    Returns:
+        str: Random date in the same format.
+    """
+    start = datetime.strptime(start_date, date_format)
+    end = datetime.strptime(end_date, date_format)
+    delta = end - start
+    random_days = random.randint(0, delta.days)
+    result = start + timedelta(days=random_days)
+    return result.strftime(date_format)
