@@ -61,13 +61,14 @@ class StudentImportDataParser:
         """
         if import_data_file is None:
             import_data_file = os.path.join(
-                os.getcwd(), "input", "udise_import_data.xlsx"
+                os.getcwd(), "input", "udise", "import_data.xlsx"
             )
         data_json_file = os.path.join(
-            os.getcwd(), "input", "udise_import_data.json"
+            os.getcwd(), "input", "udise", "import_data.json"
         )
         if not os.path.exists(import_data_file):
-            raise FileNotFoundError(f"Excel file not found: {import_data_file}")
+            raise FileNotFoundError(
+                f"Excel file not found: {import_data_file}")
 
         # Check if Student Import Data JSON already exists and backup it
         if os.path.exists(data_json_file):
