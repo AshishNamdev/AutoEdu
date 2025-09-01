@@ -110,6 +110,12 @@ class StudentImport:
             student = Student(pen_no, student_data)
             status = self.try_import_student(pen_no, student)
 
+            if pen_no == "NA":
+                logger.error("Skipping invalid PEN no.: %s", pen_no)
+                self.update_import_data(
+                    pen_no, {"Remark": "Invalid PEN no.",
+                             "Import Status": "No"})
+                continue
             if status == "active":
                 # Skip student if same school
                 if self.check_current_school():
@@ -133,7 +139,8 @@ class StudentImport:
                 student_class = student.get_class()
                 if self.check_import_class(student_class) is False:
                     import_class = ui.get_import_class()
-                    logger.info("%s : Skipping import due to class issues", pen_no)
+                    logger.info(
+                        "%s : Skipping import due to class issues", pen_no)
                     import_status = (
                         f"Available Import class is {import_class} "
                         f"Student class is {student_class}"

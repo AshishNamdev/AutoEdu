@@ -99,12 +99,18 @@ class StudentImportDataParser:
         # Ensure first column exists
         first_col = df.columns[0]
 
+        na_count = 1
+
         # Build dictionary
         import_data = {}
         for _, row in df.iterrows():
             main_key = str(row[first_col]).strip()
-            if not main_key:
-                continue  # Skip rows with empty first cell
+
+            if main_key.strip().lower() == "na":
+                main_key = f"NA_{na_count}"
+                na_count += 1
+            # if not main_key:
+            #    continue  # Skip rows with empty first cell
 
             # Create sub-dictionary excluding the first column
             sub_dict = {}
