@@ -21,13 +21,13 @@ Usage Example:
 Notes:
 ------
 - This module is intentionally decoupled from logging and config layers to prevent
-  circular import issues.
+    circular import issues.
 - All time values are based on the system's local timezone unless explicitly handled.
 
-Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
+Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-22
-Last Modified: 2025-08-22
+Last Modified: 2025-09-03
 
 Version: 1.0.0
 """

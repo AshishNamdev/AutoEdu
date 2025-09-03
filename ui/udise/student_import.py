@@ -13,10 +13,10 @@ Dependencies:
 - utils.utils.wait_and_click: helper function to interact with UI elements
 - ui.locators.udise.StudentImportLocator: locator definitions for UI elements
 
-Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
+Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-08-29
+Last Modified: 2025-09-03
 
 Version: 1.0.0
 """

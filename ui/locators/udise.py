@@ -9,10 +9,10 @@ Dependencies:
 - selenium.webdriver.common.by.By: for specifying locator strategies
 - ui.selectors.udise.StudentImportSelector: contains XPath strings for UI elements
 
-Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
+Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-08-30
+Last Modified: 2025-09-03
 
 Version: 1.0.0
 """

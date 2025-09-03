@@ -5,10 +5,10 @@ This module provides helper functions to launch the browser, wait for elements,
 and perform robust clicking actions with retry logic.
 It integrates with a shared driver instance and configurable timeout settings.
 
-Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
+Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-08-22
+Last Modified: 2025-09-03
 
 Version: 1.0.1
 

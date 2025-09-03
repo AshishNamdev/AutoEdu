@@ -4,10 +4,10 @@ Utility functions for Selenium-based browser automation.
 This module provides helper functions to wait for elements,
 and perform robust clicking actions with retry logic.
 
-Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
+Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-09-01
+Last Modified: 2025-09-03
 
 Version: 1.0.0
 

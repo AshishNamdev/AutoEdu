@@ -5,10 +5,10 @@ This module reads `conf.json` located in the same directory and exposes key sett
 as constants, including credentials, URLs, class/section identifiers, and nested options
 like timeout and retry behavior.
 
-Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
+Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-08-24
+Last Modified: 2025-09-03
 
 Version: 1.0.1
 
