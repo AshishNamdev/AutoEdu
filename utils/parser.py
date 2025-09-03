@@ -20,7 +20,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-21
-Last Modified: 2025-09-01
+Last Modified: 2025-09-03
 
 Version: 1.0.0
 """
@@ -33,6 +33,28 @@ import pandas as pd
 from common.logger import logger
 from common.utils import backup_file, clean_column_name
 
+import pandas as pd
+
+def load_and_clean_excel(path):
+    """
+    Load an Excel file as a DataFrame with all values as strings, 
+    replacing missing values and datetime placeholders with 'na', 
+    and normalizing string content by stripping whitespace.
+
+    Parameters:
+    -----------
+    path : str
+        Path to the Excel file to be loaded.
+
+    Returns:
+    --------
+    pd.DataFrame
+        A cleaned DataFrame with all string values normalized and missing/NaT values replaced.
+    """
+    df = pd.read_excel(path, dtype=str)
+    df = df.fillna("na").replace("NaT", "na")
+    df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+    return df
 
 class StudentImportDataParser:
     """
@@ -92,7 +114,8 @@ class StudentImportDataParser:
             - Triggers serialization via `save_parsed_data_json()`
         """
         # Read Excel file into DataFrame
-        df = pd.read_excel(self.import_data_file)
+        df = load_and_clean_excel(self.import_data_file)
+        
         # Clean column names
         df.columns = [clean_column_name(str(col)) for col in df.columns]
 
