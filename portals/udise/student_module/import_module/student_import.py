@@ -134,7 +134,7 @@ class StudentImport:
                                pen_no)
                 self.update_import_data(
                     pen_no, {"Remark": "DOB mismatch",
-                             "Import Status": "DOB mismatch"})
+                             "Import Status": "No"})
                 continue
             else:
                 student_class = student.get_class()
