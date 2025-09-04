@@ -148,4 +148,4 @@ class StudentImportReport:
         df = self._apply_column_order(df)
 
         df.to_excel(self.report_excel_file, index=False)
-        logger.info("✅ Saved report to %s", self.report_excel_file)
+        logger.info("Saved report to %s", self.report_excel_file)
