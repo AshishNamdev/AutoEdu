@@ -7,7 +7,7 @@ and perform robust clicking actions with retry logic.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-09-03
+Last Modified: 2025-09-04
 
 Version: 1.0.0
 
@@ -258,7 +258,7 @@ def fill_fields(field_data):
             time.sleep(0.1)  # Small delay to ensure field is ready
             element.send_keys(value)
             logger.debug("Filled field %s with value: %s", locator, value)
-            verify_field(value, element, locator)
+            verify_field(value, element, locator, scroll=True)
         except Exception as e:
             logger.error("Failed to fill field %s: %s", locator, e)
             raise
@@ -316,26 +316,36 @@ def clear_field(element):
         logger.error("Failed to clear input: %s", e)
 
 
-def verify_field(expected_value, element, locator):
+def verify_field(expected_value, element, locator, scroll=False):
     """
-    Verifies that a given input field contains the expected value.
+    Validates that a given input field contains the expected value,
+    optionally scrolling to it before verification.
+
+    This function retrieves the current value of the specified input field
+    and compares it against the expected value.
+    If `scroll` is True, it ensures the element is scrolled into view before
+    performing the check. Any mismatch or interaction failure is logged and
+    raised as an exception.
 
     Args:
-        expected_value (str): The value expected to be present in the
-                                input field.
-        element (selenium.webdriver.remote.webelement.WebElement): The web
-                                        element representing the input field.
-        locator (str): The locator used to identify the input field
-                        (used for logging and error reporting).
+        expected_value (str): The value expected to be present in the input field.
+        element (selenium.webdriver.remote.webelement.WebElement): The WebElement representing the input field.
+        locator (str): A string identifier used for logging and error reporting (e.g., XPath or CSS selector).
+        scroll (bool, optional): Whether to scroll to the element before verification. Defaults to False.
 
     Raises:
-        AssertionError: If the actual field value does not match the
-                            expected value.
-        Exception: If the element cannot be found or interacted with.
+        AssertionError: If the actual field value does not match the expected value.
+        Exception: If the element cannot be accessed or interacted with.
+
+    Notes:
+        Adds a 0.5-second delay after verification to allow for UI stabilization.
+        Logs both successful and failed verification attempts for traceability.
     """
 
+
     try:
-        scroll_to_element(element)
+        if scroll:
+            scroll_to_element(element)
         actual_value = element.get_attribute("value")
         assert (
             actual_value == expected_value
@@ -378,7 +388,7 @@ def scroll_to_element(element):
         # ActionChains scroll (fallback or reinforcement)
         ActionChains(driver).scroll_to_element(element).perform()
 
-        time.sleep(0.5)  # Allow time for UI to settle
+        time.sleep(0.2)  # Allow time for UI to settle
     except Exception as e:
         logger.warning("Scroll to element %s failed: %s", element, e)
 
