@@ -107,15 +107,16 @@ class StudentImport:
         """
         ui = self.import_ui
         for pen_no, student_data in self.import_data.items():
-            student = Student(pen_no, student_data)
-            status = self.try_import_student(pen_no, student)
-
             if pen_no.lower().__contains__("na"):
                 logger.error("Skipping invalid PEN no.: %s", pen_no)
                 self.update_import_data(
                     pen_no, {"Remark": "Invalid PEN no.",
                              "Import Status": "No"})
                 continue
+
+            student = Student(pen_no, student_data)
+            status = self.try_import_student(pen_no, student)
+
             if status == "active":
                 # Skip student if same school
                 if self.check_current_school():
