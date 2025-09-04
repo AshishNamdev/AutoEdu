@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-08-30
+Last Modified: 2025-09-04
 
 Version: 1.0.0
 """
@@ -110,7 +110,7 @@ class StudentImport:
             student = Student(pen_no, student_data)
             status = self.try_import_student(pen_no, student)
 
-            if pen_no == "NA":
+            if pen_no.lower().__contains__("na"):
                 logger.error("Skipping invalid PEN no.: %s", pen_no)
                 self.update_import_data(
                     pen_no, {"Remark": "Invalid PEN no.",
