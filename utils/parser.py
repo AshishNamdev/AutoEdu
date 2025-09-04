@@ -47,7 +47,6 @@ def load_and_clean_excel(path):
     df = pd.read_excel(path, dtype=str)
 
     def clean_cell(x, col):
-        print(f"{col}-{x}")
         if pd.isna(x):
             return "na"
         elif col.lower().__contains__("class"):
