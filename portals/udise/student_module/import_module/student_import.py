@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-09-04
+Last Modified: 2025-09-05
 
 Version: 1.0.0
 """
@@ -170,8 +170,7 @@ class StudentImport:
                 status = str(ui.get_import_message()).strip()
                 logger.info("%s : %s", pen_no, status)
                 self.update_import_data(
-                    pen_no, {"Import Status": "Yes",
-                             "Remark": status})
+                    pen_no, {"Remark": status, "Import Status": "Yes"})
 
     def try_import_student(self, pen_no, student):
         """
