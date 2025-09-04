@@ -185,17 +185,16 @@ class StudentImport:
             status (str): Final status after import attempt.
         """
         ui = self.import_ui
-        student_dob = student.get_dob()
         dob_attempts = [
             ("PEN", student.get_dob()),
             ("Aadhaar", student.get_adhaar_dob())
         ]
 
         for source, dob in dob_attempts:
-            ui.import_student(pen_no, student_dob)
+            ui.import_student(pen_no, dob)
             if ui.get_pen_status() == "dob_error":
                 status = ui.get_ui_dob_status()
-                logger.error("%s - %s: %s", pen_no, student_dob, status)
+                logger.error("%s - %s: %s", pen_no, dob, status)
 
                 if dob is None and source == "Aadhaar":
                     self.update_import_data(pen_no, {
