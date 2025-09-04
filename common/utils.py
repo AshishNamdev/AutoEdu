@@ -255,7 +255,6 @@ def fill_fields(field_data):
         try:
             element = wait_and_find_element(locator)
             clear_field(element)
-            time.sleep(0.1)  # Small delay to ensure field is ready
             element.send_keys(value)
             logger.debug("Filled field %s with value: %s", locator, value)
             verify_field(value, element, locator, scroll=True)
@@ -358,7 +357,6 @@ def verify_field(expected_value, element, locator, scroll=False):
     except Exception as e:
         logger.error("Error verifying field %s: %s", locator, e)
         raise
-    time.sleep(0.5)  # Small delay between verifications
 
 
 def scroll_to_element(element):
