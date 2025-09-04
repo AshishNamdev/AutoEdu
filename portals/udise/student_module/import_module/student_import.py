@@ -29,7 +29,7 @@ from portals.udise import Student
 from ui.udise.login import StudentLogin
 from ui.udise.student_import import StudentImportUI
 from utils.parser import StudentImportDataParser
-from utils.report import save_student_import_report
+from utils.report import StudentImportReport
 
 
 class StudentImport:
@@ -86,7 +86,7 @@ class StudentImport:
         """
         self.import_ui.select_import_options()
         self.import_students()
-        save_student_import_report(self.import_data)
+        StudentImportReport(self.import_data).save()
 
     def import_students(self):
         """
