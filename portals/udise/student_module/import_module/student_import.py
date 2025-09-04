@@ -60,6 +60,16 @@ class StudentImport:
         self.import_data = self.prepare_import_data()
         self.relase_request = {}
         self.import_report = {}
+        self.import_errors = {
+            "dob_error": (
+                "The entered Date of Birth(DOB) does not match with the respective "
+                "Student PEN"
+            ),
+            "aadhaar_dob_missing": "Aadhaar DOB missing",
+            "dob_retry_skipped": (
+                "Retry with Aadhaar DOB skipped as it matches PEN DOB"
+            )
+        }
 
     def prepare_import_data(self):
         """
@@ -106,8 +116,9 @@ class StudentImport:
             - Triggers UI operations for import, release, or detail filling.
         """
         ui = self.import_ui
+        import_errors = self.import_errors
         for pen_no, student_data in self.import_data.items():
-            if pen_no.lower().__contains__("na"):
+            if "na" in pen_no.lower():
                 logger.error("Skipping invalid PEN no.: %s", pen_no)
                 self.update_import_data(
                     pen_no, {"Remark": "Invalid PEN no.",
@@ -129,11 +140,11 @@ class StudentImport:
                     continue
 
                 self.raise_release_request()
-            elif status == "dob_error":
-                logger.warning("%s : Skipping import due to DOB issues",
-                               pen_no)
+            elif status in import_errors:
+                logger.warning("%s : Skipping import due to %s issues",
+                               pen_no, import_errors[status])
                 self.update_import_data(
-                    pen_no, {"Remark": "DOB mismatch",
+                    pen_no, {"Remark": import_errors[status],
                              "Import Status": "No"})
                 continue
             else:
@@ -175,21 +186,29 @@ class StudentImport:
         """
         ui = self.import_ui
         student_dob = student.get_dob()
+        dob_attempts = [
+            ("PEN", student.get_dob()),
+            ("Aadhaar", student.get_adhaar_dob())
+        ]
 
-        for _ in range(2):
+        for source, dob in dob_attempts:
             ui.import_student(pen_no, student_dob)
             if ui.get_pen_status() == "dob_error":
                 status = ui.get_ui_dob_status()
                 logger.error("%s - %s: %s", pen_no, student_dob, status)
 
-                student_dob = student.get_adhaar_dob()
-                logger.debug("%s - Retrying with Aadhaar DOB: %s",
-                             pen_no, student_dob)
+                if dob is None and source == "Aadhaar":
+                    self.update_import_data(pen_no, {
+                        "Remark": "Aadhaar DOB missing",
+                        "Import Status": "No"
+                    })
+                    logger.warning("%s - Aadhaar DOB missing", pen_no)
+                    return "aadhaar_dob_missing"
 
-                if student_dob is None:
-                    self.update_import_data(
-                        pen_no,  {"Remark": "Aadhaar DOB missing"})
-                    return "dob_error"
+                # Skip retry if Aadhaar DOB is same as PEN DOB
+                if source == "PEN" and dob_attempts[1][1] == dob:
+                    logger.warning("%s - Aadhaar DOB matches PEN DOB — skipping retry", pen_no)
+                    return "dob_retry_skipped"
             else:
                 status = ui.get_student_status()
                 logger.info("%s : %s", pen_no, status)
