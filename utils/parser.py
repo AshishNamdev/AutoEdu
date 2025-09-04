@@ -20,7 +20,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-21
-Last Modified: 2025-09-03
+Last Modified: 2025-09-04
 
 Version: 1.0.0
 """
@@ -34,27 +34,48 @@ from common.logger import logger
 from common.utils import backup_file, clean_column_name
 
 import pandas as pd
+from pandas import Timestamp
+from dateutil.parser import parse
 
 def load_and_clean_excel(path):
-    """
+    """   
     Load an Excel file as a DataFrame with all values as strings, 
     replacing missing values and datetime placeholders with 'na', 
-    and normalizing string content by stripping whitespace.
-
-    Parameters:
-    -----------
-    path : str
-        Path to the Excel file to be loaded.
-
-    Returns:
-    --------
-    pd.DataFrame
-        A cleaned DataFrame with all string values normalized and missing/NaT values replaced.
+    and normalizing string content by stripping whitespace and
+    and format valid dates to 'DD/MM/YYYY'
     """
     df = pd.read_excel(path, dtype=str)
+
+    def clean_cell(x, col):
+        print(f"{col}-{x}")
+        if pd.isna(x):
+            return "na"
+        elif col.lower().__contains__("class"):
+            return str(x)
+        elif isinstance(x, Timestamp):
+            return x.strftime("%d/%m/%Y")
+        elif isinstance(x, str):
+            x = x.strip()
+            if x.lower() in ["", "nan", "nat"]:
+                return "na"
+            try:
+                # Try parsing string as date
+                dt = parse(x, dayfirst=True, fuzzy=False)
+                return dt.strftime("%d/%m/%Y")
+            except Exception:
+                return x
+        else:
+            return str(x)
+
+    # Apply cleaning column-wise
+    # df = df.applymap(clean_cell)
+    # Apply cleaning column-wise
+    for col in df.columns:
+        df[col] = df[col].apply(lambda x: clean_cell(x, col))
+    
     df = df.fillna("na").replace("NaT", "na")
-    df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
     return df
+
 
 class StudentImportDataParser:
     """
