@@ -39,16 +39,21 @@ and navigate through the initial setup steps required to access student data.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-09-03
+Last Modified: 2025-09-04
 
-Version: 1.0.1
+Version: 1.0.0
 """
 
 import time
 
 from common.driver import driver
 from common.logger import logger
-from common.utils import fill_fields, wait_and_click, wait_and_find_element
+from common.utils import (
+    dismiss_browser_popup,
+    fill_fields,
+    wait_and_click,
+    wait_and_find_element,
+)
 from ui.locators.udise import StudentLoginLocator
 
 
@@ -134,6 +139,7 @@ class StudentLogin:
             # If no errors, assume login success
             logger.info("Login successful. Proceeding to academic year selection.")
             time.sleep(2)
+            dismiss_browser_popup()
             self.select_academic_year()
             return
 

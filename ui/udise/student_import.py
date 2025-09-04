@@ -16,7 +16,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-09-03
+Last Modified: 2025-09-04
 
 Version: 1.0.0
 """
@@ -28,7 +28,6 @@ from selenium.webdriver.support.ui import Select
 from common.config import SECTIONS, TIME_DELAY
 from common.logger import logger
 from common.utils import (
-    dismiss_browser_popup,
     fill_fields,
     wait_and_click,
     wait_and_find_element,
@@ -66,9 +65,6 @@ class StudentImportUI:
             TimeoutException if any element is not clickable
                                     within the expected time.
         """
-
-        dismiss_browser_popup()
-
         locators = [
             (
                 "Student Movement and Progression",
