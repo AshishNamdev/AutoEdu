@@ -20,59 +20,55 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-21
-Last Modified: 2025-09-04
+Last Modified: 2025-09-05
 
 Version: 1.0.0
 """
 
 import json
 import os
+import re
 
 import pandas as pd
 
 from common.logger import logger
 from common.utils import backup_file, clean_column_name
 
-import pandas as pd
-from pandas import Timestamp
-from dateutil.parser import parse
 
 def load_and_clean_excel(path):
-    """   
-    Load an Excel file as a DataFrame with all values as strings, 
-    replacing missing values and datetime placeholders with 'na', 
-    and normalizing string content by stripping whitespace and
-    and format valid dates to 'DD/MM/YYYY'
     """
-    df = pd.read_excel(path, dtype=str)
+    Loads an Excel file and cleans it:
+    - Converts all values to strings
+    - Normalizes missing values to 'na'
+    - Formats valid dates to 'DD/MM/YYYY'
+    """
+    df = pd.read_excel(path)
 
     def clean_cell(x, col):
         if pd.isna(x):
             return "na"
-        elif col.lower().__contains__("class"):
+        if "class" in col.lower():
             return str(x)
-        elif isinstance(x, Timestamp):
+        if isinstance(x, pd.Timestamp):
             return x.strftime("%d/%m/%Y")
-        elif isinstance(x, str):
+        if isinstance(x, float):
+            if x.is_integer():
+                return str(int(x))
+            return str(x)
+        if isinstance(x, str):
             x = x.strip()
+            x = re.sub(r"(?i)\b(?:mr|mrs)\b\.?\s*", "", x).strip()
             if x.lower() in ["", "nan", "nat"]:
                 return "na"
             try:
-                # Try parsing string as date
-                dt = parse(x, dayfirst=True, fuzzy=False)
+                dt = pd.to_datetime(x, dayfirst=True, errors="raise")
                 return dt.strftime("%d/%m/%Y")
             except Exception:
                 return x
-        else:
-            return str(x)
+        return str(x)
 
-    # Apply cleaning column-wise
-    # df = df.applymap(clean_cell)
-    # Apply cleaning column-wise
     for col in df.columns:
         df[col] = df[col].apply(lambda x: clean_cell(x, col))
-    
-    df = df.fillna("na").replace("NaT", "na")
     return df
 
 
@@ -135,7 +131,7 @@ class StudentImportDataParser:
         """
         # Read Excel file into DataFrame
         df = load_and_clean_excel(self.import_data_file)
-        
+
         # Clean column names
         df.columns = [clean_column_name(str(col)) for col in df.columns]
 
@@ -167,7 +163,7 @@ class StudentImportDataParser:
             import_data[main_key] = sub_dict
 
         self.import_data = import_data
-        logger.debug("✅ Data successfully parsed from %s",
+        logger.debug("Data successfully parsed from %s",
                      self.import_data_file)
         self.save_parsed_data_json(df)
 
@@ -203,7 +199,7 @@ class StudentImportDataParser:
             json.dump(self.import_data, f, indent=4, ensure_ascii=False)
 
         logger.info(
-            "✅ Data successfully parsed and saved to %s", self.data_json_file)
+            "Data successfully parsed and saved to %s", self.data_json_file)
 
 
 class StudentProgressionDataParser:
