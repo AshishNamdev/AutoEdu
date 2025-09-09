@@ -20,7 +20,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-21
-Last Modified: 2025-09-05
+Last Modified: 2025-09-10
 
 Version: 1.0.0
 """
@@ -32,7 +32,7 @@ import re
 import pandas as pd
 
 from common.logger import logger
-from common.utils import backup_file, clean_column_name
+from common.utils import backup_file, clean_column_labels
 
 
 def load_and_clean_excel(path):
@@ -133,7 +133,7 @@ class StudentImportDataParser:
         df = load_and_clean_excel(self.import_data_file)
 
         # Clean column names
-        df.columns = [clean_column_name(str(col)) for col in df.columns]
+        df.columns = [clean_column_labels(str(col)) for col in df.columns]
 
         # Ensure first column exists
         first_col = df.columns[0]

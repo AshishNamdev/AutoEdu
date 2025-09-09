@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-09-05
+Last Modified: 2025-09-10
 
 Version: 1.0.0
 """
@@ -29,7 +29,7 @@ from portals.udise import Student
 from ui.udise.login import StudentLogin
 from ui.udise.student_import import StudentImportUI
 from utils.parser import StudentImportDataParser
-from utils.report import StudentImportReport
+from utils.report import ReportExporter
 
 
 class StudentImport:
@@ -59,11 +59,10 @@ class StudentImport:
         self.student = None
         self.import_data = self.prepare_import_data()
         self.relase_request = {}
-        self.import_report = {}
         self.import_errors = {
             "dob_error": (
-                "The entered Date of Birth(DOB) does not match with the respective "
-                "Student PEN"
+                "The entered Date of Birth(DOB) does not match "
+                "with the respective Student PEN"
             ),
             "aadhaar_dob_missing": "Aadhaar DOB missing",
             "dob_retry_skipped": (
@@ -96,7 +95,9 @@ class StudentImport:
         """
         self.import_ui.select_import_options()
         self.import_students()
-        StudentImportReport(self.import_data).save()
+        ReportExporter(self.import_data, report_sub_dir="udise",
+                       filename="student_import_report"
+                       ).save(first_column="Student PEN Number")
 
     def import_students(self):
         """

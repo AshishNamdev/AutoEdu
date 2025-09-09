@@ -1,151 +1,210 @@
 """
-Module: student_import_report
+Module: report
 
-This module defines the `StudentImportReport` class, which encapsulates
-the logic for generating structured Excel and JSON reports from student
-import data keyed by PEN number.
+This module defines the `GenericReportExporter` class, which encapsulates
+the logic for generating structured Excel and JSON reports from nested
+record dictionaries keyed by unique identifiers.
 
-Designed for UDISE workflows, it supports audit-friendly exports,
-column schema enforcement, and automatic backup of previous reports.
+Designed for AutoEdu and similar automation platforms, it supports
+schema-independent flattening, audit-friendly exports, and automatic
+backup of previous reports.
 
 Features:
-- Converts nested student data into a flat tabular format
+- Converts nested data into flat tabular format
 - Saves both JSON and Excel versions of the report
 - Backs up existing report files before overwriting
-- Enforces column order using a configurable schema
-- Handles missing fields gracefully (filled as NaN)
+- Preserves input column order and appends audit columns at the end
+- Cleans column labels for user-friendly exports
 - Logs report generation status and file path
 
 Usage:
-    from student_import_report import StudentImportReport
-    report = StudentImportReport(import_data, column_order=STUDENT_IMPORT_COLUMNS)
-    report.save()
+    from report_exporter import GenericReportExporter
 
-Intended for integration into AutoEdu or similar automation platforms
-where traceability, modularity, and user-friendly exports are critical.
+    exporter = GenericReportExporter(
+        import_data,
+        report_dir="reports/udise",
+        filename="import_report"
+    )
+    exporter.save(first_column="Student PEN")
 
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-23
-Last Modified: 2025-09-04
+Last Modified: 2025-09-10
 
 Version: 1.0.0
 """
-
 
 import json
 import os
 
 import pandas as pd
+from openpyxl import load_workbook
+from openpyxl.styles import Alignment, Border, Font, Side
 
 from common.logger import logger
-from common.utils import backup_file
+from common.utils import backup_file, clean_column_labels
 
 
-class StudentImportReport:
+class ReportExporter:
     """
-    Generates structured Excel and JSON reports from student import data.
+    Generates structured Excel and JSON reports from nested record data.
 
     Features:
     - Backs up existing report files before overwriting
-    - Enforces consistent column order using STUDENT_IMPORT_COLUMNS (if provided)
-    - Handles missing fields gracefully
-    - Logs report generation status and file path
-
-    Intended for UDISE student import workflows.
-
-    Author: Ashish Namdev
-    Version: 1.0.1
+    - Preserves input column order and appends audit columns at the end
+    - Cleans column labels for export
+    - Schema-independent flattening of nested records
     """
 
-    def __init__(self, import_data, column_order=None):
+    def __init__(self, import_data, report_sub_dir="udise", filename="report"):
         """
-        Initializes the report generator with student data and configuration.
+        Initializes the report exporter with data and configuration.
 
         Args:
-            import_data (dict): Dictionary of student records keyed by PEN number.
-            report_subdir (str): Subdirectory under 'reports' for saving files.
-            column_order (list, optional): List of column names to enforce order.
+            import_data (dict): Dictionary of records keyed by unique ID.
+            report_dir (str): Directory under which reports are saved.
+            filename (str): Base name for JSON and Excel files.
         """
         self.import_data = import_data
-        report_dir = os.path.join(os.getcwd(), "reports", "udise")
-        self.report_json_file = os.path.join(report_dir, "import_report.json")
-        self.report_excel_file = os.path.join(report_dir, "import_report.xlsx")
-        self.column_order = column_order
+        report_dir = os.path.join(os.getcwd(), "reports", report_sub_dir)
+        self.report_json_file = os.path.join(report_dir, f"{filename}.json")
+        self.report_excel_file = os.path.join(report_dir, f"{filename}.xlsx")
 
         os.makedirs(report_dir, exist_ok=True)
 
     def _backup_existing_reports(self):
         """
         Backs up existing report files (JSON and Excel) before overwriting.
-
-        Uses `backup_file()` utility and removes originals to ensure clean
-        write.
         """
         for f in [self.report_json_file, self.report_excel_file]:
             if os.path.isfile(f):
                 backup_file(f)
                 os.remove(f)
 
-    def _flatten_import_data(self):
+    def _flatten_import_data(self, first_column):
         """
-        Converts nested student dictionary into a flat list of row
-        dictionaries.
-
-        Each row includes 'Student PEN' and associated metadata.
-
-        Returns:
-            list[dict]: Flattened student records.
-        """
-
-        rows = []
-        for pen_no, data in self.import_data.items():
-            row = {"Student PEN": pen_no}
-            if isinstance(data, dict):
-                row.update(data)
-            rows.append(row)
-        return rows
-
-    def _apply_column_order(self, df):
-        """
-        Reorders DataFrame columns based on the provided schema.
-
-        Missing columns are added with NaN values. If no schema is provided,
-        columns are sorted alphabetically.
+        Flattens nested records into a list of row dictionaries.
 
         Args:
-            df (pd.DataFrame): Raw DataFrame of student records.
+            first_column (str): Column name to assign the top-level key.
+
+        Returns:
+            List[Dict[str, Any]]: Flattened records.
+        """
+        rows = []
+        for main_key, data in self.import_data.items():
+            row = {first_column: main_key}
+            if isinstance(data, dict):
+                row.update(data)
+                rows.append(row)
+        return rows
+
+    def _reorder_columns(self, df, audit_columns=None):
+        """
+        Ensures audit columns appear at the end of the DataFrame.
+
+        Args:
+            df (pd.DataFrame): Flattened DataFrame.
+            audit_columns (list[str], optional): Columns to push to the end.
 
         Returns:
             pd.DataFrame: Reordered DataFrame.
         """
+        audit_columns = audit_columns or ["Remark", "Import Status"]
+        ordered_cols = [col for col in df.columns if col not in audit_columns] + [
+            col for col in audit_columns if col in df.columns
+        ]
+        return df[ordered_cols]
 
-        if self.column_order:
-            # Fill missing columns with NaN
-            for col in self.column_order:
-                if col not in df.columns:
-                    df[col] = pd.NA
-            return df[self.column_order]
-        else:
-            return df[sorted(df.columns)]
-
-    def save(self):
+    def save(self, first_column):
         """
-        Generates and saves the student import report.
+        Generates and saves the report in both JSON and Excel formats.
 
-        - Backs up existing files
-        - Saves raw data as JSON
-        - Converts data to Excel with enforced column order
-        - Logs the output path
+        Args:
+            first_column (str): Column name for the top-level key.
+
+        Side Effects:
+            - Writes to JSON and Excel files.
+            - Logs output path.
         """
-
         self._backup_existing_reports()
 
         with open(self.report_json_file, "w", encoding="utf-8") as f:
             json.dump(self.import_data, f, indent=4, ensure_ascii=False)
 
-        df = pd.DataFrame(self._flatten_import_data())
-        df = self._apply_column_order(df)
+        flattened_rows = self._flatten_import_data(first_column)
+        df = pd.DataFrame(flattened_rows)
+        df = self._reorder_columns(df)
+
+        df.columns = [
+            clean_column_labels(str(col), restore=True)
+            for col in df.columns
+        ]
 
         df.to_excel(self.report_excel_file, index=False)
+        ReportStyler(self.report_excel_file).save()
         logger.info("Saved report to %s", self.report_excel_file)
+
+
+class ReportStyler:
+    """
+    Applies professional formatting to Excel reports.
+
+    Features:
+    - Center-aligns all cells
+    - Adds thin borders around all cells
+    - Bolds and centers the header row
+    - Optional freeze panes and column width adjustment
+    """
+
+    def __init__(self, filepath):
+        """
+        Args:
+            filepath (str): Path to the Excel file to format.
+        """
+        self.filepath = filepath
+        self.wb = load_workbook(filepath)
+        self.ws = self.wb.active
+
+        self.center = Alignment(horizontal="center", vertical="center")
+        self.thin_border = Border(
+            left=Side(style="thin"),
+            right=Side(style="thin"),
+            top=Side(style="thin"),
+            bottom=Side(style="thin")
+        )
+        self.header_font = Font(bold=True)
+
+    def apply_basic_formatting(self):
+        """Applies borders, center alignment, and bold headers."""
+        for row in self.ws.iter_rows():
+            for cell in row:
+                cell.alignment = self.center
+                cell.border = self.thin_border
+                if cell.row == 1:
+                    cell.font = self.header_font
+
+    def freeze_header(self):
+        """Freezes the header row."""
+        self.ws.freeze_panes = self.ws["A2"]
+
+    def auto_adjust_column_widths(self):
+        """Adjusts column widths based on content."""
+        for col in self.ws.columns:
+            max_length = max(
+                len(str(cell.value)) if cell.value is not None else 0
+                for cell in col
+            )
+            col_letter = col[0].column_letter
+            self.ws.column_dimensions[col_letter].width = max_length + 2
+
+    def save(self):
+        """
+        Saves the formatted workbook.
+        Overwrites the original file with applied styles.
+        """
+        self.apply_basic_formatting()
+        self.freeze_header()
+        self.auto_adjust_column_widths()
+        self.wb.save(self.filepath)

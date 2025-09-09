@@ -7,7 +7,7 @@ and perform robust clicking actions with retry logic.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-09-04
+Last Modified: 2025-09-10
 
 Version: 1.0.0
 
@@ -341,7 +341,6 @@ def verify_field(expected_value, element, locator, scroll=False):
         Logs both successful and failed verification attempts for traceability.
     """
 
-
     try:
         if scroll:
             scroll_to_element(element)
@@ -407,23 +406,38 @@ def dismiss_browser_popup():
         logger.warning("Failed to dismiss popup with ESCAPE key: %s", e)
 
 
-def clean_column_name(column_name):
+def clean_column_labels(column_name, restore=False):
     """
-    Cleans a column name to ensure it's safe for use as a JSON key.
+    Normalizes or restores column lables for consistent schema handling.
 
-    This function trims leading/trailing whitespace, converts the
-    string to lowercase, and replaces spaces with underscores to
-    produce a consistent, safe key format.
+    This utility transforms column lables into a safe, JSON-compatible format
+    by trimming whitespace, converting to lowercase, and replacing spaces with
+    underscores.
+    When `restore=True`, it restores the original display format
+    by converting underscores to spaces and applying title casing.
 
     Args:
-        column_name (str): The original column name to be cleaned.
+        column_name (str): The column name to be transformed.
+        restore (bool, optional): If True, restores the transformation to
+            produce a human-readable label. Defaults to False.
 
     Returns:
-        str: A sanitized version of the column name suitable for
-                use as a JSON key.
-    """
+        str: A cleaned or restored column name,
+            depending on the `restore` flag.
 
-    return column_name.strip().lower().replace(" ", "_")
+    Examples:
+        clean_column_name("Student Name") → "student_name"
+        clean_column_name("student_name", restore=True) → "Student Name"
+
+    Notes:
+        - Useful for mapping UI labels to internal keys and vice versa.
+        - Ensures consistent naming across JSON, Excel, and UI layers.
+    """
+    return (
+        column_name.strip().lower().replace(" ", "_")
+        if not restore
+        else column_name.strip().title().replace("_", " ")
+    )
 
 
 def random_date(start_date, end_date, date_format):
