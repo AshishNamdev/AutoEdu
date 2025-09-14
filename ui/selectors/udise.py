@@ -12,7 +12,7 @@ These selectors serve as constants for building reliable and maintainable automa
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-09-03
+Last Modified: 2025-09-14
 
 Version: 1.0.0
 """
@@ -136,3 +136,22 @@ class StudentImportSelector:
     DOB_ID = "mat-input-1"
     DOA_ID = "mat-input-4"
     IMPORT_SUCCES_MESSAGE_ID = "swal2-title"
+
+
+class ReleaseRequestSelectors:
+
+    # XPath selectors
+    RELEASE_REQUEST_MANAGEMENT_XPATH = "//span[contains(normalize-space(text()), 'Release Request Management')]/ancestor::li"
+    IN_STATE_RELEASE_REQUEST_XPATH = "//h5[contains(normalize-space(text()), 'Within State')]/following-sibling::div/button"
+    OUT_STATE_RELEASE_REQUEST_XPATH = "//h5[contains(normalize-space(text()), 'Outside State')]/following-sibling::div/button"
+    GENERATE_RELEASE_REQUEST_XPATH = "//*[contains(normalize-space(text()), 'Generate Student Release Request')]"
+    STUDENT_PEN_XPATH = "//input[@placeholder='Enter PEN']"
+    DOB_XPATH = "//label[contains(normalize-space(.), 'Date of Birth')]/following-sibling::div//input[@placeholder='DD/MM/YYYY']"
+    GET_DETAILS_BUTTON_XPATH = "//button[contains(normalize-space(text()), 'Get Details')]"
+    SELECT_CLASS_XPATH = "//label[contains(normalize-space(text()), 'Class')]/following-sibling::select"
+    SELECT_SECTION_XPATH = "//label[contains(normalize-space(text()), 'Section')]/following-sibling::select"
+    DOA_XPATH = "//label[contains(text(), 'Date of Admission')]/following::input[contains(@placeholder, 'DD/MM')][1]"
+    SELECT_REMARK_XPATH = "//label[contains(normalize-space(text()), 'Remark')]/following-sibling::select"
+    GENERATE_REQUEST_BUTTON_XPATH = "//button[contains(normalize-space(text()), 'Generate')]"
+    ERROR_MESSAGE_XPATH = "//div[@role='dialog']/h2[contains(normalize-space(text()), 'currently in Dropbox')]"
+    ERROR_OK_BUTTON_XPATH = "//button[contains(normalize-space(text()), 'Okay')]"

@@ -25,7 +25,7 @@ Version: 1.0.0
 
 from common.config import PASSWORD, USERNAME
 from common.logger import logger
-from portals.udise import Student
+from portals.udise import ReleaseRequest, Student
 from ui.udise.login import StudentLogin
 from ui.udise.student_import import StudentImportUI
 from utils.parser import StudentImportDataParser
@@ -69,6 +69,7 @@ class StudentImport:
                 "Retry with Aadhaar DOB skipped as it matches PEN DOB"
             )
         }
+        self.pen_dob = None
 
     def prepare_import_data(self):
         """
@@ -140,7 +141,7 @@ class StudentImport:
                                  "Import Status": "Yes"})
                     continue
 
-                self.raise_release_request()
+                self.raise_release_request(pen_no, self.pen_dob)
             elif status in import_errors:
                 logger.warning("%s : Skipping import due to %s issues",
                                pen_no, import_errors[status])
@@ -184,6 +185,8 @@ class StudentImport:
         Returns:
             status (str): Final status after import attempt.
         """
+        # Rest PEN DOB to None
+        self.pen_dob = None
         ui = self.import_ui
         dob_attempts = [
             ("PEN", student.get_dob()),
@@ -209,6 +212,8 @@ class StudentImport:
                     logger.warning("%s - Aadhaar DOB matches PEN DOB — skipping retry", pen_no)
                     return "dob_retry_skipped"
             else:
+                # Set PEN DOB to working DOB
+                self.pen_dob = dob
                 status = ui.get_student_status()
                 logger.info("%s : %s", pen_no, status)
                 return status
@@ -337,5 +342,6 @@ class StudentImport:
             logger.warning("%s not found in import data. No update made.",
                            pen_no)
 
-    def raise_release_request(self):
-        pass
+    def raise_release_request(self, pen_no, dob):
+
+        release_request = ReleaseRequest(pen_no, dob)
