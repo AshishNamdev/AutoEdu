@@ -95,12 +95,12 @@ class StudentImport:
         This method serves as the entry point for the import process.
         """
         self.import_ui.select_import_options()
-        self.import_students()
+        self._import_students()
         ReportExporter(self.import_data, report_sub_dir="udise",
                        filename="student_import_report"
                        ).save(first_column="Student PEN Number")
 
-    def import_students(self):
+    def _import_students(self):
         """
         Imports a batch of students by validating their DOB and determining
         import eligibility.
@@ -118,65 +118,33 @@ class StudentImport:
             - Triggers UI operations for import, release, or detail filling.
         """
         ui = self.import_ui
-        import_errors = self.import_errors
         for pen_no, student_data in self.import_data.items():
-            if "na" in pen_no.lower():
-                logger.error("Skipping invalid PEN no.: %s", pen_no)
-                self.update_import_data(
-                    pen_no, {"Remark": "Invalid PEN no.",
-                             "Import Status": "No"})
+            if self._is_invalid_pen_no(pen_no):
                 continue
 
             student = Student(pen_no, student_data)
-            status = self.try_import_student(pen_no, student)
+            status = self._try_import_student(pen_no, student)
 
             if status == "active":
-                # Skip student if same school
-                if self.check_current_school():
-                    logger.info(
-                        "%s : Student already active in current school",
-                        pen_no)
-                    self.update_import_data(
-                        pen_no, {"Remark": "Already Imported",
-                                 "Import Status": "Yes"})
+                if self._is_school_matched(pen_no):
                     continue
-
                 self.raise_release_request(pen_no, self.pen_dob)
-            elif status in import_errors:
-                logger.warning("%s : Skipping import due to %s issues",
-                               pen_no, import_errors[status])
-                self.update_import_data(
-                    pen_no, {"Remark": import_errors[status],
-                             "Import Status": "No"})
+            elif self._is_import_error(pen_no, status):
+                continue
+            elif self._is_class_mismatch(pen_no, student.get_class()):
                 continue
             else:
-                student_class = student.get_class()
-                if self.check_import_class(student_class) is False:
-                    import_class = ui.get_import_class()
-                    logger.info(
-                        "%s : Skipping import due to class issues", pen_no)
-                    import_status = (
-                        f"Class mismatch:\n"
-                        f"  Available Import class - {import_class}\n"
-                        f"  Student class - {student_class}"
-                    )
-
-                    self.update_import_data(
-                        pen_no, {"Remark": import_status,
-                                 "Import Status": "No"})
-                    continue
-
-                self.fill_import_details(
+                self._fill_import_details(
                     student.get_class(),
                     student.get_section(),
                     student.get_admission_date(),
                 )
                 status = str(ui.get_import_message()).strip()
                 logger.info("%s : %s", pen_no, status)
-                self.update_import_data(
+                self._update_import_data(
                     pen_no, {"Remark": status, "Import Status": "Yes"})
 
-    def try_import_student(self, pen_no, student):
+    def _try_import_student(self, pen_no, student):
         """
         Attempts to import a student using PEN no. and Aadhaar DOB.
         Updates remark in import_data if Aadhaar DOB is missing.
@@ -202,7 +170,7 @@ class StudentImport:
                 logger.error("%s - %s: %s", pen_no, dob, status)
 
                 if dob is None and source == "Aadhaar":
-                    self.update_import_data(pen_no, {
+                    self._update_import_data(pen_no, {
                         "Remark": "Aadhaar DOB missing",
                         "Import Status": "No"
                     })
@@ -212,7 +180,8 @@ class StudentImport:
                 # Skip retry if Aadhaar DOB is same as PEN DOB
                 if source == "PEN" and dob_attempts[1][1] == dob:
                     logger.warning(
-                        "%s - Aadhaar DOB matches PEN DOB — skipping retry", pen_no)
+                        "%s - Aadhaar DOB matches PEN DOB — skipping retry",
+                        pen_no)
                     return "dob_retry_skipped"
             else:
                 # Set PEN DOB to working DOB
@@ -222,7 +191,7 @@ class StudentImport:
                 return status
         return "dob_error"
 
-    def fill_import_details(self, student_class, section, doa):
+    def _fill_import_details(self, student_class, section, doa):
         """
         Fills and submits the student import form with the provided class,
         section, and date of admission (DOA), then retrieves the resulting
@@ -252,69 +221,98 @@ class StudentImport:
         ui = self.import_ui
         ui.submit_import_data(student_class, section, doa)
 
-    def check_current_school(self):
+    def _is_school_matched(self, pen_no):
         """
-        Validates whether the student's current school matches
-        the currently logged in school.
+        Checks whether the student's current school matches the
+        current logged-in school.
 
-        This method compares the `self.logged_in_school` value with the
-        school retrieved from the UI (`get_student_current_school`).
-        It logs an informational message if they match, and a warning
-        if they differ.
-
-        Returns:
-            bool: True if the logged in school matches the student's
-                    current school,False otherwise.
-        """
-
-        ret_val = False
-        logged_in_school = self.logged_in_school.strip()
-        current_school = self.import_ui.get_student_current_school().strip()
-
-        if current_school.lower() == logged_in_school.lower():
-            logger.debug(
-                "Current school matches the logged in school: %s", current_school
-            )
-            ret_val = True
-        else:
-            logger.warning(
-                "Current school does not match the logged in school. Current: %s, Logged in: %s",
-                current_school,
-                logged_in_school,
-            )
-        return ret_val
-
-    def check_import_class(self, student_class):
-        """
-        Compares the input student class with the class available
-        on the import UI.
-
-        This method checks whether the provided `student_clas` matches the
-        class available on the import dropdown.
-        If they match (case-insensitive), it returns True. Otherwise,
-        it logs a warning and returns False.
+        Retrieves the student's current school from the UI and compares it with
+        the logged-in school (`self.logged_in_school`). If they match
+        (case-insensitive), logs an info message and updates the import status
+        as already imported.
+        If they differ, logs a warning.
 
         Args:
+            pen_no (str): The student's PEN number used for logging and
+                            data update.
+
+        Returns:
+            bool: True if the current school matches the logged-in school,
+                    False otherwise.
+        """
+        current_school = self.import_ui.get_student_current_school().strip()
+        logged_in_school = self.logged_in_school.strip()
+
+        if current_school.casefold() == logged_in_school.casefold():
+            logger.info(
+                "%s : Student already active in current school %s",
+                pen_no,
+                current_school,
+            )
+            self._update_import_data(
+                pen_no,
+                {
+                    "Remark": "Already Imported",
+                    "Import Status": "Yes"
+                }
+            )
+            return True
+
+        logger.warning(
+            (
+                "Current school does not match the logged in school. "
+                "Current: %s, Logged in: %s"
+            ),
+            current_school,
+            logged_in_school,
+        )
+        return False
+
+    def _is_class_mismatch(self, pen_no, student_class):
+        """
+        Determines if the student's class mismatches the import UI class.
+
+        Retrieves the class from the import UI and compares it with the
+        provided `student_class`.
+        If they differ (case-insensitive), logs a warning and updates the
+        import status with a mismatch remark.
+
+        Args:
+            pen_no (str): The student's PEN number used for logging
+                            and data update.
             student_class (str): The class value associated with the student.
 
         Returns:
-            bool: True if the input class matches the import class,
-                    False otherwise.
+            bool: True if a class mismatch is detected, False otherwise.
         """
-        ret_val = False
-        import_class = self.import_ui.get_import_class()
-        if (str(import_class).strip().lower()
-                == str(student_class).strip().lower()):
-            ret_val = True
-        else:
+        import_class_raw = self.import_ui.get_import_class()
+        import_class = str(import_class_raw).strip(
+        ) if import_class_raw else ""
+        student_class = str(student_class).strip()
+
+        if import_class.casefold() != student_class.casefold():
             logger.warning(
                 "Import class mismatch. Input: %s, Import: %s",
                 student_class,
                 import_class,
             )
-        return ret_val
+            mismatch_remark = (
+                f"Class mismatch:\n"
+                f"  Available Import class - {import_class}\n"
+                f"  Student class - {student_class}"
+            )
+            self._update_import_data(
+                pen_no,
+                {
+                    "Remark": mismatch_remark,
+                    "Import Status": "No"
+                }
+            )
+            return True
 
-    def update_import_data(self, pen_no, kwargs):
+        return False
+
+    def _update_import_data(self, pen_no, kwargs):
         """
         Updates the import data for a specific student identified
         by PEN number.
@@ -344,6 +342,69 @@ class StudentImport:
         else:
             logger.warning("%s not found in import data. No update made.",
                            pen_no)
+
+    def _is_invalid_pen_no(self, pen_no):
+        """
+        Determines if the given PEN number is invalid.
+
+        A PEN number is considered invalid if it contains the substring
+        "na" (case-insensitive).
+        If invalid, logs an error and updates the import data with a remark
+        and status.
+
+        Args:
+            pen_no (str): The PEN number to validate.
+
+        Returns:
+            bool: True if the PEN number is invalid, False otherwise.
+        """
+        if "na" in pen_no.lower():
+            logger.error("Skipping invalid PEN no.: %s", pen_no)
+            self._update_import_data(
+                pen_no,
+                {
+                    "Remark": "Invalid PEN no.",
+                    "Import Status": "No"
+                }
+            )
+            return True
+        return False
+
+    def _is_import_error(self, pen_no, status):
+        """
+        Checks whether the given import status indicates an error condition.
+
+        If the status exists in the `self.import_errors` dictionary,
+        logs a warning, updates the import data with a remark and sets
+        the importstatus to "No".
+
+        Args:
+            pen_no (str): The student's PEN number used for logging
+                            and data update.
+            status (str): The import status to validate against known
+                            error conditions.
+
+        Returns:
+            bool: True if the status is recognized as an import error,
+                    False otherwise.
+        """
+        error_remark = self.import_errors.get(status)
+        if not error_remark:
+            return False
+
+        logger.warning(
+            "%s : Skipping import due to %s issues",
+            pen_no,
+            error_remark,
+        )
+        self._update_import_data(
+            pen_no,
+            {
+                "Remark": error_remark,
+                "Import Status": "No"
+            }
+        )
+        return True
 
     def raise_release_request(self, pen_no, dob):
 
