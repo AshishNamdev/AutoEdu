@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-09-10
+Last Modified: 2025-09-15
 
 Version: 1.0.0
 """
@@ -156,12 +156,14 @@ class StudentImport:
                     logger.info(
                         "%s : Skipping import due to class issues", pen_no)
                     import_status = (
-                        f"Available Import class is {import_class} "
-                        f"Student class is {student_class}"
+                        f"Class mismatch:\n"
+                        f"  Available Import class - {import_class}\n"
+                        f"  Student class - {student_class}"
                     )
+
                     self.update_import_data(
-                        pen_no, {"Remark": "Class mismatch",
-                                 "Import Status": import_status})
+                        pen_no, {"Remark": import_status,
+                                 "Import Status": "No"})
                     continue
 
                 self.fill_import_details(
@@ -209,7 +211,8 @@ class StudentImport:
 
                 # Skip retry if Aadhaar DOB is same as PEN DOB
                 if source == "PEN" and dob_attempts[1][1] == dob:
-                    logger.warning("%s - Aadhaar DOB matches PEN DOB — skipping retry", pen_no)
+                    logger.warning(
+                        "%s - Aadhaar DOB matches PEN DOB — skipping retry", pen_no)
                     return "dob_retry_skipped"
             else:
                 # Set PEN DOB to working DOB
