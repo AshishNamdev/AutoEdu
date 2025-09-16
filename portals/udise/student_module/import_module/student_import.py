@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-09-15
+Last Modified: 2025-09-16
 
 Version: 1.0.0
 """
@@ -134,10 +134,10 @@ class StudentImport:
             elif self._is_class_mismatch(pen_no, student.get_class()):
                 continue
             else:
-                self._fill_import_details(
+                ui.submit_import_data(
                     student.get_class(),
                     student.get_section(),
-                    student.get_admission_date(),
+                    student.get_admission_date()
                 )
                 status = str(ui.get_import_message()).strip()
                 logger.info("%s : %s", pen_no, status)
@@ -191,126 +191,64 @@ class StudentImport:
                 return status
         return "dob_error"
 
-    def _fill_import_details(self, student_class, section, doa):
-        """
-        Fills and submits the student import form with the provided class,
-        section, and date of admission (DOA), then retrieves the resulting
-        import message.
-
-        Args:
-            student_class (str): The class to which the student is being
-                                assigned.
-            section (str): The section within the class.
-            doa (str): Date of admission in the expected
-                        format (e.g., 'DD/MM/YYYY').
-
-        Returns:
-            str: The import success or error message retrieved from the UI.
-
-        Raises:
-            TimeoutException: If any required UI element is not found
-                                within the wait period.
-            Exception: For unexpected failures during form submission
-                                or message retrieval.
-
-        Note:
-            This method assumes that the import UI is already initialized
-            and visible. It does not perform validation on the input values.
-        """
-
-        ui = self.import_ui
-        ui.submit_import_data(student_class, section, doa)
-
     def _is_school_matched(self, pen_no):
         """
-        Checks whether the student's current school matches the
-        current logged-in school.
+        Determines whether the student's current school matches the
+        logged-in school.
 
         Retrieves the student's current school from the UI and compares it with
         the logged-in school (`self.logged_in_school`). If they match
-        (case-insensitive), logs an info message and updates the import status
-        as already imported.
-        If they differ, logs a warning.
-
-        Args:
-            pen_no (str): The student's PEN number used for logging and
-                            data update.
-
-        Returns:
-            bool: True if the current school matches the logged-in school,
-                    False otherwise.
-        """
-        current_school = self.import_ui.get_student_current_school().strip()
-        logged_in_school = self.logged_in_school.strip()
-
-        if current_school.casefold() == logged_in_school.casefold():
-            logger.info(
-                "%s : Student already active in current school %s",
-                pen_no,
-                current_school,
-            )
-            self._update_import_data(
-                pen_no,
-                {
-                    "Remark": "Already Imported",
-                    "Import Status": "Yes"
-                }
-            )
-            return True
-
-        logger.warning(
-            (
-                "Current school does not match the logged in school. "
-                "Current: %s, Logged in: %s"
-            ),
-            current_school,
-            logged_in_school,
-        )
-        return False
-
-    def _is_class_mismatch(self, pen_no, student_class):
-        """
-        Determines if the student's class mismatches the import UI class.
-
-        Retrieves the class from the import UI and compares it with the
-        provided `student_class`.
-        If they differ (case-insensitive), logs a warning and updates the
-        import status with a mismatch remark.
+        (case-insensitive), logs an informational message and updates the 
+        import status as "Already Imported". If they differ,
+        logs a warning but does not update the import status.
 
         Args:
             pen_no (str): The student's PEN number used for logging
                             and data update.
-            student_class (str): The class value associated with the student.
 
         Returns:
-            bool: True if a class mismatch is detected, False otherwise.
+            bool: True if the current school matches the logged-in school,
+                False if a mismatch is detected.
         """
-        import_class_raw = self.import_ui.get_import_class()
-        import_class = str(import_class_raw).strip(
-        ) if import_class_raw else ""
-        student_class = str(student_class).strip()
 
-        if import_class.casefold() != student_class.casefold():
-            logger.warning(
-                "Import class mismatch. Input: %s, Import: %s",
-                student_class,
-                import_class,
-            )
-            mismatch_remark = (
-                f"Class mismatch:\n"
-                f"  Available Import class - {import_class}\n"
-                f"  Student class - {student_class}"
-            )
-            self._update_import_data(
-                pen_no,
-                {
-                    "Remark": mismatch_remark,
-                    "Import Status": "No"
-                }
-            )
-            return True
+        current_school = self.import_ui.get_student_current_school().strip()
+        logged_in_school = self.logged_in_school.strip()
 
-        return False
+        return not self._handle_field_validation(
+            "School", pen_no,
+            logged_in_school, current_school,
+            update_on_match=True, match_remark="Already Imported",
+            update_on_mismatch=False  # Don't update if mismatch
+        )
+
+    def _is_class_mismatch(self, pen_no, student_class):
+        """
+        Checks whether the student's class mismatches the import UI class.
+
+        Compares the provided `student_class` with the class retrieved from the
+        import UI. If they differ (case-insensitive), logs a warning and
+        updates the import status with a mismatch remark.
+        If they match, no update occurs.
+
+        Args:
+            pen_no (str): The student's PEN number used for logging and
+                            data update.
+            student_class (str): The class value associated with the
+                            student record.
+
+        Returns:
+            bool: True if a class mismatch is detected and handled,
+                    False otherwise.
+        """
+
+        return self._handle_field_validation(
+            "Class",
+            pen_no,
+            student_class,
+            self.import_ui.get_import_class(),
+            update_on_match=False,
+            update_on_mismatch=True
+        )
 
     def _update_import_data(self, pen_no, kwargs):
         """
@@ -405,6 +343,77 @@ class StudentImport:
             }
         )
         return True
+
+    def _handle_field_validation(
+        self,
+        field_name,
+        pen_no,
+        expected_value,
+        actual_value,
+        update_on_match=False,
+        update_on_mismatch=True,
+        match_remark="Already Imported"
+    ):
+        """
+        Validates a field by comparing expected and actual values
+        (case-insensitive), logs the result, and conditionally
+        updates import data.
+
+        Args:
+            field_name (str): Name of the field being validated.
+            pen_no (str): Student's PEN number.
+            expected_value (str): Expected value from student record.
+            actual_value (str): Actual value from UI or import source.
+            update_on_match (bool): Whether to update import data on match.
+            update_on_mismatch (bool): Whether to update import data on
+                                       mismatch.
+            match_remark (str): Remark to use when values match.
+
+        Returns:
+            bool: True if mismatch detected, False otherwise.
+        """
+        expected = str(expected_value).strip()
+        actual = str(actual_value).strip()
+
+        if expected.casefold() != actual.casefold():
+            logger.warning(
+                "%s : %s mismatch. Expected: %s, Actual: %s",
+                pen_no,
+                field_name,
+                expected,
+                actual,
+            )
+            if update_on_mismatch:
+                remark = (
+                    f"{field_name} Mismatch :\n"
+                    f"  Expected - {expected}\n"
+                    f"  Actual   - {actual}"
+                )
+                self._update_import_data(
+                    pen_no,
+                    {
+                        "Remark": remark,
+                        "Import Status": "No"
+                    }
+                )
+            return True
+
+        logger.info(
+            "%s : %s match confirmed. Expected: %s, Actual: %s",
+            pen_no,
+            field_name,
+            expected,
+            actual,
+        )
+        if update_on_match:
+            self._update_import_data(
+                pen_no,
+                {
+                    "Remark": match_remark,
+                    "Import Status": "Yes"
+                }
+            )
+        return False
 
     def raise_release_request(self, pen_no, dob):
 
