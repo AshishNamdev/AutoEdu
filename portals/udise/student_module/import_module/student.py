@@ -14,9 +14,9 @@ Classes:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-21
-Last Modified: 2025-08-23
+Last Modified: 2025-09-16
 
-Version: 1.0.1
+Version: 1.0.0
 """
 
 from common.utils import convert_to_ddmmyyyy
@@ -148,6 +148,16 @@ class Student:
         adhaar_dob = self.import_data["adhaar_dob"]
         return None if adhaar_dob == "" else convert_to_ddmmyyyy(adhaar_dob)
 
+    def get_adhaar_no(self):
+        """
+        Returns the student's Aadhaar number.
+
+        Returns:
+            str: Last four digits of Aadhaar.
+        """
+
+        return self.import_data["adhaar_no"]
+
     def get_adhaar_last_digits(self):
         """
         Returns the last four digits of the student's Aadhaar number.
@@ -156,4 +166,4 @@ class Student:
             str: Last four digits of Aadhaar.
         """
 
-        return self.import_data["addhar_last_4_digits"]
+        return self.get_adhaar_no()[-4:]
