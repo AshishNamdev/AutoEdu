@@ -18,14 +18,16 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-09-16
+Last Modified: 2025-09-17
 
 Version: 1.0.0
 """
 
 from common.config import PASSWORD, USERNAME
 from common.logger import logger
-from portals.udise import ReleaseRequest, Student
+from common.time_utils import get_timestamp
+from portals.udise import Student
+from portals.udise.student_module.release_request import ReleaseRequest
 from ui.udise.login import StudentLogin
 from ui.udise.student_import import StudentImportUI
 from utils.parser import StudentImportDataParser
@@ -198,7 +200,7 @@ class StudentImport:
 
         Retrieves the student's current school from the UI and compares it with
         the logged-in school (`self.logged_in_school`). If they match
-        (case-insensitive), logs an informational message and updates the 
+        (case-insensitive), logs an informational message and updates the
         import status as "Already Imported". If they differ,
         logs a warning but does not update the import status.
 
@@ -273,6 +275,8 @@ class StudentImport:
             - Modifies the `import_data` attribute of the class instance.
             - Logs a warning if the specified PEN number is not found.
         """
+        kwargs["date_and_time"] = get_timestamp(
+            format="%d-%m-%Y - %I:%M:%S %p")
         if pen_no in self.import_data:
             for key, value in kwargs.items():
                 self.import_data[pen_no][key] = value
