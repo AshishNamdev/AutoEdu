@@ -84,9 +84,9 @@ class StudentImport:
         data_parser.parse_data()
         return data_parser.get_import_data()
 
-    def init_student_import(self):
+    def start_student_import(self):
         """
-        Initiate the student import workflow.
+        Start the student import workflow.
 
         Triggers UI interactions to select import options and
         prepare the portal for data ingestion.

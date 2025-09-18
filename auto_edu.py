@@ -1,71 +1,81 @@
 """
 AutoEdu Portal Automation Entrypoint.
 
-This module serves as the centralized launcher for automation workflows across multiple
-educational portals, including UDISE, MPBSE, and Education Portal 3. It dynamically
-routes execution based on configuration parameters defined in `common.config`, allowing
-for modular and scalable automation of student and teacher workflows.
+This module serves as the centralized launcher for automation workflows
+across multiple, educational portals, including UDISE, MPBSE, and
+Education Portal 3 It dynamically routes execution based on configuration
+parameters defined in `common.config`, allowing for modular and scalable
+automation of student and teacher workflows.
 
 Features:
     - Launches browser session using configured URL.
     - Initializes logging and configuration setup.
-    - Delegates portal-specific tasks based on `PORTAL`, `MODULE`, and `TASK` values.
+    - Delegates portal-specific tasks based on `PORTAL`, `MODULE`,
+        and `TASK` values.
     - Supports future expansion for additional workflows and portals.
 
 Usage:
-    Configure `PORTAL`, `MODULE`, and `TASK` in `common/config.py` before execution.
+    Configure `PORTAL`, `MODULE`, and `TASK` in `common/config.py
+    before execution.
 
 Example:
     PORTAL = "udise"
     MODULE = "student"
     TASK = "import"
 
-    Running this script will launch the browser and execute the student import workflow
-    for the UDISE portal.
+    Running this script will launch the browser and execute the student
+    import  for the UDISE portal.
 
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-20
-Last Modified: 2025-09-03
+Last Modified: 2025-09-18
 
 Version: 1.0.0
 """
 
 from common import launch_browser
-from common.config import MODULE, PORTAL, TASK, URL, log_config
+from common.config import MODULE, PASSWORD, PORTAL, TASK, URL, USERNAME, log_config
 from common.logger import log_end, logger
 from portals.udise import StudentImport
 from ui import MainPage
+from ui.udise.login import StudentLogin
 
 
 class AutoEdu:
     """
     Automation entry point for educational portals.
 
-    This class routes execution to specific portal workflows based on configuration
-    parameters defined in the `common.config` module. It supports modular execution
-    for student and teacher workflows across multiple portals.
+    This class routes execution to specific portal workflows based on
+    configuration parameters defined in the `common.config` module.
+    It supports modular execution for student and teacher workflows
+    across multiple portals.
 
     Attributes:
         None
     """
 
-    def udise_portal(self):
+    def portal_udise(self):
         """
         Executes UDISE portal workflows based on the selected module and task.
 
         Supported MODULE values:
-            - "student": Executes student-related tasks such as import, progression, or profile.
+            - "student": Executes student-related tasks such as import,
+                         progression, or profile.
             - "teacher": Placeholder for future teacher-related workflows.
 
         Supported TASK values (when MODULE is "student"):
-            - "import": Initiates student import workflow via StudentImport class.
+            - "import": Initiates student import workflow via StudentImport
+                        class.
             - "progression": Placeholder for student progression logic.
             - "profile": Placeholder for student profile logic.
         """
         if MODULE == "student":
+            login = StudentLogin()
+            login.student_login(USERNAME, PASSWORD, max_attempts=3)
+            logged_in_school = login.get_logged_in_school()
             if TASK == "import":
-                StudentImport().init_student_import()
+                StudentImport(logged_in_school).start_student_import()
             elif TASK == "progression":
                 pass
             elif TASK == "profile":
@@ -73,7 +83,7 @@ class AutoEdu:
         elif MODULE == "teacher":
             pass
 
-    def mpbse_portal(self):
+    def portal_mpbse(self):
         """
         Executes MPBSE portal workflows based on the selected module.
 
@@ -83,7 +93,7 @@ class AutoEdu:
         if MODULE == "marks_entry":
             pass
 
-    def edu3_portal(self):
+    def portal_edu3(self):
         """
         Executes workflows for Education Portal 3 based on the selected module.
 
@@ -98,15 +108,16 @@ if __name__ == "__main__":
     log_config(logger)
     auto_edu = AutoEdu()
 
+    portal_router = {
+        "udise": auto_edu.portal_udise,
+        "mpbse": auto_edu.portal_mpbse,
+        "education_portal3": auto_edu.portal_edu3,
+    }
+
     try:
         launch_browser(URL)
         MainPage.check_status()
-        if PORTAL == "udise":
-            auto_edu.udise_portal()
-        elif PORTAL == "mpbse":
-            auto_edu.mpbse_portal()
-        elif PORTAL == "education_portal3":
-            auto_edu.edu3_portal()
+        portal_router[PORTAL]()
     except Exception as e:
         logger.exception("AutoEdu encountered an error: %s", str(e))
     finally:
