@@ -23,12 +23,10 @@ Last Modified: 2025-09-18
 Version: 1.0.0
 """
 
-from common.config import PASSWORD, USERNAME
 from common.logger import logger
 from common.time_utils import get_timestamp
 from portals.udise import Student
 from portals.udise.student_module.release_request import ReleaseRequest
-from ui.udise.login import StudentLogin
 from ui.udise.student_import import StudentImportUI
 from utils.parser import StudentImportDataParser
 from utils.report import ReportExporter
@@ -47,16 +45,14 @@ class StudentImport:
                                     interactions.
     """
 
-    def __init__(self):
+    def __init__(self, logged_in_school):
         """
         Initialize the StudentImport controller.
 
         Performs login to the UDISE portal using credentials from config,
         and sets up the UI handler for import operations.
         """
-        login = StudentLogin()
-        login.student_login(USERNAME, PASSWORD, max_attempts=3)
-        self.logged_in_school = login.get_logged_in_school()
+        self.logged_in_school = logged_in_school
         self.import_ui = StudentImportUI()
         self.student = None
         self.import_data = self.prepare_import_data()
