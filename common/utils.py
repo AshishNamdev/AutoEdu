@@ -7,14 +7,16 @@ and perform robust clicking actions with retry logic.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-09-10
+Last Modified: 2025-09-18
 
 Version: 1.0.0
 
 Functions:
     - wait_and_find_element(locator): Waits for a single clickable element.
-    - wait_and_find_elements(locator): Waits for multiple elements to be present.
-    - wait_and_click(locator, retries): Scrolls to and clicks an element with retry fallback.
+    - wait_and_find_elements(locator): Waits for multiple elements to be
+                                       present.
+    - wait_and_click(locator, retries): Scrolls to and clicks an element with
+                                        retry fallback.
 """
 
 import os
@@ -24,7 +26,6 @@ import shutil
 import time
 from datetime import datetime, timedelta
 
-from dateutil import parser
 from selenium.common.exceptions import (
     ElementClickInterceptedException,
     NoSuchElementException,
@@ -36,7 +37,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from common.config import TIMEOUT
-from common.driver import driver
+from common.driver import WebDriverManager
 from common.logger import logger
 from common.time_utils import get_timestamp
 
@@ -61,6 +62,7 @@ def wait_and_click(locator, retries=2):
     Raises:
         Exception: If the element cannot be clicked after the specified number of retries.
     """
+    driver = WebDriverManager.get_driver()
     for attempt in range(retries):
         try:
             element = WebDriverWait(driver, TIMEOUT).until(
@@ -108,6 +110,7 @@ def wait_and_find_element(locator):
     Raises:
         TimeoutException: If the element does not become clickable within the timeout.
     """
+    driver = WebDriverManager.get_driver()
     elem = WebDriverWait(driver, TIMEOUT).until(
         EC.element_to_be_clickable(locator))
     logger.debug("Element found and clickable: %s", locator)
@@ -135,6 +138,7 @@ def wait_and_find_elements(locator):
     Raises:
         TimeoutException: If the elements are not found within the timeout period.
     """
+    driver = WebDriverManager.get_driver()
     elements = WebDriverWait(driver, TIMEOUT).until(
         EC.presence_of_all_elements_located(locator)
     )
@@ -154,6 +158,7 @@ def wait_for_first_match(locators, timeout=10):
         str: The key of the locator that appeared first, or
                 'none' if none appeared.
     """
+    driver = WebDriverManager.get_driver()
     end_time = time.time() + timeout
     while time.time() < end_time:
         for key, locator in locators.items():
@@ -284,6 +289,7 @@ def clear_field(element):
     Raises:
         Prints an error message if all clearing strategies fail or an exception occurs.
     """
+    driver = WebDriverManager.get_driver()
     scroll_to_element(element)
     try:
         # Strategy 1: Try native clear()
@@ -370,6 +376,7 @@ def scroll_to_element(element):
         element (selenium.webdriver.remote.webelement.WebElement):
             The web element to scroll into view and focus.
     """
+    driver = WebDriverManager.get_driver()
     try:
         # JavaScript scroll (centered)
         driver.execute_script(
@@ -399,6 +406,7 @@ def dismiss_browser_popup():
     autofill overlays, or other browser-level dialogs that are not
     part of the DOM.
     """
+    driver = WebDriverManager.get_driver()
     try:
         ActionChains(driver).send_keys(Keys.ESCAPE).perform()
         logger.debug("Sent ESCAPE key to dismiss browser popup")

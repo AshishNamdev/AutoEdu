@@ -77,8 +77,8 @@ class StudentImportUI:
         for msg, locator in locators:
             wait_and_click(locator)
             logger.info("Selected %s option", msg)
-            logger.debug("waiting for %s seconds", TIME_DELAY)
-            time.sleep(TIME_DELAY)
+            # logger.debug("waiting for %s seconds", TIME_DELAY)
+            # time.sleep(TIME_DELAY)
 
     def import_student(self, student_pen, dob):
         """

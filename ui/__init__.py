@@ -20,14 +20,14 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-20
-Last Modified: 2025-09-03
+Last Modified: 2025-09-18
 
 Version: 1.0.0
 """
 
 from selenium.common.exceptions import TimeoutException
 
-from common import driver
+from common import WebDriverManager
 from common.config import URL
 from common.logger import logger
 from ui.locators.common import MainPageLocator
@@ -61,7 +61,7 @@ class MainPage:
             - Info if the page loads successfully.
             - Exception details for timeouts or unexpected failures.
         """
-
+        driver = WebDriverManager.get_driver()
         try:
             # Wait for page to load and check for 503 indicators
             body_text = driver.find_element(*MainPageLocator.BODY).text

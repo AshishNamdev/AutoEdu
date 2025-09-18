@@ -35,7 +35,17 @@ Version: 1.0.0
 """
 
 from common import launch_browser
-from common.config import MODULE, PASSWORD, PORTAL, TASK, URL, USERNAME, log_config
+from common.config import (
+    DEBUG,
+    MODULE,
+    PASSWORD,
+    PORTAL,
+    TASK,
+    URL,
+    USERNAME,
+    log_config,
+)
+from common.driver import WebDriverManager
 from common.logger import log_end, logger
 from portals.udise import StudentImport
 from ui import MainPage
@@ -121,4 +131,6 @@ if __name__ == "__main__":
     except Exception as e:
         logger.exception("AutoEdu encountered an error: %s", str(e))
     finally:
+        if not DEBUG:
+            WebDriverManager.get_driver().quit()
         log_end()

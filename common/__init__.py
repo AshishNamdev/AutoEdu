@@ -8,7 +8,7 @@ It integrates with a shared driver instance and configurable timeout settings.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-09-03
+Last Modified: 2025-09-18
 
 Version: 1.0.1
 
@@ -17,7 +17,7 @@ Functions:
     - login_user(): login user to the specified portal.
 """
 
-from common.driver import driver
+from common.driver import WebDriverManager
 from common.logger import logger
 
 
@@ -36,6 +36,6 @@ def launch_browser(url):
         None
     """
     logger.info("Opening Chrome Browser")
-
+    driver = WebDriverManager.get_driver()
     driver.get(url)
     driver.maximize_window()

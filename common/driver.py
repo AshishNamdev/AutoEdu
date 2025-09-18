@@ -5,7 +5,7 @@ Supports Chrome, Firefox, and Edge with automatic driver installation via
 `webdriver-manager`. Provides a singleton-style `get_driver()` method for
 reuse across modules.
 
-Author: Ashish Namdev (ashish28.sirt@gmail.com)
+Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 Date Created: 2025-08-18
 Last Modified: 2025-09-18
 Version: 2.0.0
@@ -85,13 +85,13 @@ class WebDriverManager:
             options.add_experimental_option("detach", True)
             return options
 
-        elif browser == "firefox":
+        if browser == "firefox":
             options = webdriver.FirefoxOptions()
             options.set_preference("signon.rememberSignons", False)
             options.set_preference("detach", True)
             return options
 
-        elif browser == "edge":
+        if browser == "edge":
             options = webdriver.EdgeOptions()
             # options.use_chromium = True
             options.add_experimental_option("detach", True)

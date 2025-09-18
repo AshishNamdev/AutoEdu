@@ -39,14 +39,14 @@ and navigate through the initial setup steps required to access student data.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-09-04
+Last Modified: 2025-09-18
 
 Version: 1.0.0
 """
 
 import time
 
-from common.driver import driver
+from common.driver import WebDriverManager
 from common.logger import logger
 from common.utils import (
     dismiss_browser_popup,
@@ -229,6 +229,7 @@ class StudentLogin:
             bool: True if the CAPTCHA message contains "Invalid",
                         False otherwise.
         """
+        driver = WebDriverManager.get_driver()
         time.sleep(2)  # Give UI a moment to render error messages
         elements = driver.find_elements(*StudentLoginLocator.ERROR_ALERT)
         if elements:
@@ -250,6 +251,7 @@ class StudentLogin:
             bool: True if the message indicates incorrect credentials,
                     False otherwise.
         """
+        driver = WebDriverManager.get_driver()
         time.sleep(2)  # Give UI a moment to render error messages
         elements = driver.find_elements(*StudentLoginLocator.ERROR_ALERT)
         if elements:
