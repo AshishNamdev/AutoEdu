@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-09-17
+Last Modified: 2025-09-18
 
 Version: 1.0.0
 """
@@ -275,12 +275,12 @@ class StudentImport:
             - Modifies the `import_data` attribute of the class instance.
             - Logs a warning if the specified PEN number is not found.
         """
-        kwargs["date_and_time"] = get_timestamp(
-            format="%d-%m-%Y - %I:%M:%S %p")
         if pen_no in self.import_data:
             for key, value in kwargs.items():
                 self.import_data[pen_no][key] = value
                 logger.debug("Updated %s: %s - %s", pen_no, key, value)
+            self.import_data[pen_no]["Date and Time"] = get_timestamp(
+                format="%d-%m-%Y - %I:%M:%S %p")
         else:
             logger.warning("%s not found in import data. No update made.",
                            pen_no)
