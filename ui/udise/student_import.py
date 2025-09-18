@@ -16,7 +16,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-09-04
+Last Modified: 2025-09-19
 
 Version: 1.0.0
 """
@@ -27,12 +27,7 @@ from selenium.webdriver.support.ui import Select
 
 from common.config import SECTIONS, TIME_DELAY
 from common.logger import logger
-from common.utils import (
-    fill_fields,
-    wait_and_click,
-    wait_and_find_element,
-    wait_for_first_match,
-)
+from common.utils import UIHandler as UI
 from ui.locators.udise import StudentImportLocator
 
 
@@ -75,7 +70,7 @@ class StudentImportUI:
         ]
 
         for msg, locator in locators:
-            wait_and_click(locator)
+            UI.wait_and_click(locator)
             logger.info("Selected %s option", msg)
             # logger.debug("waiting for %s seconds", TIME_DELAY)
             # time.sleep(TIME_DELAY)
@@ -99,11 +94,11 @@ class StudentImportUI:
                 (student_pen, StudentImportLocator.STUDENT_PEN),
                 (dob, StudentImportLocator.DOB),
             ]
-            fill_fields(field_data)
+            UI.fill_fields(field_data)
 
             logger.debug("Student PEN No: %s, DOB: %s", student_pen, dob)
 
-            wait_and_click(StudentImportLocator.IMPORT_GO_BUTTON)
+            UI.wait_and_click(StudentImportLocator.IMPORT_GO_BUTTON)
             logger.debug("Clicked Import button")
             logger.debug("Waiting for %s seconds", TIME_DELAY)
             time.sleep(TIME_DELAY)
@@ -142,9 +137,9 @@ class StudentImportUI:
             (SECTIONS[section], StudentImportLocator.SELECT_SECTION),
         ]:
             logger.debug("Selecting value %s for %s", value, locator)
-            Select(wait_and_find_element(locator)).select_by_value(value)
+            Select(UI.wait_and_find_element(locator)).select_by_value(value)
 
-        fill_fields([(doa, StudentImportLocator.DOA)])
+        UI.fill_fields([(doa, StudentImportLocator.DOA)])
         logger.debug("Entered Date of Admission: %s", doa)
 
         self.confirm_student_import()
@@ -173,7 +168,7 @@ class StudentImportUI:
             StudentImportLocator.IMPORT_BUTTON,
             StudentImportLocator.IMPORT_CONFIRM_BUTTON,
         ]:
-            wait_and_click(locator)
+            UI.wait_and_click(locator)
             logger.debug("Clicked element: %s", locator)
 
     def get_import_message(self):
@@ -194,12 +189,12 @@ class StudentImportUI:
             This method assumes that the import flow has already been
             completed and the success message is visible in the DOM.
         """
-        import_message = wait_and_find_element(
+        import_message = UI.wait_and_find_element(
             StudentImportLocator.IMPORT_SUCCES_MESSAGE
         ).get_attribute("innerHTML")
         logger.info("Import Success Message: %s", import_message)
 
-        wait_and_click(StudentImportLocator.IMPORT_OK_BUTTON)
+        UI.wait_and_click(StudentImportLocator.IMPORT_OK_BUTTON)
         logger.debug("Clicked OK button on import success dialog")
         return import_message
 
@@ -217,7 +212,7 @@ class StudentImportUI:
             str: One of 'dob_error', 'success', or 'none'
                     based on which UI element appears first.
         """
-        return wait_for_first_match(
+        return UI.wait_for_first_match(
             locators={
                 "dob_error": StudentImportLocator.DOB_MISMATCH_MESSAGE,
                 "success": StudentImportLocator.STUDENT_STATUS,
@@ -241,12 +236,12 @@ class StudentImportUI:
             NoSuchElementException: If the locator is not found on the page.
             WebDriverException: For general Selenium interaction failures.
         """
-        dob_error_msg = wait_and_find_element(
+        dob_error_msg = UI.wait_and_find_element(
             StudentImportLocator.DOB_MISMATCH_MESSAGE
         ).get_attribute("innerHTML")
         logger.debug("DOB Mismatch Message: %s", dob_error_msg)
 
-        wait_and_click(StudentImportLocator.DOB_MISMATCH_OK_BUTTON)
+        UI.wait_and_click(StudentImportLocator.DOB_MISMATCH_OK_BUTTON)
         logger.debug("Clicked OK button on DOB mismatch dialog")
         time.sleep(2)
 
@@ -272,7 +267,7 @@ class StudentImportUI:
         }
 
         try:
-            status_element = wait_and_find_element(
+            status_element = UI.wait_and_find_element(
                 StudentImportLocator.STUDENT_STATUS)
             class_name = status_element.get_attribute("class") or ""
             if "greenBack" in class_name:
@@ -296,7 +291,7 @@ class StudentImportUI:
         Returns:
             str: The name of the currently selected school.
         """
-        school_name = wait_and_find_element(
+        school_name = UI.wait_and_find_element(
             StudentImportLocator.CURRENT_SCHOOL
         ).get_attribute("innerHTML")
         logger.debug("Student's Current school : %s", school_name)
@@ -313,7 +308,7 @@ class StudentImportUI:
             str: The value of the currently selected class.
         """
         class_value = Select(
-            wait_and_find_element(StudentImportLocator.SELECT_CLASS)
+            UI.wait_and_find_element(StudentImportLocator.SELECT_CLASS)
         ).first_selected_option.get_attribute("value")
         logger.debug("Currently selected import class : %s", class_value)
         return class_value

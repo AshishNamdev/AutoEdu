@@ -39,7 +39,7 @@ and navigate through the initial setup steps required to access student data.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-09-18
+Last Modified: 2025-09-19
 
 Version: 1.0.0
 """
@@ -48,12 +48,7 @@ import time
 
 from common.driver import WebDriverManager
 from common.logger import logger
-from common.utils import (
-    dismiss_browser_popup,
-    fill_fields,
-    wait_and_click,
-    wait_and_find_element,
-)
+from common.utils import UIHandler as UI
 from ui.locators.udise import StudentLoginLocator
 
 
@@ -115,14 +110,14 @@ class StudentLogin:
         for attempt in range(1, max_attempts + 1):
             logger.debug("Login attempt %s/%s", attempt, max_attempts)
             # Fill credentials
-            fill_fields(field_data)
+            UI.fill_fields(field_data)
 
-            wait_and_click(StudentLoginLocator.CAPTCHA)
+            UI.wait_and_click(StudentLoginLocator.CAPTCHA)
 
             logger.info("Waiting 15 seconds for manual CAPTCHA entry")
             time.sleep(15)
 
-            wait_and_click(StudentLoginLocator.SUBMIT_BUTTON)
+            UI.wait_and_click(StudentLoginLocator.SUBMIT_BUTTON)
             logger.info("Clicked on the Submit button to initiate login")
 
             # Give UI a moment to render any error messages
@@ -139,7 +134,7 @@ class StudentLogin:
             # If no errors, assume login success
             logger.info("Login successful. Proceeding to academic year selection.")
             time.sleep(2)
-            dismiss_browser_popup()
+            UI.dismiss_browser_popup()
             self.select_academic_year()
             return
 
@@ -158,7 +153,7 @@ class StudentLogin:
         Returns:
             str: The name of the currently selected school.
         """
-        school_name = wait_and_find_element(
+        school_name = UI.wait_and_find_element(
             StudentLoginLocator.CURRENT_SCHOOL
         ).get_attribute("innerHTML")
         logger.info("Current logged in school: %s", school_name)
@@ -184,7 +179,7 @@ class StudentLogin:
             None
         """
 
-        wait_and_click(StudentLoginLocator.ACADEMIC_YEAR)
+        UI.wait_and_click(StudentLoginLocator.ACADEMIC_YEAR)
         logger.debug("Selected Current Academic Year")
 
         self.close_school_info()
@@ -212,7 +207,7 @@ class StudentLogin:
                         elements or UI issues.
         """
 
-        wait_and_click(StudentLoginLocator.SCHOOL_INFO)
+        UI.wait_and_click(StudentLoginLocator.SCHOOL_INFO)
         logger.debug("Closed School Information dialog popup")
         time.sleep(1)
 

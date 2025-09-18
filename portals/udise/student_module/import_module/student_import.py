@@ -26,7 +26,6 @@ Version: 1.0.0
 from common.logger import logger
 from common.time_utils import get_timestamp
 from portals.udise import Student
-from portals.udise.student_module.release_request import ReleaseRequest
 from ui.udise.student_import import StudentImportUI
 from utils.parser import StudentImportDataParser
 from utils.report import ReportExporter
@@ -416,5 +415,4 @@ class StudentImport:
         return False
 
     def raise_release_request(self, pen_no, dob):
-
-        release_request = ReleaseRequest(pen_no, dob)
+        pass
