@@ -1,74 +1,128 @@
 """
-Initializes and configures the Selenium WebDriver for Chrome.
+Manages and configures Selenium WebDriver instances for multiple browsers.
 
-This module sets up a Chrome WebDriver instance using `webdriver-manager` to
-automatically handle driver installation. It also configures the browser to
-remain open after script execution by enabling the 'detach' option.
+Supports Chrome, Firefox, and Edge with automatic driver installation via
+`webdriver-manager`. Provides a singleton-style `get_driver()` method for
+reuse across modules.
 
-Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
-
+Author: Ashish Namdev (ashish28.sirt@gmail.com)
 Date Created: 2025-08-18
-Last Modified: 2025-09-03
-
-Version: 1.0.1
-
-Attributes:
-    driver (webdriver.Chrome): A configured instance of Chrome WebDriver.
+Last Modified: 2025-09-18
+Version: 2.0.0
 """
 
 import os
 
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.edge.service import Service as EdgeService
+from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
+from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
-# from common.logger import logger
 from common.config import DEBUG
 
 
-def get_chrome_service(driver_path=False):
-    """
-    Creates and returns a Chrome WebDriver Service instance.
+class WebDriverManager:
+    _driver = None
 
-    This function determines the appropriate ChromeDriver executable path
-    based on the `driver_path` flag and the global `DEBUG` setting:
-    - If `DEBUG` is True, it forces `driver_path` to True and uses local driver
-        located at 'driver/chrome/chromedriver.exe' within the current working
-        directory.
-    - If `driver_path` is True and `DEBUG` is False, ChromeDriverManager to install the driver
+    @classmethod
+    def _get_service(cls, browser, force_local=False):
+        """
+        Resolves the appropriate driver service based on browser type.
 
-    Args:
-        driver_path (bool, optional): Indicates whether to use a local
-                                        driver path.
-            Defaults to False.
+        Args:
+            browser (str): One of 'chrome', 'firefox', 'edge'.
+            force_local (bool): If True, forces use of local driver path.
 
-    Returns:
-        selenium.webdriver.chrome.service.Service:
-            A Service object initialized with the resolved ChromeDriver path.
-    """
+        Returns:
+            Service: Selenium WebDriver service object.
+        """
+        use_local = DEBUG or force_local
+        cwd = os.getcwd()
 
-    driver_path = True if DEBUG else driver_path
+        if browser == "chrome":
+            path = (
+                os.path.join(cwd, "driver", "chrome", "chromedriver.exe")
+                if use_local else ChromeDriverManager().install()
+            )
+            return ChromeService(path)
 
-    if driver_path:
-        path = os.path.join(os.getcwd(), "driver",
-                            "chrome", "chromedriver.exe")
-        # logger.info("Starting Chrome with %s driver", path)
-    else:
-        path = ChromeDriverManager().install()
-    return Service(path)
+        if browser == "firefox":
+            path = (
+                os.path.join(cwd, "driver", "firefox", "geckodriver.exe")
+                if use_local else GeckoDriverManager().install()
+            )
+            return FirefoxService(path)
 
+        if browser == "edge":
+            path = (
+                os.path.join(cwd, "driver", "edge", "msedgedriver.exe")
+                if use_local else EdgeChromiumDriverManager().install()
+            )
+            return EdgeService(path)
 
-# Setup WebDriver
-# options = Options()
-options = webdriver.ChromeOptions()
-prefs = {"credentials_enable_service": False,
-         "profile.password_manager_enabled": False}
-options.add_experimental_option("prefs", prefs)
-options.add_experimental_option("detach", True)
+        raise ValueError(f"Unsupported browser: {browser}")
 
-try:
-    service = get_chrome_service()
-except Exception:
-    # logger.exception("AutoEdu encountered an error: %s", str(e))
-    service = get_chrome_service(driver_path=True)
-driver = webdriver.Chrome(service=service, options=options)
+    @classmethod
+    def _get_options(cls, browser):
+        """
+        Returns browser-specific options.
+
+        Args:
+            browser (str): One of 'chrome', 'firefox', 'edge'.
+
+        Returns:
+            Options: Selenium browser options object.
+        """
+        if browser == "chrome":
+            options = webdriver.ChromeOptions()
+            options.add_experimental_option("prefs", {
+                "credentials_enable_service": False,
+                "profile.password_manager_enabled": False
+            })
+            options.add_experimental_option("detach", True)
+            return options
+
+        elif browser == "firefox":
+            options = webdriver.FirefoxOptions()
+            options.set_preference("signon.rememberSignons", False)
+            options.set_preference("detach", True)
+            return options
+
+        elif browser == "edge":
+            options = webdriver.EdgeOptions()
+            # options.use_chromium = True
+            options.add_experimental_option("detach", True)
+            return options
+
+        raise ValueError(f"Unsupported browser: {browser}")
+
+    @classmethod
+    def get_driver(cls, browser="chrome"):
+        """
+        Returns a singleton WebDriver instance for the specified browser.
+
+        Args:
+            browser (str): One of 'chrome', 'firefox', 'edge'.
+
+        Returns:
+            WebDriver: Selenium WebDriver instance.
+        """
+        if cls._driver is None:
+            try:
+                service = cls._get_service(browser)
+            except Exception:
+                service = cls._get_service(browser, force_local=True)
+
+            options = cls._get_options(browser)
+
+            if browser == "chrome":
+                cls._driver = webdriver.Chrome(service=service, options=options)
+            elif browser == "firefox":
+                cls._driver = webdriver.Firefox(service=service, options=options)
+            elif browser == "edge":
+                cls._driver = webdriver.Edge(service=service, options=options)
+
+        return cls._driver
