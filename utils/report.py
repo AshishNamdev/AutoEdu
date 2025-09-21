@@ -43,7 +43,7 @@ from openpyxl import load_workbook
 from openpyxl.styles import Alignment, Border, Font, Side
 
 from common.logger import logger
-from common.utils import backup_file, clean_column_labels
+from utils import backup_file, clean_column_labels
 
 
 class ReportExporter:

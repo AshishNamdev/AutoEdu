@@ -14,7 +14,7 @@ Attributes:
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-09-03
+Last Modified: 2025-09-22
 
 Version: 1.0.1
 """
@@ -23,7 +23,7 @@ import logging
 import logging.config
 import os
 
-from common.time_utils import get_timestamp
+from utils.date_time_utils import get_timestamp
 
 log_dir = os.path.join(os.getcwd(), "logs")
 

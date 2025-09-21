@@ -32,7 +32,7 @@ import re
 import pandas as pd
 
 from common.logger import logger
-from common.utils import backup_file, clean_column_labels
+from utils import backup_file, clean_column_labels
 
 
 def load_and_clean_excel(path):
