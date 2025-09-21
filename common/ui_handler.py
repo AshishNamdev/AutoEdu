@@ -48,6 +48,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from common.config import TIMEOUT
 from common.driver import WebDriverManager
+from common.logger import logger
 
 
 class UIHandler:
