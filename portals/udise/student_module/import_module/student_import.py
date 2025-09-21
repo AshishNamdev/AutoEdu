@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-09-18
+Last Modified: 2025-09-21
 
 Version: 1.0.0
 """
@@ -54,7 +54,7 @@ class StudentImport:
         self.logged_in_school = logged_in_school
         self.import_ui = StudentImportUI()
         self.student = None
-        self.import_data = self.prepare_import_data()
+        self.import_data = None
         self.relase_request = {}
         self.import_errors = {
             "dob_error": (
@@ -68,7 +68,7 @@ class StudentImport:
         }
         self.pen_dob = None
 
-    def prepare_import_data(self):
+    def _prepare_import_data(self):
         """
         Prepares and retrieves student import data.
 
@@ -81,7 +81,7 @@ class StudentImport:
         """
         data_parser = StudentImportDataParser()
         data_parser.parse_data()
-        return data_parser.get_import_data()
+        self.import_data = data_parser.get_import_data()
 
     def start_student_import(self):
         """
@@ -92,6 +92,7 @@ class StudentImport:
         This method serves as the entry point for the import process.
         """
         self.import_ui.select_import_options()
+        self._prepare_import_data()
         self._import_students()
         ReportExporter(self.import_data, report_sub_dir="udise",
                        filename="student_import_report"
@@ -116,11 +117,13 @@ class StudentImport:
         """
         ui = self.import_ui
         for pen_no, student_data in self.import_data.items():
+            self.pen_dob = None
             if self._is_invalid_pen_no(pen_no):
                 continue
 
             student = Student(pen_no, student_data)
-            status = self._try_import_student(pen_no, student)
+            status = self._try_import_student(student)
+            student.set_pen_dob(self.pen_dob)
 
             if status == "active":
                 if self._is_school_matched(pen_no):
@@ -141,20 +144,35 @@ class StudentImport:
                 self._update_import_data(
                     pen_no, {"Remark": status, "Import Status": "Yes"})
 
-    def _try_import_student(self, pen_no, student):
+    def _try_import_student(self, student):
         """
-        Attempts to import a student using PEN no. and Aadhaar DOB.
-        Updates remark in import_data if Aadhaar DOB is missing.
+        Attempts to import a student record using their PEN number and date of
+        birth (DOB), handling both PEN and Aadhaar DOB sources.
 
-        - If a DOB mismatch occurs, retries using Aadhaar DOB.
-        - Determines the student's status via UI feedback.
+        The function follows this workflow:
+            1. Attempts import using the PEN DOB.
+            2. If the DOB does not match, retries using the Aadhaar DOB
+               (if available).
+            3. Handles cases where Aadhaar DOB is missing or identical to
+               PEN DOB, updating import data with appropriate remarks.
+            4. Logs errors and warnings for mismatches and missing data.
+            5. Returns the final status from the UI after the import attempt.
+
+        Args:
+            student (Student): The student object containing PEN number and
+                DOB information.
 
         Returns:
-            status (str): Final status after import attempt.
+            str: The final status after the import attempt. Possible values
+                include:
+                - "active": Import successful.
+                - "dob_error": DOB mismatch after all attempts.
+                - "aadhaar_dob_missing": Aadhaar DOB not available.
+                - "dob_retry_skipped": Retry skipped due to identical DOBs.
+                - Other error codes as returned by the UI.
         """
-        # Rest PEN DOB to None
-        self.pen_dob = None
         ui = self.import_ui
+        pen_no = student.get_student_pen()
         dob_attempts = [
             ("PEN", student.get_dob()),
             ("Aadhaar", student.get_adhaar_dob())
@@ -167,18 +185,10 @@ class StudentImport:
                 logger.error("%s - %s: %s", pen_no, dob, status)
 
                 if dob is None and source == "Aadhaar":
-                    self._update_import_data(pen_no, {
-                        "Remark": "Aadhaar DOB missing",
-                        "Import Status": "No"
-                    })
-                    logger.warning("%s - Aadhaar DOB missing", pen_no)
                     return "aadhaar_dob_missing"
 
                 # Skip retry if Aadhaar DOB is same as PEN DOB
                 if source == "PEN" and dob_attempts[1][1] == dob:
-                    logger.warning(
-                        "%s - Aadhaar DOB matches PEN DOB — skipping retry",
-                        pen_no)
                     return "dob_retry_skipped"
             else:
                 # Set PEN DOB to working DOB
