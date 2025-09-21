@@ -16,7 +16,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-09-19
+Last Modified: 2025-09-21
 
 Version: 1.0.0
 """
@@ -27,7 +27,7 @@ from selenium.webdriver.support.ui import Select
 
 from common.config import SECTIONS, TIME_DELAY
 from common.logger import logger
-from common.utils import UIHandler as UI
+from common.ui_handler import UIHandler as UI
 from ui.locators.udise import StudentImportLocator
 
 
