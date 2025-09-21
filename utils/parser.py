@@ -110,7 +110,7 @@ class StudentImportDataParser:
 
         # Check if Student Import Data JSON already exists and backup it
         if os.path.exists(data_json_file):
-            backup_file(data_json_file)
+            backup_file(data_json_file, logger)
             os.remove(data_json_file)
 
         self.import_data_file = import_data_file

@@ -29,13 +29,13 @@ Version: 1.0.0
 """
 
 import os
+import re
 import shutil
 
-from common.logger import logger
 from utils.date_time_utils import get_timestamp
 
 
-def backup_file(src_path, backup_dir="backup"):
+def backup_file(src_path, logger, backup_dir="backup"):
     """
     Creates a timestamped backup of the given file in the specified
     backup directory.
@@ -100,3 +100,25 @@ def clean_column_labels(column_name, restore=False):
         if not restore
         else column_name.strip().title().replace("_", " ")
     )
+
+
+def clean_na_keys(input_dict):
+    """
+    Cleans dictionary keys that match the 'NA_<number>' pattern by replacing them with 'NA'.
+    All other keys are preserved as-is.
+
+    Args:
+        input_dict (dict): The original dictionary with keys potentially in 'NA_<number>' format.
+
+    Returns:
+        dict: A new dictionary with cleaned keys. Keys matching 'NA_<number>' are replaced with 'NA'.
+              Other keys remain unchanged.
+
+    Example:
+        >>> clean_na_keys({'NA_12': 'x', 'EU_99': 'y', 'NA_abc': 'z'})
+        {'NA': 'x', 'EU_99': 'y', 'NA_abc': 'z'}
+    """
+    return {
+        re.sub(r"^NA_\d+$", "NA", key) if re.match(r"^NA_\d+$", key) else key: value
+        for key, value in input_dict.items()
+    }

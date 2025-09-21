@@ -21,7 +21,7 @@ Usage:
     from report_exporter import GenericReportExporter
 
     exporter = GenericReportExporter(
-        import_data,
+        input_data,
         report_dir="reports/udise",
         filename="import_report"
     )
@@ -30,7 +30,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-23
-Last Modified: 2025-09-10
+Last Modified: 2025-09-22
 
 Version: 1.0.0
 """
@@ -43,7 +43,7 @@ from openpyxl import load_workbook
 from openpyxl.styles import Alignment, Border, Font, Side
 
 from common.logger import logger
-from utils import backup_file, clean_column_labels
+from utils import backup_file, clean_column_labels, clean_na_keys
 
 
 class ReportExporter:
@@ -57,16 +57,16 @@ class ReportExporter:
     - Schema-independent flattening of nested records
     """
 
-    def __init__(self, import_data, report_sub_dir="udise", filename="report"):
+    def __init__(self, input_data, report_sub_dir="udise", filename="report"):
         """
         Initializes the report exporter with data and configuration.
 
         Args:
-            import_data (dict): Dictionary of records keyed by unique ID.
+            input_data (dict): Dictionary of records keyed by unique ID.
             report_dir (str): Directory under which reports are saved.
             filename (str): Base name for JSON and Excel files.
         """
-        self.import_data = import_data
+        self.input_data = clean_na_keys(input_data)
         report_dir = os.path.join(os.getcwd(), "reports", report_sub_dir)
         self.report_json_file = os.path.join(report_dir, f"{filename}.json")
         self.report_excel_file = os.path.join(report_dir, f"{filename}.xlsx")
@@ -79,10 +79,10 @@ class ReportExporter:
         """
         for f in [self.report_json_file, self.report_excel_file]:
             if os.path.isfile(f):
-                backup_file(f)
+                backup_file(f, logger)
                 os.remove(f)
 
-    def _flatten_import_data(self, first_column):
+    def _flatten_input_data(self, first_column):
         """
         Flattens nested records into a list of row dictionaries.
 
@@ -93,7 +93,7 @@ class ReportExporter:
             List[Dict[str, Any]]: Flattened records.
         """
         rows = []
-        for main_key, data in self.import_data.items():
+        for main_key, data in self.input_data.items():
             row = {first_column: main_key}
             if isinstance(data, dict):
                 row.update(data)
@@ -131,9 +131,9 @@ class ReportExporter:
         self._backup_existing_reports()
 
         with open(self.report_json_file, "w", encoding="utf-8") as f:
-            json.dump(self.import_data, f, indent=4, ensure_ascii=False)
+            json.dump(self.input_data, f, indent=4, ensure_ascii=False)
 
-        flattened_rows = self._flatten_import_data(first_column)
+        flattened_rows = self._flatten_input_data(first_column)
         df = pd.DataFrame(flattened_rows)
         df = self._reorder_columns(df)
 
