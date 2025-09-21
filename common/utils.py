@@ -38,7 +38,7 @@ import os
 import random
 import re
 import shutil
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from dateutil import parser
 
@@ -88,29 +88,29 @@ def convert_to_ddmmyyyy(date_str):
 
     Returns:
         str: Date formatted as "DD/MM/YYYY".
+
+    Raises:
+        ValueError: If the date is invalid or unparseable.
     """
     try:
-        # Normalize input
         date_str = date_str.strip().lower()
         date_str = re.sub(r"(\d+)(st|nd|rd|th)", r"\1", date_str)
 
-        # Match numeric formats like DD/MM/YYYY or MM/DD/YYYY
-        numeric_match = re.match(
-            r"^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$", date_str)
+        numeric_match = re.match(r"^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$", date_str)
         if numeric_match:
             first, second, year = map(int, numeric_match.groups())
-            # If first > 12, it's definitely the day
             if first > 12:
                 day, month = first, second
-            # If second > 12, it's definitely the month
             elif second > 12:
                 day, month = second, first
             else:
-                # Ambiguous: default to DD/MM/YYYY
                 day, month = first, second
-            return f"{day:02d}/{month:02d}/{year}"
 
-        # Fallback to parser with dayfirst=True for natural language
+            # Validate actual calendar date
+            validated = date(year, month, day)
+            return validated.strftime("%d/%m/%Y")
+
+        # Fallback to parser
         parsed_date = parser.parse(date_str, dayfirst=True)
         return parsed_date.strftime("%d/%m/%Y")
 

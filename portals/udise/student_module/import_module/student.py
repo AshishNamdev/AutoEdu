@@ -14,12 +14,14 @@ Classes:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-21
-Last Modified: 2025-09-16
+Last Modified: 2025-09-21
 
 Version: 1.0.0
 """
 
+
 from common.utils import convert_to_ddmmyyyy
+from utils.aadhaar_utils import AadhaarValidator
 
 
 class Student:
@@ -45,7 +47,37 @@ class Student:
         """
 
         self.import_data = student_import_data
-        self.student_pen = student_pen
+        self._student_pen = student_pen
+        self._pen_dob = None
+
+    def get_student_pen(self):
+        """
+        Retrieves the student's Permanent Education Number (PEN).
+
+        Returns:
+            str: The PEN associated with the student.
+        """
+        return self._student_pen
+
+    def set_pen_dob(self, dob):
+        """
+        Sets the Date of Birth (DOB) used for PEN validation.
+
+        Args:
+            dob (str): The date of birth to associate with the student's PEN
+                record. Format should be 'YYYY-MM-DD' or as required by schema.
+        """
+        self._pen_dob = dob
+
+    def get_pen_dob(self):
+        """
+        Retrieves the Date of Birth (DOB) associated with the student's
+        PEN record.
+
+        Returns:
+            str: The PEN DOB value, if set.
+        """
+        return self._pen_dob
 
     def get_class(self):
         """
@@ -54,7 +86,6 @@ class Student:
         Returns:
             str: Class level (e.g., "9", "12").
         """
-
         return self.import_data["class"]
 
     def get_section(self):
@@ -64,7 +95,6 @@ class Student:
         Returns:
             str: Section name (e.g., "A", "C").
         """
-
         return self.import_data["section"]
 
     def get_admission_date(self):
@@ -80,7 +110,11 @@ class Student:
                             or None if not available.
         """
         doa = self.import_data["admission_date"]
-        return None if doa == "" else convert_to_ddmmyyyy(doa)
+        return (
+            None
+            if doa == "" or doa.lower() == "na"
+            else convert_to_ddmmyyyy(doa)
+        )
 
     def get_name(self):
         """
@@ -89,7 +123,6 @@ class Student:
         Returns:
             str: Student's name.
         """
-
         return self.import_data["student_name"]
 
     def get_father_name(self):
@@ -99,7 +132,6 @@ class Student:
         Returns:
             str: Father's name.
         """
-
         return self.import_data["father_name"]
 
     def get_mother_name(self):
@@ -109,7 +141,6 @@ class Student:
         Returns:
             str: Mother's name.
         """
-
         return self.import_data["mother_name"]
 
     def get_dob(self):
@@ -119,8 +150,8 @@ class Student:
         Returns:
             str: Date of birth in DD/MM/YYYY format.
         """
-
-        return convert_to_ddmmyyyy(self.import_data["dob"])
+        dob = self.import_data["dob"]
+        return None if dob == "" or "na" in dob else convert_to_ddmmyyyy(dob)
 
     def get_adhaar_name(self):
         """
@@ -129,7 +160,6 @@ class Student:
         Returns:
             str: Aadhaar name (may be empty if not available).
         """
-
         return self.import_data["adhaar_name"]
 
     def get_adhaar_dob(self):
@@ -146,17 +176,21 @@ class Student:
                             or None if not available.
         """
         adhaar_dob = self.import_data["adhaar_dob"]
-        return None if adhaar_dob == "" else convert_to_ddmmyyyy(adhaar_dob)
+        return (
+            None
+            if adhaar_dob == "" or "na" in adhaar_dob
+            else convert_to_ddmmyyyy(adhaar_dob)
+        )
 
-    def get_adhaar_no(self):
+    def get_adhaar_number(self):
         """
         Returns the student's Aadhaar number.
 
         Returns:
             str: Last four digits of Aadhaar.
         """
-
-        return self.import_data["adhaar_no"]
+        adhaar_no = self.import_data["adhaar_no"]
+        return adhaar_no if AadhaarValidator.is_valid(adhaar_no) else None
 
     def get_adhaar_last_digits(self):
         """
@@ -165,5 +199,7 @@ class Student:
         Returns:
             str: Last four digits of Aadhaar.
         """
-
-        return self.get_adhaar_no()[-4:]
+        adhaar_no = self.get_adhaar_number()
+        if isinstance(adhaar_no, str):
+            return adhaar_no[-4:]
+        return None
