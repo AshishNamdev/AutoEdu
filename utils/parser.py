@@ -32,8 +32,9 @@ import re
 import pandas as pd
 
 from common.logger import logger
-from utils import backup_file, clean_column_labels
 from utils.date_time_utils import get_timestamp
+from utils.file_utils import backup_file
+from utils.labels import clean_column_labels
 
 
 def load_and_clean_excel(path):
@@ -105,7 +106,7 @@ class StudentDataParser:
 
         # Check if Student Import Data JSON already exists and backup it
         if os.path.exists(data_json_file):
-            backup_file(data_json_file, logger)
+            backup_file(data_json_file)
             os.remove(data_json_file)
 
         self.student_data_file = student_data_file

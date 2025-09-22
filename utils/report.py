@@ -43,7 +43,8 @@ from openpyxl import load_workbook
 from openpyxl.styles import Alignment, Border, Font, Side
 
 from common.logger import logger
-from utils import backup_file, clean_column_labels, clean_na_keys
+from utils.file_utils import backup_file
+from utils.labels import clean_column_labels, normalize_na_label
 
 
 class ReportExporter:
@@ -66,7 +67,7 @@ class ReportExporter:
             report_dir (str): Directory under which reports are saved.
             filename (str): Base name for JSON and Excel files.
         """
-        self.input_data = clean_na_keys(input_data)
+        self.input_data = input_data
         report_dir = os.path.join(os.getcwd(), "reports", report_sub_dir)
         self.report_json_file = os.path.join(report_dir, f"{filename}.json")
         self.report_excel_file = os.path.join(report_dir, f"{filename}.xlsx")
@@ -79,7 +80,7 @@ class ReportExporter:
         """
         for f in [self.report_json_file, self.report_excel_file]:
             if os.path.isfile(f):
-                backup_file(f, logger)
+                backup_file(f)
                 os.remove(f)
 
     def _flatten_input_data(self, first_column):
@@ -94,6 +95,7 @@ class ReportExporter:
         """
         rows = []
         for main_key, data in self.input_data.items():
+            main_key = normalize_na_label(main_key)
             row = {first_column: main_key}
             if isinstance(data, dict):
                 row.update(data)
