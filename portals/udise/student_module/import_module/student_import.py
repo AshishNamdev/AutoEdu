@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-09-21
+Last Modified: 2025-09-22
 
 Version: 1.0.0
 """
@@ -26,8 +26,7 @@ Version: 1.0.0
 from common.logger import logger
 from portals.udise import Student
 from ui.udise.student_import import StudentImportUI
-from utils.date_time_utils import get_timestamp
-from utils.parser import StudentImportDataParser
+from utils.parser import StudentDataParser
 from utils.report import ReportExporter
 
 
@@ -54,7 +53,6 @@ class StudentImport:
         self.logged_in_school = logged_in_school
         self.import_ui = StudentImportUI()
         self.student = None
-        self.import_data = None
         self.relase_request = {}
         self.import_errors = {
             "dob_error": (
@@ -67,6 +65,7 @@ class StudentImport:
             )
         }
         self.pen_dob = None
+        self.data_parser = None
 
     def _prepare_import_data(self):
         """
@@ -79,9 +78,9 @@ class StudentImport:
         Returns:
             dict: A dictionary containing parsed student import data.
         """
-        data_parser = StudentImportDataParser()
+        data_parser = StudentDataParser()
         data_parser.parse_data()
-        self.import_data = data_parser.get_import_data()
+        self.data_parser = data_parser
 
     def start_student_import(self):
         """
@@ -94,7 +93,7 @@ class StudentImport:
         self.import_ui.select_import_options()
         self._prepare_import_data()
         self._import_students()
-        ReportExporter(self.import_data, report_sub_dir="udise",
+        ReportExporter(self.data_parser.get_parsed_data(), report_sub_dir="udise",
                        filename="student_import_report"
                        ).save(first_column="Student PEN Number")
 
@@ -116,7 +115,8 @@ class StudentImport:
             - Triggers UI operations for import, release, or detail filling.
         """
         ui = self.import_ui
-        for pen_no, student_data in self.import_data.items():
+        data_parser = self.data_parser
+        for pen_no, student_data in data_parser.get_parsed_data().items():
             self.pen_dob = None
             if self._is_invalid_pen_no(pen_no):
                 continue
@@ -141,7 +141,7 @@ class StudentImport:
                 )
                 status = str(ui.get_import_message()).strip()
                 logger.info("%s : %s", pen_no, status)
-                self._update_import_data(
+                data_parser.update_parsed_data(
                     pen_no, {"Remark": status, "Import Status": "Yes"})
 
     def _try_import_student(self, student):
@@ -257,39 +257,6 @@ class StudentImport:
             update_on_mismatch=True
         )
 
-    def _update_import_data(self, pen_no, kwargs):
-        """
-        Updates the import data for a specific student identified
-        by PEN number.
-
-        This method modifies the `import_data` dictionary by setting the
-        specified `key` to the provided `value` for the student with the
-        given `pen_no`. If the `pen_no` does not exist in the dictionary,
-        it logs a warning message.
-
-        Args:
-            pen_no (str): The PEN number of the student whose data
-                            is to be updated.
-            kwargs (dict): The key and value to add in  student's
-                            data dictionary.
-
-        Returns:
-            None
-
-        Side Effects:
-            - Modifies the `import_data` attribute of the class instance.
-            - Logs a warning if the specified PEN number is not found.
-        """
-        if pen_no in self.import_data:
-            for key, value in kwargs.items():
-                self.import_data[pen_no][key] = value
-                logger.debug("Updated %s: %s - %s", pen_no, key, value)
-            self.import_data[pen_no]["Date and Time"] = get_timestamp(
-                format="%d-%m-%Y - %I:%M:%S %p")
-        else:
-            logger.warning("%s not found in import data. No update made.",
-                           pen_no)
-
     def _is_invalid_pen_no(self, pen_no):
         """
         Determines if the given PEN number is invalid.
@@ -307,7 +274,7 @@ class StudentImport:
         """
         if "na" in pen_no.lower():
             logger.error("Skipping invalid PEN no.: %s", pen_no)
-            self._update_import_data(
+            self.data_parser.update_parsed_data(
                 pen_no,
                 {
                     "Remark": "Invalid PEN no.",
@@ -344,7 +311,7 @@ class StudentImport:
             pen_no,
             error_remark,
         )
-        self._update_import_data(
+        self.data_parser.update_parsed_data(
             pen_no,
             {
                 "Remark": error_remark,
@@ -398,7 +365,7 @@ class StudentImport:
                     f"  Expected - {expected}\n"
                     f"  Actual   - {actual}"
                 )
-                self._update_import_data(
+                self.data_parser.update_parsed_data(
                     pen_no,
                     {
                         "Remark": remark,
@@ -415,7 +382,7 @@ class StudentImport:
             actual,
         )
         if update_on_match:
-            self._update_import_data(
+            self.data_parser.update_parsed_data(
                 pen_no,
                 {
                     "Remark": match_remark,
