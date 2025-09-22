@@ -23,6 +23,8 @@ Last Modified: 2025-09-22
 Version: 1.0.0
 """
 
+import os
+
 from common.logger import logger
 from portals.udise import Student
 from ui.udise.student_import import StudentImportUI
@@ -78,7 +80,9 @@ class StudentImport:
         Returns:
             dict: A dictionary containing parsed student import data.
         """
-        data_parser = StudentDataParser()
+        import_data_file = os.path.join(
+            os.getcwd(), "input", "udise", "import_data.xlsx")
+        data_parser = StudentDataParser(import_data_file)
         data_parser.parse_data()
         self.data_parser = data_parser
 
@@ -392,4 +396,5 @@ class StudentImport:
         return False
 
     def raise_release_request(self, pen_no, dob):
+        pass
         pass

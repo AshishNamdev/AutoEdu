@@ -83,12 +83,11 @@ class StudentDataParser:
     with file backup utilities.
 
     Attributes:
-        student_data_file (str): Optional path to the raw import file.
         data_json_file (str): Path to the output JSON file.
         student_data (dict): Parsed student data keyed by PEN number.
     """
 
-    def __init__(self, student_data_file=None):
+    def __init__(self, student_data_file):
         """
         Initializes the parser and prepares the output JSON file.
 
@@ -98,16 +97,11 @@ class StudentDataParser:
         Args:
             student_data_file (str, optional): Path to the raw import file.
         """
-        if student_data_file is None:
-            student_data_file = os.path.join(
-                os.getcwd(), "input", "udise", "student_data.xlsx"
-            )
-        data_json_file = os.path.join(
-            os.getcwd(), "input", "udise", "student_data.json"
-        )
         if not os.path.exists(student_data_file):
             raise FileNotFoundError(
                 f"Excel file not found: {student_data_file}")
+
+        data_json_file = student_data_file.replace(".xlsx", ".json")
 
         # Check if Student Import Data JSON already exists and backup it
         if os.path.exists(data_json_file):
