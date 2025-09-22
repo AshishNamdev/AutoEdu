@@ -27,7 +27,7 @@ import os
 
 from common.logger import logger
 from portals.udise import Student
-from ui.udise.student_import import StudentImportUI
+from ui.udise.student_import_ui import StudentImportUI
 from utils.parser import StudentDataParser
 from utils.report import ReportExporter
 
