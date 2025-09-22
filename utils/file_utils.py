@@ -60,4 +60,3 @@ def backup_file(src_path, backup_dir="backup"):
     logger.info("%s --> %s", src_path, backup_path)
     shutil.copy2(src_path, backup_path)  # Preserves metadata
     return backup_path
-    return backup_path

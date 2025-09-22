@@ -79,6 +79,7 @@ class ReportExporter:
         Backs up existing report files (JSON and Excel) before overwriting.
         """
         for f in [self.report_json_file, self.report_excel_file]:
+            logger.debug("%s", f)
             if os.path.isfile(f):
                 backup_file(f)
                 os.remove(f)
