@@ -26,7 +26,7 @@ Version: 1.0.0
 import os
 
 from common.logger import logger
-from portals.udise import Student
+from portals.udise import ReleaseRequest, Student
 from ui.udise.student_import_ui import StudentImportUI
 from utils.parser import StudentDataParser
 from utils.report import ReportExporter
@@ -55,7 +55,7 @@ class StudentImport:
         self.logged_in_school = logged_in_school
         self.import_ui = StudentImportUI()
         self.student = None
-        self.relase_request = []
+        self.relase_requests = []
         self.import_errors = {
             "dob_error": (
                 "The entered Date of Birth(DOB) does not match "
@@ -97,9 +97,14 @@ class StudentImport:
         self.import_ui.select_import_options()
         self._prepare_import_data()
         self._import_students()
-        ReportExporter(self.data_parser.get_parsed_data(), report_sub_dir="udise",
-                       filename="student_import_report"
-                       ).save(first_column="Student PEN Number")
+        if self.relase_requests:
+            logger.info("Total release requests to be raised: %d",
+                        len(self.relase_requests))
+            ReleaseRequest(self.relase_requests).start_release_request()
+
+            ReportExporter(self.data_parser.get_parsed_data(), report_sub_dir="udise",
+                           filename="student_import_report"
+                           ).save(first_column="Student PEN Number")
 
     def _import_students(self):
         """
@@ -206,12 +211,14 @@ class StudentImport:
 
     def _is_school_matched(self, pen_no, current_school):
         """
-        Determines if the student's current school matches the logged-in school.
+        Determines if the student's current school matches the logged-in
+        school.
 
         Compares the provided `current_school` value with
         `self.logged_in_school` (case-insensitive). If they match, logs an
-        informational message and updates the import status as "Already Imported".
-        If they do not match, logs a warning but does not update the import status.
+        informational message and updates the import status as
+        "Already Imported". If they do not match, logs a warning but does
+        not update the import status.
 
         Args:
             pen_no (str): The student's PEN number, used for logging and
@@ -407,10 +414,15 @@ class StudentImport:
                                and DOB information.
         """
         self.relase_request.append(student)
-        logger.debug("%s: Sudent already active in another school: %s, preparing release request data",
-                     student.get_student_pen(), student.get_currnet_school())
+        pen_no = student.get_student_pen()
+        logger.debug(
+            "%s: Sudent already active in another school: %s, "
+            "preparing release request data",
+            pen_no,
+            student.get_currnet_school()
+        )
         self.data_parser.update_parsed_data(
-            student.get_student_pen(),
+            pen_no,
             {
                 "Remark": "Active in another school",
                 "Import Status": "No"

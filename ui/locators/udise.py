@@ -2,12 +2,14 @@
 Module: student_import_locator
 
 Defines locator tuples for UI elements used in the UDISE Student Import module.
-These locators are used to identify and interact with specific components on the
-web interface, such as the Student Movement and Progression option and the Import module.
+These locators are used to identify and interact with specific components on
+the web interface, such as the Student Movement and Progression option and
+the Import module.
 
 Dependencies:
 - selenium.webdriver.common.by.By: for specifying locator strategies
-- ui.selectors.udise.StudentImportSelectors: contains XPath strings for UI elements
+- ui.selectors.udise.StudentImportSelectors:
+  contains XPath strings for UI elements
 
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
@@ -19,39 +21,61 @@ Version: 1.0.0
 
 from selenium.webdriver.common.by import By
 
-from ui.selectors.udise import StudentImportSelectors, StudentLoginSelectors
+from ui.selectors.udise import (
+    ReleaseRequestSelectors,
+    StudentImportSelectors,
+    StudentLoginSelectors,
+)
 
 
 class StudentLoginLocators:
     """
     Locator definitions for elements in the UDISE Student Login interface.
 
-    This class provides static tuples that map UI components to their corresponding selectors,
-    enabling automated interaction with login fields, CAPTCHA, error messages, and post-login
-    navigation elements such as academic year selection and school information dialogs.
+    This class provides static tuples that map UI components to their
+    corresponding selectors, enabling automated interaction with login fields,
+    CAPTCHA input, error messages, and post-login navigation elements such as
+    academic year selection and school information dialogs.
+
+    Usage:
+        - Use with Selenium's `find_element` or `find_elements` to interact
+          with login-related UI components.
+        - Integrate into page object models for maintainable test automation.
+        - Pair with `StudentLoginSelectors` to separate semantic meaning from
+        structural location.
+
+    Includes:
+        - Login form fields: Username, Password, CAPTCHA
+        - Action buttons: Submit
+        - Error handling: Alert messages
+        - Post-login navigation: Academic year selection, school info dialogs
 
     Attributes:
-    -----------
-    USERNAME : tuple
-        Locator for the username input field (by class name).
+        -----------
+        USERNAME : tuple
+            Locator for the username input field (by class name).
 
-    PASSWORD : tuple
-        Locator for the password input field (by ID).
+        PASSWORD : tuple
+            Locator for the password input field (by ID).
 
-    CAPTCHA : tuple
-        Locator for the CAPTCHA input field (by ID).
+        CAPTCHA : tuple
+            Locator for the CAPTCHA input field (by ID).
 
-    SUBMIT_BUTTON : tuple
-        Locator for the login submit button (by ID).
+        SUBMIT_BUTTON : tuple
+            Locator for the login submit button (by ID).
 
-    ERROR_ALERT : tuple
-        Locator for error alert messages (by XPath).
+        ERROR_ALERT : tuple
+            Locator for error alert messages (by XPath).
 
-    ACADEMIC_YEAR : tuple
-        Locator for selecting the academic year after login (by XPath).
+        ACADEMIC_YEAR : tuple
+            Locator for selecting the academic year after login (by XPath).
 
-    SCHOOL_INFO : tuple
-        Locator for closing the school information pop-up (by XPath).
+        SCHOOL_INFO : tuple
+            Locator for closing the school information pop-up (by XPath).
+
+        CURRENT_SCHOOL : tuple
+            Locator for displaying the current school name after login
+            (by XPath).
     """
 
     USERNAME = (By.CLASS_NAME, StudentLoginSelectors.USERNAME_CLASS)
@@ -73,16 +97,78 @@ class StudentImportLocators:
     Locator definitions for the UDISE Student Import UI module.
 
     This class provides static tuples that map UI elements to their
-    corresponding XPath selectors, enabling automated interaction with
-    the Student Import interface.
+    corresponding XPath or ID selectors, enabling automated interaction
+    with the Student Import interface using Selenium.
+
+    Usage:
+    - Use with Selenium's `find_element` or `find_elements` to interact with
+      specific UI components.
+    - Pair with `StudentImportSelectors` to maintain separation of structure
+      and semantics.
+    - Integrate into page object models for maintainable test automation.
+
+    Includes:
+    - Navigation options: Student Movement and Import modules
+    - Form inputs: PEN, DOB, DOA, Class, Section
+    - Status and feedback: Current School, Student Status, Success Message
+    - Action buttons: GO, Import, Confirm, OK
+    - Dialog handling: DOB mismatch message and confirmation
 
     Attributes:
     -----------
     STUDENT_MOVEMENT_PROGRESSION : tuple
-        Locator for the 'Student Movement and Progression' option.
+        Locator for the 'Student Movement and Progression' option (by XPath).
 
     STUDENT_IMPORT_OPTION : tuple
-        Locator for the 'Student Import' module option.
+        Locator for the 'Student Import' module option (by XPath).
+
+    IN_STATE_IMPORT : tuple
+        Locator for the In-State Import option (by XPath).
+
+    OUT_STATE_IMPORT : tuple
+        Locator for the Out-State Import option (by XPath).
+
+    STUDENT_PEN : tuple
+        Locator for the Student PEN input field (by ID).
+
+    DOB : tuple
+        Locator for the Date of Birth input field (by ID).
+
+    IMPORT_GO_BUTTON : tuple
+        Locator for the Import GO button (by XPath).
+
+    DOB_MISMATCH_MESSAGE : tuple
+        Locator for the DOB mismatch warning message (by XPath).
+
+    DOB_MISMATCH_OK_BUTTON : tuple
+        Locator for the OK button in the DOB mismatch dialog (by XPath).
+
+    CURRENT_SCHOOL : tuple
+        Locator for the current school display field (by XPath).
+
+    STUDENT_STATUS : tuple
+        Locator for the student status field (by XPath).
+
+    SELECT_CLASS : tuple
+        Locator for the class selection dropdown (by XPath).
+
+    SELECT_SECTION : tuple
+        Locator for the section selection dropdown (by XPath).
+
+    DOA : tuple
+        Locator for the Date of Admission input field (by XPath).
+
+    IMPORT_BUTTON : tuple
+        Locator for the Import button (by XPath).
+
+    IMPORT_CONFIRM_BUTTON : tuple
+        Locator for the confirmation button in the import dialog (by XPath).
+
+    IMPORT_OK_BUTTON : tuple
+        Locator for the OK button after successful import (by XPath).
+
+    IMPORT_SUCCES_MESSAGE : tuple
+        Locator for the success message displayed after import (by XPath).
     """
 
     STUDENT_MOVEMENT_PROGRESSION = (
@@ -123,4 +209,94 @@ class StudentImportLocators:
 
 
 class ReleaseRequestLocators:
-    pass
+    """
+    Locators for elements on the Release Request Management UI.
+
+    This class maps semantic element names to their corresponding XPath
+    selectors, enabling consistent and maintainable access to UI components
+    involved in release request workflows. These locators are used by
+    automation scripts to interact with form fields, buttons, dropdowns,
+    and status messages.
+
+    Usage:
+        - Pair with Selenium's `By.XPATH` to locate elements on the page.
+        - Centralize selector management for easier updates and schema hygiene.
+        - Support both in-state and out-state release request flows.
+
+    Includes:
+        - Form inputs: Student PEN, DOB, DOA, Class, Section, Remark
+        - Action buttons: Get Details, Generate Request
+        - Status indicators: Request Status Message, OK dialog button
+
+    Attributes:
+    -----------
+    RELEASE_REQUEST_MANAGEMENT : tuple
+        Locator for the Release Request Management section (by XPath).
+
+    IN_STATE_RELEASE_REQUEST : tuple
+        Locator for the In-State Release Request option (by XPath).
+
+    OUT_STATE_RELEASE_REQUEST : tuple
+        Locator for the Out-State Release Request option (by XPath).
+
+    GENERATE_RELEASE_REQUEST : tuple
+        Locator for the Generate Release Request button (by XPath).
+
+    STUDENT_PEN : tuple
+        Locator for the Student PEN input field (by XPath).
+
+    DOB : tuple
+        Locator for the Date of Birth input field (by XPath).
+
+    GET_DETAILS_BUTTON : tuple
+        Locator for the Get Details button (by XPath).
+
+    SELECT_CLASS : tuple
+        Locator for the Class selection dropdown (by XPath).
+
+    SELECT_SECTION : tuple
+        Locator for the Section selection dropdown (by XPath).
+
+    DOA : tuple
+        Locator for the Date of Admission input field (by XPath).
+
+    SELECT_REMARK : tuple
+        Locator for the Remark selection dropdown (by XPath).
+
+    GENERATE_REQUEST_BUTTON : tuple
+        Locator for the Generate Request button (by XPath).
+
+    REQUEST_STATUS_MESSAGE : tuple
+        Locator for the Request Status message (by XPath).
+
+    OK_BUTTON : tuple
+        Locator for the OK button in dialogs (by XPath).
+
+    """
+
+    RELEASE_REQUEST_MANAGEMENT = (
+        By.XPATH,
+        ReleaseRequestSelectors.RELEASE_REQUEST_MANAGEMENT_XPATH,
+    )
+    IN_STATE_RELEASE_REQUEST = (
+        By.XPATH, ReleaseRequestSelectors.IN_STATE_RELEASE_REQUEST_XPATH)
+    OUT_STATE_RELEASE_REQUEST = (
+        By.XPATH, ReleaseRequestSelectors.OUT_STATE_RELEASE_REQUEST_XPATH)
+    GENERATE_RELEASE_REQUEST = (
+        By.XPATH, ReleaseRequestSelectors.GENERATE_RELEASE_REQUEST_XPATH)
+    STUDENT_PEN = (By.XPATH, ReleaseRequestSelectors.STUDENT_PEN_XPATH)
+    DOB = (By.XPATH, ReleaseRequestSelectors.DOB_XPATH)
+    GET_DETAILS_BUTTON = (
+        By.XPATH, ReleaseRequestSelectors.GET_DETAILS_BUTTON_XPATH)
+    SELECT_CLASS = (By.XPATH, ReleaseRequestSelectors.SELECT_CLASS_XPATH)
+    SELECT_SECTION = (
+        By.XPATH, ReleaseRequestSelectors.SELECT_SECTION_XPATH)
+    DOA = (By.XPATH, ReleaseRequestSelectors.DOA_XPATH)
+
+    SELECT_REMARK = (By.XPATH, ReleaseRequestSelectors.SELECT_REMARK_XPATH)
+    GENERATE_REQUEST_BUTTON = (
+        By.XPATH, ReleaseRequestSelectors.GENERATE_REQUEST_BUTTON_XPATH)
+    REQUEST_STATUS_MESSAGE = (
+        By.XPATH, ReleaseRequestSelectors.REQUEST_STATUS_MESSAGE_XPATH)
+    OK_BUTTON = (
+        By.XPATH, ReleaseRequestSelectors.OK_BUTTON_XPATH)
