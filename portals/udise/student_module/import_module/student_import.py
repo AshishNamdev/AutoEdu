@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-09-22
+Last Modified: 2025-09-23
 
 Version: 1.0.0
 """
@@ -55,7 +55,7 @@ class StudentImport:
         self.logged_in_school = logged_in_school
         self.import_ui = StudentImportUI()
         self.student = None
-        self.relase_request = {}
+        self.relase_request = []
         self.import_errors = {
             "dob_error": (
                 "The entered Date of Birth(DOB) does not match "
@@ -128,11 +128,13 @@ class StudentImport:
             student = Student(pen_no, student_data)
             status = self._try_import_student(student)
             student.set_pen_dob(self.pen_dob)
+            current_school = ui.get_student_current_school().strip()
+            student.set_current_school(current_school)
 
             if status == "active":
-                if self._is_school_matched(pen_no):
+                if self._is_school_matched(pen_no, current_school):
                     continue
-                self.raise_release_request(pen_no, self.pen_dob)
+                self._prepare_release_request(student)
             elif self._is_import_error(pen_no, status):
                 continue
             elif self._is_class_mismatch(pen_no, student.get_class()):
@@ -202,27 +204,25 @@ class StudentImport:
                 return status
         return "dob_error"
 
-    def _is_school_matched(self, pen_no):
+    def _is_school_matched(self, pen_no, current_school):
         """
-        Determines whether the student's current school matches the
-        logged-in school.
+        Determines if the student's current school matches the logged-in school.
 
-        Retrieves the student's current school from the UI and compares it with
-        the logged-in school (`self.logged_in_school`). If they match
-        (case-insensitive), logs an informational message and updates the
-        import status as "Already Imported". If they differ,
-        logs a warning but does not update the import status.
+        Compares the provided `current_school` value with
+        `self.logged_in_school` (case-insensitive). If they match, logs an
+        informational message and updates the import status as "Already Imported".
+        If they do not match, logs a warning but does not update the import status.
 
         Args:
-            pen_no (str): The student's PEN number used for logging
-                            and data update.
+            pen_no (str): The student's PEN number, used for logging and
+                data update.
+            current_school (str): The name of the student's current school.
 
         Returns:
             bool: True if the current school matches the logged-in school,
-                False if a mismatch is detected.
+                False otherwise.
         """
 
-        current_school = self.import_ui.get_student_current_school().strip()
         logged_in_school = self.logged_in_school.strip()
 
         return not self._handle_field_validation(
@@ -395,6 +395,24 @@ class StudentImport:
             )
         return False
 
-    def raise_release_request(self, pen_no, dob):
-        pass
-        pass
+    def _prepare_release_request(self, student):
+        """
+        Prepares a release request entry for a student.
+
+        Appends student object to the `self.release_request` list
+        for later processing or export.
+
+        Args:
+            student (Student): The student object containing PEN number
+                               and DOB information.
+        """
+        self.relase_request.append(student)
+        logger.debug("%s: Sudent already active in another school: %s, preparing release request data",
+                     student.get_student_pen(), student.get_currnet_school())
+        self.data_parser.update_parsed_data(
+            student.get_student_pen(),
+            {
+                "Remark": "Active in another school",
+                "Import Status": "No"
+            }
+        )

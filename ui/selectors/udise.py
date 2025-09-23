@@ -16,13 +16,13 @@ automation scripts.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-09-18
+Last Modified: 2025-09-23
 
 Version: 1.0.0
 """
 
 
-class StudentLoginSelector:
+class StudentLoginSelectors:
     """
     A centralized collection of UI selectors for the UDISE Student Login
     interface.
@@ -74,7 +74,7 @@ class StudentLoginSelector:
     CAPTCHA_ID = "captcha"
 
 
-class StudentImportSelector:
+class StudentImportSelectors:
     """
     A centralized repository of UI selectors for the
     UDISE Student Import module.
@@ -267,10 +267,7 @@ class ReleaseRequestSelectors:
     GENERATE_REQUEST_BUTTON_XPATH = (
         "//button[contains(normalize-space(text()), 'Generate')]"
     )
-    ERROR_MESSAGE_XPATH = (
-        "//div[@role='dialog']/h2"
-        "[contains(normalize-space(text()), 'currently in Dropbox')]"
-    )
-    ERROR_OK_BUTTON_XPATH = (
+    REQUEST_STATUS_MESSAGE_XPATH = "//div[@role='dialog']/h2"
+    OK_BUTTON_XPATH = (
         "//button[contains(normalize-space(text()), 'Okay')]"
     )

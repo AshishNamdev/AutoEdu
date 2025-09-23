@@ -7,22 +7,22 @@ web interface, such as the Student Movement and Progression option and the Impor
 
 Dependencies:
 - selenium.webdriver.common.by.By: for specifying locator strategies
-- ui.selectors.udise.StudentImportSelector: contains XPath strings for UI elements
+- ui.selectors.udise.StudentImportSelectors: contains XPath strings for UI elements
 
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-09-03
+Last Modified: 2025-09-23
 
 Version: 1.0.0
 """
 
 from selenium.webdriver.common.by import By
 
-from ui.selectors.udise import StudentImportSelector, StudentLoginSelector
+from ui.selectors.udise import StudentImportSelectors, StudentLoginSelectors
 
 
-class StudentLoginLocator:
+class StudentLoginLocators:
     """
     Locator definitions for elements in the UDISE Student Login interface.
 
@@ -54,21 +54,21 @@ class StudentLoginLocator:
         Locator for closing the school information pop-up (by XPath).
     """
 
-    USERNAME = (By.CLASS_NAME, StudentLoginSelector.USERNAME_CLASS)
-    PASSWORD = (By.ID, StudentLoginSelector.PASSWORD_ID)
-    CAPTCHA = (By.ID, StudentLoginSelector.CAPTCHA_ID)
-    SUBMIT_BUTTON = (By.ID, StudentLoginSelector.SUBMIT_BUTTON_ID)
-    ERROR_ALERT = (By.XPATH, StudentLoginSelector.ERROR_ALERT_XPATH)
+    USERNAME = (By.CLASS_NAME, StudentLoginSelectors.USERNAME_CLASS)
+    PASSWORD = (By.ID, StudentLoginSelectors.PASSWORD_ID)
+    CAPTCHA = (By.ID, StudentLoginSelectors.CAPTCHA_ID)
+    SUBMIT_BUTTON = (By.ID, StudentLoginSelectors.SUBMIT_BUTTON_ID)
+    ERROR_ALERT = (By.XPATH, StudentLoginSelectors.ERROR_ALERT_XPATH)
 
     # Academic Choice Locators
-    ACADEMIC_YEAR = (By.XPATH, StudentLoginSelector.AC_YEAR_XPATH)
+    ACADEMIC_YEAR = (By.XPATH, StudentLoginSelectors.AC_YEAR_XPATH)
 
     # School Information Locators
-    SCHOOL_INFO = (By.XPATH, StudentLoginSelector.SCHOOL_INFO_XPATH)
-    CURRENT_SCHOOL = (By.XPATH, StudentLoginSelector.CURRENT_SCHOOL_XPATH)
+    SCHOOL_INFO = (By.XPATH, StudentLoginSelectors.SCHOOL_INFO_XPATH)
+    CURRENT_SCHOOL = (By.XPATH, StudentLoginSelectors.CURRENT_SCHOOL_XPATH)
 
 
-class StudentImportLocator:
+class StudentImportLocators:
     """
     Locator definitions for the UDISE Student Import UI module.
 
@@ -87,31 +87,40 @@ class StudentImportLocator:
 
     STUDENT_MOVEMENT_PROGRESSION = (
         By.XPATH,
-        StudentImportSelector.MOVEMENT_PROGRESSION_XPATH,
+        StudentImportSelectors.MOVEMENT_PROGRESSION_XPATH,
     )
-    STUDENT_IMPORT_OPTION = (By.XPATH, StudentImportSelector.IMPORT_OPTION_XPATH)
-    IN_STATE_IMPORT = (By.XPATH, StudentImportSelector.IN_STATE_IMPORT_XPATH)
-    OUT_STATE_IMPORT = (By.XPATH, StudentImportSelector.OUT_STATE_IMPORT_XPATH)
-    STUDENT_PEN = (By.ID, StudentImportSelector.STUDENT_PEN_ID)
-    DOB = (By.ID, StudentImportSelector.DOB_ID)
-    IMPORT_GO_BUTTON = (By.XPATH, StudentImportSelector.IMPORT_GO_BUTTON_XPATH)
-    DOB_MISMATCH_MESSAGE = (By.XPATH, StudentImportSelector.DOB_MISMATCH_MESSAGE_XPATH)
+    STUDENT_IMPORT_OPTION = (
+        By.XPATH, StudentImportSelectors.IMPORT_OPTION_XPATH)
+    IN_STATE_IMPORT = (By.XPATH, StudentImportSelectors.IN_STATE_IMPORT_XPATH)
+    OUT_STATE_IMPORT = (
+        By.XPATH, StudentImportSelectors.OUT_STATE_IMPORT_XPATH)
+    STUDENT_PEN = (By.ID, StudentImportSelectors.STUDENT_PEN_ID)
+    DOB = (By.ID, StudentImportSelectors.DOB_ID)
+    IMPORT_GO_BUTTON = (
+        By.XPATH, StudentImportSelectors.IMPORT_GO_BUTTON_XPATH)
+    DOB_MISMATCH_MESSAGE = (
+        By.XPATH, StudentImportSelectors.DOB_MISMATCH_MESSAGE_XPATH)
     DOB_MISMATCH_OK_BUTTON = (
         By.XPATH,
-        StudentImportSelector.DOB_MISMATCH_OK_BUTTON_XPATH,
+        StudentImportSelectors.DOB_MISMATCH_OK_BUTTON_XPATH,
     )
-    CURRENT_SCHOOL = (By.XPATH, StudentImportSelector.CURRENT_SCHOOL_XPATH)
-    STUDENT_STATUS = (By.XPATH, StudentImportSelector.STUDENT_STATUS_XPATH)
-    SELECT_CLASS = (By.XPATH, StudentImportSelector.SELECT_CLASS_XPATH)
-    SELECT_SECTION = (By.XPATH, StudentImportSelector.SELECT_SECTION_XPATH)
-    DOA = (By.XPATH, StudentImportSelector.DOA_XPATH)
-    IMPORT_BUTTON = (By.XPATH, StudentImportSelector.IMPORT_BUTTON_XPATH)
+    CURRENT_SCHOOL = (By.XPATH, StudentImportSelectors.CURRENT_SCHOOL_XPATH)
+    STUDENT_STATUS = (By.XPATH, StudentImportSelectors.STUDENT_STATUS_XPATH)
+    SELECT_CLASS = (By.XPATH, StudentImportSelectors.SELECT_CLASS_XPATH)
+    SELECT_SECTION = (By.XPATH, StudentImportSelectors.SELECT_SECTION_XPATH)
+    DOA = (By.XPATH, StudentImportSelectors.DOA_XPATH)
+    IMPORT_BUTTON = (By.XPATH, StudentImportSelectors.IMPORT_BUTTON_XPATH)
     IMPORT_CONFIRM_BUTTON = (
         By.XPATH,
-        StudentImportSelector.IMPORT_CONFIRM_BUTTON_XPATH,
+        StudentImportSelectors.IMPORT_CONFIRM_BUTTON_XPATH,
     )
-    IMPORT_OK_BUTTON = (By.XPATH, StudentImportSelector.IMPORT_OK_BUTTON_XPATH)
+    IMPORT_OK_BUTTON = (
+        By.XPATH, StudentImportSelectors.IMPORT_OK_BUTTON_XPATH)
     IMPORT_SUCCES_MESSAGE = (
         By.XPATH,
-        StudentImportSelector.IMPORT_SUCCES_MESSAGE_XPATH,
+        StudentImportSelectors.IMPORT_SUCCES_MESSAGE_XPATH,
     )
+
+
+class ReleaseRequestLocators:
+    pass

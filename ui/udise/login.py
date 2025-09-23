@@ -39,7 +39,7 @@ and navigate through the initial setup steps required to access student data.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-09-21
+Last Modified: 2025-09-23
 
 Version: 1.0.0
 """
@@ -49,7 +49,7 @@ import time
 from common.driver import WebDriverManager
 from common.logger import logger
 from common.ui_handler import UIHandler as UI
-from ui.locators.udise import StudentLoginLocator
+from ui.locators.udise import StudentLoginLocators
 
 
 class StudentLogin:
@@ -103,8 +103,8 @@ class StudentLogin:
 
         logger.info("Starting login to UDISE Student Module")
         field_data = [
-            (username, StudentLoginLocator.USERNAME),
-            (password, StudentLoginLocator.PASSWORD),
+            (username, StudentLoginLocators.USERNAME),
+            (password, StudentLoginLocators.PASSWORD),
         ]
 
         for attempt in range(1, max_attempts + 1):
@@ -112,12 +112,12 @@ class StudentLogin:
             # Fill credentials
             UI.fill_fields(field_data)
 
-            UI.wait_and_click(StudentLoginLocator.CAPTCHA)
+            UI.wait_and_click(StudentLoginLocators.CAPTCHA)
 
             logger.info("Waiting 15 seconds for manual CAPTCHA entry")
             time.sleep(15)
 
-            UI.wait_and_click(StudentLoginLocator.SUBMIT_BUTTON)
+            UI.wait_and_click(StudentLoginLocators.SUBMIT_BUTTON)
             logger.info("Clicked on the Submit button to initiate login")
 
             # Give UI a moment to render any error messages
@@ -128,11 +128,13 @@ class StudentLogin:
                 continue
 
             if self.incorrect_creds():
-                logger.warning("Incorrect credentials detected. Retrying login.")
+                logger.warning(
+                    "Incorrect credentials detected. Retrying login.")
                 continue
 
             # If no errors, assume login success
-            logger.info("Login successful. Proceeding to academic year selection.")
+            logger.info(
+                "Login successful. Proceeding to academic year selection.")
             time.sleep(2)
             UI.dismiss_browser_popup()
             self.select_academic_year()
@@ -154,7 +156,7 @@ class StudentLogin:
             str: The name of the currently selected school.
         """
         school_name = UI.wait_and_find_element(
-            StudentLoginLocator.CURRENT_SCHOOL
+            StudentLoginLocators.CURRENT_SCHOOL
         ).get_attribute("innerHTML")
         logger.info("Current logged in school: %s", school_name)
         return school_name
@@ -179,7 +181,7 @@ class StudentLogin:
             None
         """
 
-        UI.wait_and_click(StudentLoginLocator.ACADEMIC_YEAR)
+        UI.wait_and_click(StudentLoginLocators.ACADEMIC_YEAR)
         logger.debug("Selected Current Academic Year")
 
         self.close_school_info()
@@ -207,7 +209,7 @@ class StudentLogin:
                         elements or UI issues.
         """
 
-        UI.wait_and_click(StudentLoginLocator.SCHOOL_INFO)
+        UI.wait_and_click(StudentLoginLocators.SCHOOL_INFO)
         logger.debug("Closed School Information dialog popup")
         time.sleep(1)
 
@@ -226,7 +228,7 @@ class StudentLogin:
         """
         driver = WebDriverManager.get_driver()
         time.sleep(2)  # Give UI a moment to render error messages
-        elements = driver.find_elements(*StudentLoginLocator.ERROR_ALERT)
+        elements = driver.find_elements(*StudentLoginLocators.ERROR_ALERT)
         if elements:
             msg = elements[0].get_attribute("innerHTML")
             logger.error("CAPTCHA error message: %s", msg)
@@ -248,7 +250,7 @@ class StudentLogin:
         """
         driver = WebDriverManager.get_driver()
         time.sleep(2)  # Give UI a moment to render error messages
-        elements = driver.find_elements(*StudentLoginLocator.ERROR_ALERT)
+        elements = driver.find_elements(*StudentLoginLocators.ERROR_ALERT)
         if elements:
             msg = elements[0].get_attribute("innerHTML")
             logger.error("Credential error message: %s", msg)

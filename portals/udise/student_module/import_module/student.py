@@ -14,7 +14,7 @@ Classes:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-21
-Last Modified: 2025-09-22
+Last Modified: 2025-09-23
 
 Version: 1.0.0
 """
@@ -34,21 +34,22 @@ class Student:
 
     Attributes:
         student_pen (str): Unique identifier for the student.
-        import_data (dict): Dictionary containing all student records.
+        student_data (dict): Dictionary containing all student records.
     """
 
-    def __init__(self, student_pen, student_import_data):
+    def __init__(self, student_pen, student_data):
         """
         Initializes a Student instance with a PEN and import data.
 
         Args:
             student_pen (str): Unique identifier for the student.
-            student_import_data (dict): Dictionary of all student records.
+            student_student_data (dict): Dictionary of all student records.
         """
 
-        self.import_data = student_import_data
+        self.student_data = student_data
         self._student_pen = student_pen
         self._pen_dob = None
+        self.current_school = None
 
     def get_student_pen(self):
         """
@@ -69,6 +70,26 @@ class Student:
         """
         self._pen_dob = dob
 
+    def set_current_school(self, school_name):
+        """
+        Sets the current school name for the student.
+
+        Args:
+            school_name (str): The name of the school where the student is
+                currently enrolled.
+        """
+        self.student_data = school_name
+
+    def get_currnet_school(self):
+        """
+        Retrieves the current school name for the student.
+
+        Returns:
+            str: The name of the school where the student is currently
+                enrolled.
+        """
+        return self.current_school
+
     def get_pen_dob(self):
         """
         Retrieves the Date of Birth (DOB) associated with the student's
@@ -86,7 +107,7 @@ class Student:
         Returns:
             str: Class level (e.g., "9", "12").
         """
-        return self.import_data["class"]
+        return self.student_data["class"]
 
     def get_section(self):
         """
@@ -95,7 +116,7 @@ class Student:
         Returns:
             str: Section name (e.g., "A", "C").
         """
-        return self.import_data["section"]
+        return self.student_data["section"]
 
     def get_admission_date(self):
         """
@@ -109,7 +130,7 @@ class Student:
             Optional[str]: The formatted admission date,
                             or None if not available.
         """
-        doa = self.import_data["admission_date"]
+        doa = self.student_data["admission_date"]
         return (
             None
             if doa == "" or doa.lower() == "na"
@@ -123,7 +144,7 @@ class Student:
         Returns:
             str: Student's name.
         """
-        return self.import_data["student_name"]
+        return self.student_data["student_name"]
 
     def get_father_name(self):
         """
@@ -132,7 +153,7 @@ class Student:
         Returns:
             str: Father's name.
         """
-        return self.import_data["father_name"]
+        return self.student_data["father_name"]
 
     def get_mother_name(self):
         """
@@ -141,7 +162,7 @@ class Student:
         Returns:
             str: Mother's name.
         """
-        return self.import_data["mother_name"]
+        return self.student_data["mother_name"]
 
     def get_dob(self):
         """
@@ -150,7 +171,7 @@ class Student:
         Returns:
             str: Date of birth in DD/MM/YYYY format.
         """
-        dob = self.import_data["dob"]
+        dob = self.student_data["dob"]
         return None if dob == "" or "na" in dob else convert_to_ddmmyyyy(dob)
 
     def get_adhaar_name(self):
@@ -160,7 +181,7 @@ class Student:
         Returns:
             str: Aadhaar name (may be empty if not available).
         """
-        return self.import_data["adhaar_name"]
+        return self.student_data["adhaar_name"]
 
     def get_adhaar_dob(self):
         """
@@ -175,7 +196,7 @@ class Student:
             Optional[str]: The formatted Aadhaar date of birth,
                             or None if not available.
         """
-        adhaar_dob = self.import_data["adhaar_dob"]
+        adhaar_dob = self.student_data["adhaar_dob"]
         return (
             None
             if adhaar_dob == "" or "na" in adhaar_dob
@@ -189,7 +210,7 @@ class Student:
         Returns:
             str: Last four digits of Aadhaar.
         """
-        adhaar_no = self.import_data["adhaar_no"]
+        adhaar_no = self.student_data["adhaar_no"]
         return adhaar_no if AadhaarValidator.is_valid(adhaar_no) else None
 
     def get_adhaar_last_digits(self):
