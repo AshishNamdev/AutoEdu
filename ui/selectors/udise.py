@@ -16,7 +16,7 @@ automation scripts.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-09-23
+Last Modified: 2025-09-27
 
 Version: 1.0.0
 """
@@ -247,6 +247,9 @@ class ReleaseRequestSelectors:
     )
     GET_DETAILS_BUTTON_XPATH = (
         "//button[contains(normalize-space(text()), 'Get Details')]"
+    )
+    STUDENT_NAME_XPATH = (
+        "//li[span[1][contains(text(), 'Student Name')]]/span[2]"
     )
     SELECT_CLASS_XPATH = (
         "//label[contains(normalize-space(text()), 'Class')]"

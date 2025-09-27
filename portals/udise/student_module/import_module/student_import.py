@@ -100,7 +100,8 @@ class StudentImport:
         if self.relase_requests:
             logger.info("Total release requests to be raised: %d",
                         len(self.relase_requests))
-            ReleaseRequest(self.relase_requests).start_release_request()
+            ReleaseRequest(self.relase_requests,
+                           self.data_parser).start_release_request()
 
             ReportExporter(self.data_parser.get_parsed_data(), report_sub_dir="udise",
                            filename="student_import_report"

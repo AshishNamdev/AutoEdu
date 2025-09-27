@@ -16,11 +16,12 @@ Includes:
 Author: Ashish Namdev(ashish28[at] sirt[dot] gmail[dot] com)
 
 Date Created:  2025-09-14
-Last Modified: 2025-09-23
+Last Modified: 2025-09-27
 
 Version: 1.0.0
 """
 
+from common.logger import logger
 from ui.udise.release_request_ui import ReleaseRequestUI
 
 
@@ -49,8 +50,9 @@ class ReleaseRequest:
         - Hooks for future submission and post-processing
     """
 
-    def __init__(self, students):
+    def __init__(self, students, data_parser):
         self.students = students
+        self.data_parser = data_parser
         self.ui = ReleaseRequestUI()
 
     def start_release_request(self):
@@ -70,22 +72,37 @@ class ReleaseRequest:
 
     def _generate_release_request(self):
         """
-        Iterates through students and triggers release request generation.
-
-        For each student:
-        - Extracts PEN and DOB
-        - Fills the release request form via UI
-        - Logs relevant details
-
-        Notes:
-            - Placeholder hooks exist for form submission and post-processing.
+        Generates and submits release requests for each student in the list.
+        For each student, this method:
+        - Retrieves the PEN (Permanent Enrollment Number) and date of birth.
+        - Initiates the release request process via the UI.
+        - Checks if the student's name is available; logs a warning and skips
+            if not found.
+        - Logs the processing details for the student.
+        - Submits the release request data including section and
+            admission date.
+        - Retrieves and logs the status of the release request.
+        - Updates the parsed data with the release request status and
+            marks the import status as "Yes".
+        Logs relevant information and warnings throughout the process.
         """
+
         ui = self.ui
         for student in self.students:
             pen_no = student.get_student_pen()
             dob = student.get_pen_dob()
             ui.generate_release_request(pen_no, dob)
-            # student.fill_release_request_form()
-            # student.submit_release_request()
-            # student.handle_post_submission()
-        # student.finalize_release_request()
+            student_name = ui.get_student_name()
+            if "na" in student_name.lower():
+                logger.warning(
+                    "Student name not found for PEN: %s, "
+                    "Skipping student", pen_no)
+                continue
+            logger.info("Processing Release Request for: %s, PEN: %s, DOB: %s",
+                        student_name, pen_no, dob)
+            ui.submit_release_request_data(
+                student.get_section(), student.get_admission_date())
+            status = str(ui.get_release_request_status()).strip()
+            logger.info("%s : Release Request Status: %s", pen_no, status)
+            self.data_parser.update_parsed_data(
+                pen_no, {"Remark": status, "Import Status": "Yes"})

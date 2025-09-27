@@ -14,7 +14,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-09-23
+Last Modified: 2025-09-27
 
 Version: 1.0.0
 """
@@ -288,6 +288,8 @@ class ReleaseRequestLocators:
     DOB = (By.XPATH, ReleaseRequestSelectors.DOB_XPATH)
     GET_DETAILS_BUTTON = (
         By.XPATH, ReleaseRequestSelectors.GET_DETAILS_BUTTON_XPATH)
+    STUDENT_NAME = (
+        By.XPATH, ReleaseRequestSelectors.STUDENT_NAME_XPATH)
     SELECT_CLASS = (By.XPATH, ReleaseRequestSelectors.SELECT_CLASS_XPATH)
     SELECT_SECTION = (
         By.XPATH, ReleaseRequestSelectors.SELECT_SECTION_XPATH)

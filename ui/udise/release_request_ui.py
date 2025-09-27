@@ -20,7 +20,7 @@ Includes:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-09-23
-Last Modified: 2025-09-23
+Last Modified: 2025-09-27
 
 Version: 1.0.0
 """
@@ -28,7 +28,9 @@ Version: 1.0.0
 
 import time
 
-from common.config import TIME_DELAY
+from selenium.webdriver.support.ui import Select
+
+from common.config import SECTIONS, TIME_DELAY
 from common.logger import logger
 from common.ui_handler import UIHandler as UI
 from ui.locators.udise import ReleaseRequestLocators
@@ -130,16 +132,62 @@ class ReleaseRequestUI:
         except Exception as e:
             logger.error("Unexpected error during release request: %s", e)
 
-    def _submit_release_request_data(self):
+    def get_student_name(self):
         """
-        Submits the populated release request data.
+        Retrieves the student's name from the UI.
+        Returns:
+            str: The inner HTML content representing the student's
+                    name element.
+        """
+        return UI.wait_and_find_element(
+            ReleaseRequestLocators.STUDENT_NAME
+        ).get_attribute("innerHTML")
 
-        Placeholder for future implementation.
+    def submit_release_request_data(self, section, doa):
+        """
+        Submits a release request by selecting the specified section and
+        remark, entering the date of admission, and generating the request.
+
+        Args:
+            section (str): The key representing the section to be selected from
+                the SECTIONS mapping.
+            doa (str): The date of admission to be entered in the form.
+
+        Raises:
+            Exception: If any UI interaction fails (e.g., element not found,
+                selection fails).
+
+        Logs:
+            - The selected values for section and remark.
+            - The entered date of admission.
         """
 
-    def _confirm_reelase_request_submission(self):
-        """
-        Confirms the release request submission via dialog or status message.
+        for value, locator in [
+            (SECTIONS[section], ReleaseRequestLocators.SELECT_SECTION),
+            ("1", ReleaseRequestLocators.SELECT_REMARK)
+        ]:
+            logger.debug("Selecting value %s for %s", value, locator)
+            Select(UI.wait_and_find_element(locator)).select_by_value(value)
 
-        Placeholder for future implementation.
+        UI.fill_fields([(doa, ReleaseRequestLocators.DOA)])
+        logger.debug("Entered Date of Admission: %s", doa)
+
+        UI.wait_and_click(ReleaseRequestLocators.GENERATE_REQUEST_BUTTON)
+
+    def get_release_request_status(self):
         """
+        Retrieves the release request status message from the UI and
+        acknowledges it.
+        This method waits for the release request status message element to
+        appear in the UI, extracts its inner HTML content, logs the message, 
+        clicks the OK button to acknowledge the message,
+        and then returns the message content.
+        Returns:
+            str: The release request status message retrieved from the UI.
+        """
+        status = UI.wait_and_find_element(
+            ReleaseRequestLocators.REQUEST_STATUS_MESSAGE
+        ).get_attribute("innerHTML")
+        logger.info("Release Request Success Message: %s", status)
+        UI.wait_and_click(ReleaseRequestLocators.OK_BUTTON)
+        return status
