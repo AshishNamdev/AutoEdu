@@ -188,6 +188,6 @@ class ReleaseRequestUI:
         status = UI.wait_and_find_element(
             ReleaseRequestLocators.REQUEST_STATUS_MESSAGE
         ).get_attribute("innerHTML")
-        logger.info("Release Request Success Message: %s", status)
+        logger.info("Release Request Status: %s", status)
         UI.wait_and_click(ReleaseRequestLocators.OK_BUTTON)
         return status
