@@ -14,7 +14,7 @@ Classes:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-21
-Last Modified: 2025-09-23
+Last Modified: 2025-09-28
 
 Version: 1.0.0
 """
@@ -78,9 +78,9 @@ class Student:
             school_name (str): The name of the school where the student is
                 currently enrolled.
         """
-        self.student_data = school_name
+        self.student_data["current_school"] = school_name
 
-    def get_currnet_school(self):
+    def get_current_school(self):
         """
         Retrieves the current school name for the student.
 
@@ -88,7 +88,7 @@ class Student:
             str: The name of the school where the student is currently
                 enrolled.
         """
-        return self.current_school
+        return self.student_data.get("current_school")
 
     def get_pen_dob(self):
         """

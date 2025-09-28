@@ -103,9 +103,9 @@ class StudentImport:
             ReleaseRequest(self.relase_requests,
                            self.data_parser).start_release_request()
 
-            ReportExporter(self.data_parser.get_parsed_data(), report_sub_dir="udise",
-                           filename="student_import_report"
-                           ).save(first_column="Student PEN Number")
+        ReportExporter(self.data_parser.get_parsed_data(), report_sub_dir="udise",
+                       filename="student_import_report"
+                       ).save(first_column="Student PEN Number")
 
     def _import_students(self):
         """
@@ -134,18 +134,21 @@ class StudentImport:
             student = Student(pen_no, student_data)
             status = self._try_import_student(student)
             student.set_pen_dob(self.pen_dob)
-            current_school = ui.get_student_current_school().strip()
-            student.set_current_school(current_school)
+            current_school = self.logged_in_school
 
             if status == "active":
+                current_school = ui.get_student_current_school().strip()
+
                 if self._is_school_matched(pen_no, current_school):
                     continue
+
                 self._prepare_release_request(student)
             elif self._is_import_error(pen_no, status):
                 continue
             elif self._is_class_mismatch(pen_no, student.get_class()):
                 continue
             else:
+                current_school = ui.get_student_current_school().strip()
                 ui.submit_import_data(
                     student.get_class(),
                     student.get_section(),
@@ -155,6 +158,8 @@ class StudentImport:
                 logger.info("%s : %s", pen_no, status)
                 data_parser.update_parsed_data(
                     pen_no, {"Remark": status, "Import Status": "Yes"})
+
+            student.set_current_school(current_school)
 
     def _try_import_student(self, student):
         """
@@ -414,7 +419,7 @@ class StudentImport:
             student (Student): The student object containing PEN number
                                and DOB information.
         """
-        self.relase_request.append(student)
+        self.relase_requests.append(student)
         pen_no = student.get_student_pen()
         logger.debug(
             "%s: Sudent already active in another school: %s, "

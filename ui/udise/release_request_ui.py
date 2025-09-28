@@ -132,7 +132,7 @@ class ReleaseRequestUI:
         except Exception as e:
             logger.error("Unexpected error during release request: %s", e)
 
-    def get_student_name(self):
+    def get_ui_student_name(self):
         """
         Retrieves the student's name from the UI.
         Returns:
@@ -141,7 +141,7 @@ class ReleaseRequestUI:
         """
         return UI.wait_and_find_element(
             ReleaseRequestLocators.STUDENT_NAME
-        ).get_attribute("innerHTML")
+        ).get_attribute("innerHTML").strip()
 
     def submit_release_request_data(self, section, doa):
         """
@@ -179,7 +179,7 @@ class ReleaseRequestUI:
         Retrieves the release request status message from the UI and
         acknowledges it.
         This method waits for the release request status message element to
-        appear in the UI, extracts its inner HTML content, logs the message, 
+        appear in the UI, extracts its inner HTML content, logs the message,
         clicks the OK button to acknowledge the message,
         and then returns the message content.
         Returns:
@@ -187,7 +187,7 @@ class ReleaseRequestUI:
         """
         status = UI.wait_and_find_element(
             ReleaseRequestLocators.REQUEST_STATUS_MESSAGE
-        ).get_attribute("innerHTML")
+        ).get_attribute("innerHTML").strip()
         logger.info("Release Request Status: %s", status)
         UI.wait_and_click(ReleaseRequestLocators.OK_BUTTON)
         return status

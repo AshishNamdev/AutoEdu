@@ -51,6 +51,14 @@ class ReleaseRequest:
     """
 
     def __init__(self, students, data_parser):
+        """
+        Initializes the ReleaseRequest object with a list
+        of students and a data parser.
+
+        Args:
+            students (list): A list of student objects or data to be processed.
+            data_parser (object): An instance of StudentDataParser.
+        """
         self.students = students
         self.data_parser = data_parser
         self.ui = ReleaseRequestUI()
@@ -92,17 +100,24 @@ class ReleaseRequest:
             pen_no = student.get_student_pen()
             dob = student.get_pen_dob()
             ui.generate_release_request(pen_no, dob)
-            student_name = ui.get_student_name()
-            if "na" in student_name.lower():
+            student_name = ui.get_ui_student_name()
+
+            if "na" == student_name.casefold():
                 logger.warning(
                     "Student name not found for PEN: %s, "
                     "Skipping student", pen_no)
                 continue
+
             logger.info("Processing Release Request for: %s, PEN: %s, DOB: %s",
                         student_name, pen_no, dob)
             ui.submit_release_request_data(
                 student.get_section(), student.get_admission_date())
+            current_school = student.get_current_school()
             status = str(ui.get_release_request_status()).strip()
+            status = (
+                "Student's Current School: %s : %s"
+                % (current_school, status)
+            )
             logger.info("%s : Release Request Status: %s", pen_no, status)
             self.data_parser.update_parsed_data(
-                pen_no, {"Remark": status, "Import Status": "Yes"})
+                pen_no, {"Remark": status, "Import Status": "No"})
