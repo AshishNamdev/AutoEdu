@@ -1,108 +1,74 @@
 """
-Configures centralized logging for the automation framework.
+نظام السجلات المحسن لمشروع AutoEdu
 
-This module sets up both console and rotating file logging using Python's
-`logging.config.dictConfig`. It supports configurable log levels via environment
-variables and ensures consistent formatting across all log outputs.
-
-Environment Variables:
-    LOG_LEVEL (str): Optional. Sets the logging level (e.g., DEBUG, INFO, WARNING).
-
-Attributes:
-    logger (logging.Logger): Logger instance scoped to the current module.
-
-Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
-
-Date Created: 2025-08-18
-Last Modified: 2025-09-22
-
-Version: 1.0.1
+يوفر إعداداً شاملاً لتسجيل الأحداث والأخطاء.
 """
 
 import logging
-import logging.config
-import os
-
-from utils.date_time_utils import get_timestamp
-
-log_dir = os.path.join(os.getcwd(), "logs")
-
-if not os.path.exists(log_dir):
-    os.makedirs(log_dir, exist_ok=True)
-
-timestamp = get_timestamp()
-log_file = os.path.join(log_dir, f"auto_edu_{timestamp}.log")
-
-LOG_CONFIG = {
-    "version": 1,
-    "formatters": {
-        "standard": {
-            "format": "%(asctime)s [%(levelname)s] %(module)s:%(lineno)d (%(funcName)s) - %(message)s"
-        }
-    },
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "formatter": "standard",
-            "level": "DEBUG",
-        },
-        "file": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "formatter": "standard",
-            "filename": log_file,
-            "maxBytes": 5_242_880,
-            "backupCount": 3,
-            "level": "DEBUG",
-        },
-    },
-    "loggers": {
-        "auto_edu": {
-            "handlers": ["console", "file"],
-            "level": "DEBUG",
-            "propagate": False,
-        }
-    },
-    "root": {"handlers": ["console", "file"], "level": "INFO"},
-}
-
-logging.config.dictConfig(LOG_CONFIG)
-logger = logging.getLogger("auto_edu")
+import sys
+from pathlib import Path
+from typing import Optional
+from loguru import logger as loguru_logger
 
 
-def log_start():
+def setup_logger(
+    name: str = "autoedu",
+    level: str = "INFO",
+    log_file: Optional[str] = None,
+    enable_console: bool = True,
+    enable_file: bool = True,
+) -> logging.Logger:
     """
-    Logs the start of the AutoEdu automation run with a timestamp.
+    إعداد نظام السجلات للمشروع.
 
-    Output Format:
-        =========== Starting AutoEdu [DD-MM-YYYY - HH:MMAM/PM] =========
+    Args:
+        name: اسم السجل
+        level: مستوى السجل (DEBUG, INFO, WARNING, ERROR)
+        log_file: مسار ملف السجل (اختياري)
+        enable_console: تفعيل السجل في وحدة التحكم
+        enable_file: تفعيل السجل في ملف
 
-    Uses:
-        - get_timestamp() to generate the current time.
-        - logger.info() to write the entry to the shared log file.
+    Returns:
+        كائن السجل المُعد
     """
+    # إنشاء مجلد السجلات
+    log_dir = Path("logs")
+    log_dir.mkdir(exist_ok=True)
 
-    logger.info(
-        "=========== Starting AutoEdu [%s] =========",
-        get_timestamp(format="%d-%m-%Y - %I:%M:%S %p"),
-    )
+    # إعداد ملف السجل الافتراضي
+    if log_file is None:
+        log_file = log_dir / "autoedu.log"
+
+    # مسح الإعدادات الحالية
+    loguru_logger.remove()
+
+    # إضافة handler للوحة التحكم
+    if enable_console:
+        loguru_logger.add(
+            sys.stdout,
+            format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
+                   "<level>{level: <8}</level> | "
+                   "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
+                   "<level>{message}</level>",
+            level=level,
+            colorize=True,
+        )
+
+    # إضافة handler للملف
+    if enable_file:
+        loguru_logger.add(
+            log_file,
+            format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | "
+                   "{name}:{function}:{line} - {message}",
+            level=level,
+            rotation="10 MB",
+            retention="30 days",
+            compression="zip",
+        )
+
+    return logging.getLogger(name)
 
 
-def log_end():
-    """
-    Logs the end of the AutoEdu automation run with a timestamp.
-
-    Output Format:
-        =========== End AutoEdu [DD-MM-YYYY - HH:MMAM/PM] =========
-
-    Uses:
-        - get_timestamp() to generate the current time.
-        - logger.info() to write the entry to the shared log file.
-    """
-
-    logger.info(
-        "=========== End AutoEdu [%s] =========",
-        get_timestamp(format="%d-%m-%Y - %I:%M:%S %p"),
-    )
-
-
-log_start()
+def get_logger(name: str = "autoedu") -> logging.Logger:
+    """الحصول على كائن السجل الموجود."""
+    return logging.getLogger(name)
