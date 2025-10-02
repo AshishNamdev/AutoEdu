@@ -14,18 +14,15 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-09-27
+Last Modified: 2025-10-03
 
 Version: 1.0.0
 """
 
 from selenium.webdriver.common.by import By
 
-from ui.selectors.udise import (
-    ReleaseRequestSelectors,
-    StudentImportSelectors,
-    StudentLoginSelectors,
-)
+from ui.selectors.udise import (ReleaseRequestSelectors, SearchPENSelectors,
+                                StudentImportSelectors, StudentLoginSelectors)
 
 
 class StudentLoginLocators:
@@ -302,3 +299,78 @@ class ReleaseRequestLocators:
         By.XPATH, ReleaseRequestSelectors.REQUEST_STATUS_MESSAGE_XPATH)
     OK_BUTTON = (
         By.XPATH, ReleaseRequestSelectors.OK_BUTTON_XPATH)
+
+
+class SearchPENLocators:
+    """
+    Locator definitions for the 'Search PEN' UI workflow.
+
+    This class centralizes all XPath-based locators used in the Search PEN
+    interface, enabling maintainable, scalable automation. Each locator is
+    defined as a tuple compatible with Selenium's `find_element` and
+    `find_elements` methods.
+
+    Usage:
+        driver.find_element(*SearchPENLocators.AADHAAR_NO).send_keys(
+            "123456789012"
+        )
+        driver.find_element(
+            *SearchPENLocators.SEARCH_BUTTON
+        ).click()
+
+    Includes:
+        - Input fields for Aadhaar and Year of Birth
+        - Action buttons for search and data retrieval
+        - Display fields for PEN and DOB
+        - Status messaging and modal controls
+
+    Attributes:
+        GETN_PEN_AND_DOB_BUTTON (tuple): Triggers retrieval of Student PEN
+            and DOB.
+        AADHAAR_NO (tuple): Input field for entering Aadhaar number.
+        YEAR_OF_BIRTH (tuple): Input field for entering year of birth.
+        SEARCH_BUTTON (tuple): Button to initiate search based on Aadhaar
+            and DOB.
+        STUDENT_PEN_VALUE (tuple): Field displaying the retrieved Student PEN.
+        STUDENT_DOB_VALUE (tuple): Field displaying the retrieved Student DOB.
+        STATUS_MESSAGE (tuple): Element showing success or error messages.
+        CLOSE_BUTTON (tuple): Modal close button (typically top-right corner).
+    """
+
+    GETN_PEN_AND_DOB_BUTTON = (
+        By.XPATH,
+        SearchPENSelectors.GET_PEN_AND_DOB_BUTTON_XPATH
+    )
+    AADHAAR_NO = (
+        By.XPATH,
+        SearchPENSelectors.AADHAAR_NO_XPATH
+    )
+    YEAR_OF_BIRTH = (
+        By.XPATH,
+        SearchPENSelectors.YEAR_OF_BIRTH_XPATH
+    )
+    SEARCH_BUTTON = (
+        By.XPATH,
+        SearchPENSelectors.SEARCH_BUTTON_XPATH
+    )
+    STUDENT_PEN_VALUE = (
+        By.XPATH,
+        SearchPENSelectors.STUDENT_PEN_XPATH
+    )
+    STUDENT_DOB_VALUE = (
+        By.XPATH,
+        SearchPENSelectors.STUDENT_DOB_XPATH
+    )
+    STATUS_MESSAGE = (
+        By.XPATH,
+        SearchPENSelectors.STATUS_MESSAGE_XPATH
+    )
+    CLOSE_BUTTON = (
+        By.XPATH,
+        SearchPENSelectors.CLOSE_BUTTON_XPATH
+    )
+
+    CLOSE_BUTTON = (
+        By.XPATH,
+        SearchPENSelectors.CLOSE_BUTTON_XPATH
+    )

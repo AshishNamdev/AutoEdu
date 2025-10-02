@@ -16,7 +16,7 @@ automation scripts.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-09-27
+Last Modified: 2025-10-03
 
 Version: 1.0.0
 """
@@ -274,3 +274,76 @@ class ReleaseRequestSelectors:
     OK_BUTTON_XPATH = (
         "//button[contains(normalize-space(text()), 'Okay')]"
     )
+
+
+class SearchPENSelectors:
+    """
+    XPath selectors for locating elements on the 'Search PEN' UI page.
+
+    This class provides centralized, resilient XPath strings for all key UI
+    components involved in the Search PEN workflow. These selectors are
+    consumed by locator classes (e.g., SearchPENLocators) and used in
+    automation scripts to interact with the page.
+
+    Usage:
+        driver.find_element(
+            By.XPATH,
+            SearchPENSelectors.AADHAAR_NO_XPATH
+        ).send_keys("123456789012")
+        driver.find_element(
+            By.XPATH,
+            SearchPENSelectors.SEARCH_BUTTON_XPATH
+        ).click()
+
+    Includes:
+        - Input fields for Aadhaar and Year of Birth
+        - Action buttons for search and data retrieval
+        - Display fields for PEN and DOB
+        - Status messaging and modal controls
+
+    Attributes:
+        GET_PEN_AND_DOB_BUTTON_XPATH (str):
+            XPath for the 'Get PEN' link or button.
+            Anchored by visible text using normalize-space for whitespace
+            tolerance.
+        AADHAAR_NO_XPATH (str):
+            XPath for the Aadhaar number input field.
+            Targets input by name attribute for schema resilience.
+        YEAR_OF_BIRTH_XPATH (str):
+            XPath for the date of birth input field.
+            Uses name='dob' for consistent schema targeting.
+        SEARCH_BUTTON_XPATH (str):
+            XPath for the 'Search' button.
+            Anchored by visible text with whitespace normalization.
+        STATUS_MESSAGE_XPATH (str):
+            XPath for the status message dialog header.
+            Targets modal header using ARIA role for accessibility resilience.
+        STUDENT_PEN_XPATH (str):
+            XPath for the first student's PEN value in the results table.
+            Dynamically anchored to the 'Student PEN' header for column-index
+            independence.
+        STUDENT_DOB_XPATH (str):
+            XPath for the first student's date of birth in the results table.
+            Anchored to the 'DOB' header for resilient column targeting.
+        CLOSE_BUTTON_XPATH (str):
+            XPath for the 'Close' button in dialogs.
+            Uses ARIA label for accessibility and styling independence.
+    """
+    GET_PEN_AND_DOB_BUTTON_XPATH = (
+        "//a[contains(normalize-space(text()), 'Get PEN')]"
+    )
+    AADHAAR_NO_XPATH = "//input[@name='aadhaar']"
+    YEAR_OF_BIRTH_XPATH = "//input[@name='dob']"
+    SEARCH_BUTTON_XPATH = (
+        "//button[contains(normalize-space(text()), 'Search')]"
+    )
+    STATUS_MESSAGE_XPATH = "//div[@role='dialog']/h2"
+    STUDENT_PEN_XPATH = (
+        "//table//thead//th[normalize-space()='Student PEN']"
+        "/ancestor::table//tbody/tr[1]/td[1]"
+    )
+    STUDENT_DOB_XPATH = (
+        "//table//thead//th[normalize-space()='DOB']"
+        "/ancestor::table//tbody/tr[1]/td[2]"
+    )
+    CLOSE_BUTTON_XPATH = "//button[@aria-label='Close']"
