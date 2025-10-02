@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-09-23
+Last Modified: 2025-10-03
 
 Version: 1.0.0
 """
@@ -26,6 +26,7 @@ Version: 1.0.0
 import os
 
 from common.logger import logger
+from common.student_data import StudentData
 from portals.udise import ReleaseRequest, Student
 from ui.udise.student_import_ui import StudentImportUI
 from utils.parser import StudentDataParser
@@ -55,7 +56,7 @@ class StudentImport:
         self.logged_in_school = logged_in_school
         self.import_ui = StudentImportUI()
         self.student = None
-        self.relase_requests = []
+        self.release_requests = []
         self.import_errors = {
             "dob_error": (
                 "The entered Date of Birth(DOB) does not match "
@@ -67,7 +68,7 @@ class StudentImport:
             )
         }
         self.pen_dob = None
-        self.data_parser = None
+        self.student_data = None
 
     def _prepare_import_data(self):
         """
@@ -84,7 +85,7 @@ class StudentImport:
             os.getcwd(), "input", "udise", "import_data.xlsx")
         data_parser = StudentDataParser(import_data_file)
         data_parser.parse_data()
-        self.data_parser = data_parser
+        self.student_data = StudentData(data_parser.get_parsed_data())
 
     def start_student_import(self):
         """
@@ -97,13 +98,12 @@ class StudentImport:
         self.import_ui.select_import_options()
         self._prepare_import_data()
         self._import_students()
-        if self.relase_requests:
-            logger.info("Total release requests to be raised: %d",
-                        len(self.relase_requests))
-            ReleaseRequest(self.relase_requests,
-                           self.data_parser).start_release_request()
+        if self.release_requests:
+            ReleaseRequest(self.release_requests,
+                           self.student_data).start_release_request()
 
-        ReportExporter(self.data_parser.get_parsed_data(), report_sub_dir="udise",
+        ReportExporter(self.student_data.get_student_data(),
+                       report_sub_dir="udise",
                        filename="student_import_report"
                        ).save(first_column="Student PEN Number")
 
@@ -125,8 +125,7 @@ class StudentImport:
             - Triggers UI operations for import, release, or detail filling.
         """
         ui = self.import_ui
-        data_parser = self.data_parser
-        for pen_no, student_data in data_parser.get_parsed_data().items():
+        for pen_no, student_data in self.student_data.get_student_data().items():
             self.pen_dob = None
             if self._is_invalid_pen_no(pen_no):
                 continue
@@ -138,6 +137,7 @@ class StudentImport:
 
             if status == "active":
                 current_school = ui.get_student_current_school().strip()
+                student.set_current_school(current_school)
 
                 if self._is_school_matched(pen_no, current_school):
                     continue
@@ -156,7 +156,7 @@ class StudentImport:
                 )
                 status = str(ui.get_import_message()).strip()
                 logger.info("%s : %s", pen_no, status)
-                data_parser.update_parsed_data(
+                self.student_data.update_student_data(
                     pen_no, {"Remark": status, "Import Status": "Yes"})
 
             student.set_current_school(current_school)
@@ -291,7 +291,7 @@ class StudentImport:
         """
         if "na" in pen_no.lower():
             logger.error("Skipping invalid PEN no.: %s", pen_no)
-            self.data_parser.update_parsed_data(
+            self.student_data.update_student_data(
                 pen_no,
                 {
                     "Remark": "Invalid PEN no.",
@@ -328,7 +328,7 @@ class StudentImport:
             pen_no,
             error_remark,
         )
-        self.data_parser.update_parsed_data(
+        self.student_data.update_student_data(
             pen_no,
             {
                 "Remark": error_remark,
@@ -382,7 +382,7 @@ class StudentImport:
                     f"  Expected - {expected}\n"
                     f"  Actual   - {actual}"
                 )
-                self.data_parser.update_parsed_data(
+                self.student_data.update_student_data(
                     pen_no,
                     {
                         "Remark": remark,
@@ -399,7 +399,7 @@ class StudentImport:
             actual,
         )
         if update_on_match:
-            self.data_parser.update_parsed_data(
+            self.student_data.update_student_data(
                 pen_no,
                 {
                     "Remark": match_remark,
@@ -419,15 +419,15 @@ class StudentImport:
             student (Student): The student object containing PEN number
                                and DOB information.
         """
-        self.relase_requests.append(student)
+        self.release_requests.append(student)
         pen_no = student.get_student_pen()
         logger.debug(
-            "%s: Sudent already active in another school: %s, "
+            "%s: Student already active in another school: %s, "
             "preparing release request data",
             pen_no,
             student.get_current_school()
         )
-        self.data_parser.update_parsed_data(
+        self.student_data.update_student_data(
             pen_no,
             {
                 "Remark": "Active in another school",

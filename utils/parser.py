@@ -20,7 +20,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-21
-Last Modified: 2025-09-22
+Last Modified: 2025-10-03
 
 Version: 1.0.0
 """
@@ -32,7 +32,6 @@ import re
 import pandas as pd
 
 from common.logger import logger
-from utils.date_time_utils import get_timestamp
 from utils.file_utils import backup_file
 from utils.labels import clean_column_labels
 
@@ -172,39 +171,6 @@ class StudentDataParser:
         """
 
         return self.parsed_data
-
-    def update_parsed_data(self, main_key, kwargs):
-        """
-        Updates the parsed data for a specific student identified
-        by Main Key.
-
-        This method modifies the `parsed_data` dictionary by setting the
-        specified `key` to the provided `value` for the student with the
-        given `main_key`. If the `main_key` does not exist in the dictionary,
-        it logs a warning message.
-
-        Args:
-            pen_no (str): The main_key of the student whose data
-                            is to be updated.
-            kwargs (dict): The key and value to add in  student's
-                            data dictionary.
-
-        Returns:
-            None
-
-        Side Effects:
-            - Modifies the `parsed_data` attribute of the class instance.
-            - Logs a warning if the specified PEN number is not found.
-        """
-        if main_key in self.parsed_data:
-            for key, value in kwargs.items():
-                self.parsed_data[main_key][key] = value
-                logger.debug("Updated %s: %s - %s", main_key, key, value)
-            self.parsed_data[main_key]["Date and Time"] = get_timestamp(
-                format="%d-%m-%Y - %I:%M:%S %p")
-        else:
-            logger.warning("%s not found in parsed data. No update made.",
-                           main_key)
 
     def _save_parsed_data_json(self, df):
         """

@@ -16,7 +16,7 @@ Includes:
 Author: Ashish Namdev(ashish28[at] sirt[dot] gmail[dot] com)
 
 Date Created:  2025-09-14
-Last Modified: 2025-09-27
+Last Modified: 2025-10-03
 
 Version: 1.0.0
 """
@@ -50,17 +50,17 @@ class ReleaseRequest:
         - Hooks for future submission and post-processing
     """
 
-    def __init__(self, students, data_parser):
+    def __init__(self, students, student_data):
         """
         Initializes the ReleaseRequest object with a list
-        of students and a data parser.
+        of students and a student's data record.
 
         Args:
             students (list): A list of student objects or data to be processed.
-            data_parser (object): An instance of StudentDataParser.
+            student_data (object): An instance of StudentData.
         """
         self.students = students
-        self.data_parser = data_parser
+        self.student_data = student_data
         self.ui = ReleaseRequestUI()
 
     def start_release_request(self):
@@ -74,7 +74,8 @@ class ReleaseRequest:
         Raises:
             TimeoutException: If UI elements are not interactable.
         """
-
+        logger.info("Total release requests to be raised: %d",
+                    len(self.students))
         self.ui.select_release_request_options()
         self._generate_release_request()
 
@@ -112,12 +113,13 @@ class ReleaseRequest:
                         student_name, pen_no, dob)
             ui.submit_release_request_data(
                 student.get_section(), student.get_admission_date())
-            current_school = student.get_current_school()
             status = str(ui.get_release_request_status()).strip()
-            status = (
-                "Student's Current School: %s : %s"
-                % (current_school, status)
+            logger.info(
+                "%s : Student's Current School: %s : Release Request Status: %s",
+                pen_no,
+                student.get_current_school(),
+                status
             )
-            logger.info("%s : Release Request Status: %s", pen_no, status)
-            self.data_parser.update_parsed_data(
+
+            self.student_data.update_student_data(
                 pen_no, {"Remark": status, "Import Status": "No"})
