@@ -425,7 +425,7 @@ class StudentImport:
             "%s: Sudent already active in another school: %s, "
             "preparing release request data",
             pen_no,
-            student.get_currnet_school()
+            student.get_current_school()
         )
         self.data_parser.update_parsed_data(
             pen_no,
