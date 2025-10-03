@@ -21,8 +21,12 @@ Version: 1.0.0
 
 from selenium.webdriver.common.by import By
 
-from ui.selectors.udise import (ReleaseRequestSelectors, SearchPENSelectors,
-                                StudentImportSelectors, StudentLoginSelectors)
+from ui.selectors.udise import (
+    ReleaseRequestSelectors,
+    SearchPENSelectors,
+    StudentImportSelectors,
+    StudentLoginSelectors,
+)
 
 
 class StudentLoginLocators:
@@ -337,7 +341,7 @@ class SearchPENLocators:
         CLOSE_BUTTON (tuple): Modal close button (typically top-right corner).
     """
 
-    GETN_PEN_AND_DOB_BUTTON = (
+    GET_PEN_AND_DOB_BUTTON = (
         By.XPATH,
         SearchPENSelectors.GET_PEN_AND_DOB_BUTTON_XPATH
     )
