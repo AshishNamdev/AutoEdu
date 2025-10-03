@@ -1,16 +1,19 @@
 """
-Loads configuration constants from a JSON file for use across the automation framework.
+Loads configuration constants from a JSON file for use across the automation
+framework.
 
-This module reads `conf.json` located in the same directory and exposes key settings
-as constants, including credentials, URLs, class/section identifiers, and nested options
-like timeout and retry behavior.
+This module reads `conf.json` located in the same directory and exposes
+key settings as constants, including credentials, URLs,
+class/section identifiers, and nested options like timeout and retry behavior.
+It also provides a utility function to log these configurations for debugging
+purposes.
 
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-09-03
+Last Modified: 2025-10-03
 
-Version: 1.0.1
+Version: 1.0.0
 
 Attributes:
     USERNAME (str): Login username.
@@ -35,32 +38,33 @@ CONFIG_PATH = os.path.join(os.getcwd(), "conf.json")
 with open(CONFIG_PATH, "r") as f:
     _config = json.load(f)
 
-DEBUG = _config["DEBUG"]
-PORTAL = _config["PORTAL"]
-CLASS = _config["CLASS"]
-SECTION = _config["SECTION"]
-SECTIONS = _config["SECTIONS"]
+DEBUG = _config.get("DEBUG", False)
+PORTAL = _config.get("PORTAL", "udise")
+CLASS = _config.get("CLASS", "9")
+SECTION = _config.get("SECTION", "A")
+SECTIONS = _config.get("SECTIONS",
+                       {"A": "1", "B": "2", "C": "3",
+                        "D": "4", "E": "5", "F": "6"}
+                       )
 
 # Derived values
-MODULE = _config["MODULE"][PORTAL]
-TASK = _config["TASK"][PORTAL][MODULE]
-USERNAME = _config["USERNAME"][PORTAL]
-PASSWORD = _config["PASSWORD"][PORTAL]
+MODULE = _config.get("MODULE", {}).get(PORTAL, "student")
+TASK = _config.get("TASK", {}).get(PORTAL, {}).get(MODULE, "import")
+USERNAME = _config.get("USERNAME", {}).get(PORTAL, "default_user")
+PASSWORD = _config.get("PASSWORD", {}).get(PORTAL, "default_password")
 
 # URL handling
 if PORTAL == "udise":
-    URL = _config["URL"][PORTAL][MODULE]
+    URL = _config.get("URL", {}).get(PORTAL, {}).get(MODULE, "default_url")
 else:
-    URL = _config["URL"][PORTAL]
+    URL = _config.get("URL", {}).get(PORTAL, "default_url")
 
 
 # Options
-TIMEOUT = _config["OPTIONS"]["timeout"]
-TIME_DELAY = float(_config["OPTIONS"]["time_delay"])
-VERIFY_SSL = _config["OPTIONS"]["verify_ssl"]
-RETRIES = _config["OPTIONS"]["retries"]
-VERIFY_SSL = _config["OPTIONS"]["verify_ssl"]
-RETRIES = _config["OPTIONS"]["retries"]
+TIMEOUT = _config.get("OPTIONS", {}).get("timeout", 30)
+TIME_DELAY = float(_config.get("OPTIONS", {}).get("time_delay", 1))
+VERIFY_SSL = _config.get("OPTIONS", {}).get("verify_ssl", True)
+RETRIES = _config.get("OPTIONS", {}).get("retries", 3)
 
 
 def log_config(logger):
@@ -84,9 +88,9 @@ def log_config(logger):
 
     logger.debug("DEBUG: %s", DEBUG)
     logger.debug("CONFIG_PATH: %s", CONFIG_PATH)
-    logger.debug("PORTAL: %s", PORTAL)
-    logger.debug("MODULE: %s", MODULE)
-    logger.debug("TASK: %s", TASK)
+    logger.info("PORTAL: %s", PORTAL)
+    logger.info("MODULE: %s", MODULE)
+    logger.info("TASK: %s", TASK)
     logger.debug("URL: %s", URL)
     logger.debug("TIMEOUT: %s", TIMEOUT)
     logger.debug("TIME_DELAY: %s", TIME_DELAY)
