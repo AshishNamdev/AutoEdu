@@ -1,28 +1,36 @@
 """
-Configures centralized logging for the automation framework.
+Centralized logging configuration for the AutoEdu automation framework.
 
-This module sets up both console and rotating file logging using Python's
-`logging.config.dictConfig`. It supports configurable log levels via environment
-variables and ensures consistent formatting across all log outputs.
+This module sets up consistent logging across the framework using Python's
+`logging.config.dictConfig`. It supports both console and rotating
+file handlers, ensures uniform formatting, and dynamically creates a
+timestamped log file within a dedicated `logs/` directory.
 
-Environment Variables:
-    LOG_LEVEL (str): Optional. Sets the logging level (e.g., DEBUG, INFO, WARNING).
+Features:
+    - Console and file logging with rotation (5MB max, 3 backups)
+    - Dynamic log level based on DEBUG flag from config
+    - Timestamped log filenames for traceability
+    - Utility functions to log the start and end of automation runs
 
 Attributes:
-    logger (logging.Logger): Logger instance scoped to the current module.
+    logger (logging.Logger): Logger instance scoped to the 'auto_edu'
+                            namespace.
 
-Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
+Author:
+    Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
-Date Created: 2025-08-18
-Last Modified: 2025-09-22
+Created: 2025-08-18
+Last Modified: 2025-10-03
 
-Version: 1.0.1
+Version: 1.0.0
 """
+
 
 import logging
 import logging.config
 import os
 
+from common.config import DEBUG
 from utils.date_time_utils import get_timestamp
 
 log_dir = os.path.join(os.getcwd(), "logs")
@@ -32,6 +40,7 @@ if not os.path.exists(log_dir):
 
 timestamp = get_timestamp()
 log_file = os.path.join(log_dir, f"auto_edu_{timestamp}.log")
+log_level = "DEBUG" if DEBUG else "INFO"
 
 LOG_CONFIG = {
     "version": 1,
@@ -44,7 +53,7 @@ LOG_CONFIG = {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "standard",
-            "level": "DEBUG",
+            "level": log_level,
         },
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
@@ -52,17 +61,17 @@ LOG_CONFIG = {
             "filename": log_file,
             "maxBytes": 5_242_880,
             "backupCount": 3,
-            "level": "DEBUG",
+            "level": log_level,
         },
     },
     "loggers": {
         "auto_edu": {
             "handlers": ["console", "file"],
-            "level": "DEBUG",
+            "level": log_level,
             "propagate": False,
         }
     },
-    "root": {"handlers": ["console", "file"], "level": "INFO"},
+    "root": {"handlers": ["console", "file"], "level": log_level},
 }
 
 logging.config.dictConfig(LOG_CONFIG)
