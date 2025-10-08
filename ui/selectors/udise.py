@@ -16,7 +16,7 @@ automation scripts.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-10-03
+Last Modified: 2025-10-09
 
 Version: 1.0.0
 """
@@ -337,7 +337,7 @@ class SearchPENSelectors:
     SEARCH_BUTTON_XPATH = (
         "//button[contains(normalize-space(text()), 'Search')]"
     )
-    STATUS_MESSAGE_XPATH = "//div[@role='dialog']/h2"
+    ERROR_MESSAGE_XPATH = "//div[@role='dialog']/h2"
     STUDENT_PEN_XPATH = (
         "//table//thead//th[normalize-space()='Student PEN']"
         "/ancestor::table//tbody/tr[1]/td[1]"
@@ -347,3 +347,6 @@ class SearchPENSelectors:
         "/ancestor::table//tbody/tr[1]/td[2]"
     )
     CLOSE_BUTTON_XPATH = "//button[@aria-label='Close']"
+    ERROR_OK_BUTTON_XPATH = (
+        "//button[contains(normalize-space(text()),'Okay')]"
+    )

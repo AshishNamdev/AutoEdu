@@ -14,7 +14,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-10-03
+Last Modified: 2025-10-09
 
 Version: 1.0.0
 """
@@ -365,16 +365,15 @@ class SearchPENLocators:
         By.XPATH,
         SearchPENSelectors.STUDENT_DOB_XPATH
     )
-    STATUS_MESSAGE = (
+    ERROR_MESSAGE = (
         By.XPATH,
-        SearchPENSelectors.STATUS_MESSAGE_XPATH
+        SearchPENSelectors.ERROR_MESSAGE_XPATH
     )
     CLOSE_BUTTON = (
         By.XPATH,
         SearchPENSelectors.CLOSE_BUTTON_XPATH
     )
-
-    CLOSE_BUTTON = (
+    ERROR_OK_BUTTON = (
         By.XPATH,
-        SearchPENSelectors.CLOSE_BUTTON_XPATH
+        SearchPENSelectors.ERROR_OK_BUTTON_XPATH
     )
