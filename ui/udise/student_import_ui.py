@@ -96,13 +96,12 @@ class StudentImportUI:
             ]
             UI.fill_fields(field_data)
 
-            logger.debug("Student PEN No: %s, DOB: %s", student_pen, dob)
+            logger.info("Student PEN No: %s, DOB: %s", student_pen, dob)
 
             UI.wait_and_click(StudentImportLocators.IMPORT_GO_BUTTON)
             logger.debug("Clicked Import button")
             logger.debug("Waiting for %s seconds", TIME_DELAY)
             time.sleep(TIME_DELAY)
-
         except ValueError as ve:
             logger.warning("Validation error during student import: %s", ve)
         except Exception as e:

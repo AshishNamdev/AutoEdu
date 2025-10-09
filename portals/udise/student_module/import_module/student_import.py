@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-10-03
+Last Modified: 2025-10-09
 
 Version: 1.0.0
 """
@@ -132,6 +132,7 @@ class StudentImport:
 
             student = Student(pen_no, student_data)
             status = self._try_import_student(student)
+            logger.info("status after import attempt: %s", status)
             student.set_pen_dob(self.pen_dob)
             current_school = self.logged_in_school
 
@@ -196,17 +197,25 @@ class StudentImport:
         ]
 
         for source, dob in dob_attempts:
+            if source == "Aadhaar" and dob is None:
+                logger.info("Aadhaar DOB Missing")
+                return "aadhaar_dob_missing"
+
             ui.import_student(pen_no, dob)
             if ui.get_pen_status() == "dob_error":
                 status = ui.get_ui_dob_status()
-                logger.error("%s - %s: %s", pen_no, dob, status)
 
-                if dob is None and source == "Aadhaar":
-                    return "aadhaar_dob_missing"
+                logger.error("%s - %s: %s", pen_no, dob, status)
+                logger.debug("source = %s, dob = %s", source, dob)
 
                 # Skip retry if Aadhaar DOB is same as PEN DOB
-                if source == "PEN" and dob_attempts[1][1] == dob:
+                if (
+                    source == "PEN"
+                    and str(dob_attempts[1][1]).strip() == str(dob).strip()
+                ):
+                    logger.info("Aadhaar DOB is same as PEN DOB")
                     return "dob_retry_skipped"
+
             else:
                 # Set PEN DOB to working DOB
                 self.pen_dob = dob
