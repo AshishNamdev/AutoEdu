@@ -65,6 +65,11 @@ class StudentImport:
             "aadhaar_dob_missing": "Aadhaar DOB missing",
             "dob_retry_skipped": (
                 "Retry with Aadhaar DOB skipped as it matches PEN DOB"
+            ),
+            "unknown": (
+                "Unexpected error during import — "
+                "may involve Selenium timeouts, UI "
+                "failures, or system-level issues."
             )
         }
         self.pen_dob = None
