@@ -1,27 +1,19 @@
 """
 time_utils.py
 
-Utility functions for handling time and timestamp formatting within the AutoEdu framework.
+Utility functions for handling time and timestamp formatting within
+the AutoEdu framework.
 
-This module provides standardized methods for generating human-readable timestamps,
-which are used across logging, reporting, and audit trail components. Designed to
-minimize external dependencies and avoid circular imports, `time_utils` ensures
-consistent time formatting throughout the application.
-
-Functions:
-----------
-- get_timestamp(): Returns the current timestamp in 'YYYY-MM-DD HH:MM:SS' format.
-
-Notes:
-------
-- This module is intentionally decoupled from logging and config layers to prevent
-    circular import issues.
-- All time values are based on the system's local timezone unless explicitly handled.
+This module provides standardized methods for generating human-readable
+timestamps, which are used across logging, reporting, and audit trail
+components.
+Designed to minimize external dependencies and avoid circular imports,
+`time_utils` ensures consistent time formatting throughout the application.
 
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-22
-Last Modified: 2025-09-22
+Last Modified: 2025-10-09
 
 Version: 1.0.0
 """
@@ -107,3 +99,19 @@ def random_date(start_date, end_date, date_format):
     random_days = random.randint(0, delta.days)
     result = start + timedelta(days=random_days)
     return result.strftime(date_format)
+
+
+def get_year_from_date(date_str):
+    """
+    Extracts the year from a date string in DD/MM/YYYY format.
+
+    Args:
+        date_str (str): Date string like '09/10/2025'
+
+    Returns:
+        str: Year part as string, e.g. '2025'
+    """
+    try:
+        return date_str.strip().split("/")[-1].split()[0]
+    except (AttributeError, IndexError):
+        return None
