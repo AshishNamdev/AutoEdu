@@ -126,7 +126,7 @@ class SearchPENUI:
             SearchPENLocators.STUDENT_DOB_VALUE
         ).get_attribute("innerHTML")
 
-    def _get_ui_pen_dob(self):
+    def _get_ui_pen_and_dob_values(self):
         """
         Retrieves both PEN and DOB values from the UI.
 
