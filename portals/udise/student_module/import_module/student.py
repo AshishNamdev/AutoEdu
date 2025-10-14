@@ -50,6 +50,25 @@ class Student:
         self._student_pen = student_pen
         self._pen_dob = None
         self.current_school = None
+        self.searched_pen_no = None
+
+    def set_searched_pen_no(self, pen_no):
+        """
+        Sets the PEN number that was searched for this student.
+
+        Args:
+            pen_no (str): The PEN number found in search operations.
+        """
+        self.searched_pen_no = pen_no
+
+    def get_student_searchd_pen_no(self):
+        """
+        Retrieves the PEN number that was searched for this student.
+
+        Returns:
+            str: The PEN number found in search operations.
+        """
+        return self.searched_pen_no
 
     def get_student_pen(self):
         """
@@ -210,7 +229,7 @@ class Student:
         Returns:
             str: Last four digits of Aadhaar.
         """
-        adhaar_no = self.student_data["adhaar_no"]
+        adhaar_no = self.student_data["adhaar_no."]
         return adhaar_no if AadhaarValidator.is_valid(adhaar_no) else None
 
     def get_adhaar_last_digits(self):

@@ -11,7 +11,7 @@ or validation against student records.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-10-03
-Last Modified: 2025-10-09
+Last Modified: 2025-10-14
 
 Version: 1.0.0
 """
@@ -45,7 +45,7 @@ class SearchPENUI:
         Retrieved date of birth from the UI.
     """
 
-    def __init__(self, aadhaar_no, birth_year):
+    def __init__(self, aadhaar_no, birth_year=None):
         """
         Initializes the SearchPENUI instance with Aadhaar number
         and birth year.
@@ -62,6 +62,18 @@ class SearchPENUI:
         self.pen_no = None
         self.dob = None
         self.error_message = None
+        self.search_status = None
+
+    def set_birth_year(self, birth_year):
+        """
+        Updates the birth year used for the search.
+
+        Parameters:
+        -----------
+        birth_year : str
+            The new year of birth to be used in the search.
+        """
+        self.birth_year = birth_year
 
     def _open_search_ui(self):
         """
@@ -164,7 +176,7 @@ class SearchPENUI:
         """
         UI.wait_and_click(SearchPENLocators.ERROR_OK_BUTTON)
 
-    def search_pen_dob(self):
+    def search_ui_pen_and_dob(self):
         """
         Executes the full PEN search flow:
         - Opens Get PEN & DOB search interface UI
@@ -187,19 +199,25 @@ class SearchPENUI:
         self._open_search_ui()
         self._fill_search_fields()
         self._submit_search_data()
-        if self._get_search_status() == "ok":
-            self.pen_no, self.dob = self._get_ui_pen_dob()
+
+        search_status = self._get_search_status()
+        logger.info("Search Status: %s", search_status)
+
+        if search_status == "ok":
+            self.pen_no, self.dob = self._get_ui_pen_and_dob_values()
             logger.info("Retrieved PEN: %s, DOB: %s", self.pen_no, self.dob)
         else:
             self.error_message = self._get_ui_error_message()
             logger.error("Search failed with error: %s", self.error_message)
             self._close_error_message_ui()
 
+        self.search_status = search_status
+        # Close the search UI
         self._close_search_pen_ui()
 
-    def get_pen(self):
+    def get_pen_no(self):
         """
-        Returns the retrieved PEN value.
+        Returns the retrieved PEN Number value.
 
         Returns:
             str or None: The student's PEN number if found, else None.
@@ -223,3 +241,13 @@ class SearchPENUI:
             str or None: The error message if search failed, else None.
         """
         return self.error_message.strip() if self.error_message else None
+
+    def get_search_status(self):
+        """
+        Returns the status of the last search operation.
+
+        Returns:
+            str or None: "ok" if search was successful, "error" if failed,
+                         else None if no search performed.
+        """
+        return self.search_status.strip() if self.search_status else None

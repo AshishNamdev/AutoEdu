@@ -36,11 +36,9 @@ Version: 1.0.0
 
 import time
 
-from selenium.common.exceptions import (
-    ElementClickInterceptedException,
-    NoSuchElementException,
-    StaleElementReferenceException,
-)
+from selenium.common.exceptions import (ElementClickInterceptedException,
+                                        NoSuchElementException,
+                                        StaleElementReferenceException)
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
@@ -185,6 +183,7 @@ class UIHandler:
             for key, locator in locators.items():
                 try:
                     if driver.find_element(*locator).is_displayed():
+                        logger.debug("Found %s:%s", *locator)
                         return key
                 except (NoSuchElementException, StaleElementReferenceException):
                     continue

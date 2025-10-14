@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-10-09
+Last Modified: 2025-10-14
 
 Version: 1.0.0
 """
@@ -27,7 +27,7 @@ import os
 
 from common.logger import logger
 from common.student_data import StudentData
-from portals.udise import ReleaseRequest, Student
+from portals.udise import ReleaseRequest, SearchPEN, Student
 from ui.udise.student_import_ui import StudentImportUI
 from utils.parser import StudentDataParser
 from utils.report import ReportExporter
@@ -74,6 +74,7 @@ class StudentImport:
         }
         self.pen_dob = None
         self.student_data = None
+        self.invalid_pen_no = False
 
     def _prepare_import_data(self):
         """
@@ -132,10 +133,13 @@ class StudentImport:
         ui = self.import_ui
         for pen_no, student_data in self.student_data.get_student_data().items():
             self.pen_dob = None
-            if self._is_invalid_pen_no(pen_no):
-                continue
-
             student = Student(pen_no, student_data)
+
+            if self._is_invalid_pen_no(pen_no):
+                self.search_pen_and_dob(student)
+                if student.get_student_searchd_pen_no() is None:
+                    continue
+
             status = self._try_import_student(student)
             logger.info("status after import attempt: %s", status)
             student.set_pen_dob(self.pen_dob)
@@ -196,10 +200,16 @@ class StudentImport:
         """
         ui = self.import_ui
         pen_no = student.get_student_pen()
-        dob_attempts = [
-            ("PEN", student.get_dob()),
-            ("Aadhaar", student.get_adhaar_dob())
-        ]
+        searhced_pen_no = student.get_student_searchd_pen_no()
+        pen_no = searhced_pen_no if searhced_pen_no else pen_no
+
+        if searhced_pen_no is None:
+            dob_attempts = [
+                ("PEN", student.get_dob()),
+                ("Aadhaar", student.get_adhaar_dob())
+            ]
+        else:
+            dob_attempts = [("PEN", student.get_pen_dob())]
 
         for source, dob in dob_attempts:
             if source == "Aadhaar" and dob is None:
@@ -303,8 +313,11 @@ class StudentImport:
         Returns:
             bool: True if the PEN number is invalid, False otherwise.
         """
+        self.invalid_pen_no = False
         if "na" in pen_no.lower():
-            logger.error("Skipping invalid PEN no.: %s", pen_no)
+            logger.error(
+                "Invalid PEN no. retrying searching PEN with adhaar: %s",
+                pen_no)
             self.student_data.update_student_data(
                 pen_no,
                 {
@@ -312,7 +325,9 @@ class StudentImport:
                     "Import Status": "No"
                 }
             )
+            self.invalid_pen_no = True
             return True
+
         return False
 
     def _is_import_error(self, pen_no, status):
@@ -448,3 +463,41 @@ class StudentImport:
                 "Import Status": "No"
             }
         )
+
+    def search_pen_and_dob(self, student):
+        """
+        Perform PEN and DOB lookup for the given student using
+        fallback strategies.
+
+        Workflow:
+        1. Instantiate a SearchPEN handler for the student.
+        2. Execute the PEN + DOB search on UDISE UI.
+        3. Retrieve and store the resolved PEN in student.
+
+        Args:
+            student (Student): The student object to process.
+
+        """
+        logger.info("Searching PEN and DOB for adhaar number %s",
+                    student.get_adhaar_number())
+        searcher = SearchPEN(student, self.student_data)
+        searcher.search_pen_and_dob()
+
+        pen_no = searcher.get_pen_no()
+        pen_dob = searcher.get_dob()
+
+        if pen_no is None:
+            logger.error(
+                "PEN not found for Aadhaar number: %s",
+                student.get_adhaar_number()
+            )
+            self.student_data.update_student_data(
+                student.get_student_pen(),
+                {
+                    "Remark": "PEN not found using Aadhaar",
+                    "Import Status": "No"
+                }
+            )
+        else:
+            student.set_searched_pen_no(pen_no)
+            student.set_pen_dob(pen_dob)
