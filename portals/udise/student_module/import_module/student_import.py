@@ -137,7 +137,7 @@ class StudentImport:
 
             if self._is_invalid_pen_no(pen_no):
                 self.search_pen_and_dob(student)
-                if student.get_student_searchd_pen_no() is None:
+                if student.get_searched_pen_no() is None:
                     continue
 
             status = self._try_import_student(student)
@@ -200,7 +200,7 @@ class StudentImport:
         """
         ui = self.import_ui
         pen_no = student.get_student_pen()
-        searhced_pen_no = student.get_student_searchd_pen_no()
+        searhced_pen_no = student.get_searched_pen_no()
         pen_no = searhced_pen_no if searhced_pen_no else pen_no
 
         if searhced_pen_no is None:

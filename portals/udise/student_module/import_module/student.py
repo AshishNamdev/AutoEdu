@@ -61,7 +61,7 @@ class Student:
         """
         self.searched_pen_no = pen_no
 
-    def get_student_searchd_pen_no(self):
+    def get_searched_pen_no(self):
         """
         Retrieves the PEN number that was searched for this student.
 
