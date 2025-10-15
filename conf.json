@@ -1,5 +1,11 @@
 {
   "DEBUG": false,
+  "SUPPORTED_BROWSERS": [
+    "chrome",
+    "edge",
+    "firefox"
+  ],
+  "BROWSER": "edge",
   "PORTALS": [
     "udise",
     "mpbse",

@@ -7,7 +7,7 @@ reuse across modules.
 
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 Date Created: 2025-08-18
-Last Modified: 2025-09-18
+Last Modified: 2025-10-15
 Version: 2.0.0
 """
 
@@ -21,7 +21,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
-from common.config import DEBUG
+from common.config import BROWSER, DEBUG
 
 
 class WebDriverManager:
@@ -100,29 +100,30 @@ class WebDriverManager:
         raise ValueError(f"Unsupported browser: {browser}")
 
     @classmethod
-    def get_driver(cls, browser="chrome"):
+    def get_driver(cls):
         """
         Returns a singleton WebDriver instance for the specified browser.
-
-        Args:
-            browser (str): One of 'chrome', 'firefox', 'edge'.
 
         Returns:
             WebDriver: Selenium WebDriver instance.
         """
         if cls._driver is None:
             try:
-                service = cls._get_service(browser)
+                service = cls._get_service(BROWSER)
             except Exception:
-                service = cls._get_service(browser, force_local=True)
+                service = cls._get_service(BROWSER, force_local=True)
 
-            options = cls._get_options(browser)
+            options = cls._get_options(BROWSER)
 
-            if browser == "chrome":
-                cls._driver = webdriver.Chrome(service=service, options=options)
-            elif browser == "firefox":
-                cls._driver = webdriver.Firefox(service=service, options=options)
-            elif browser == "edge":
-                cls._driver = webdriver.Edge(service=service, options=options)
+            # Mapping of browser names to their corresponding
+            # WebDriver constructors
+            driver_map = {
+                "chrome": lambda: webdriver.Chrome(service=service, options=options),
+                "firefox": lambda: webdriver.Firefox(service=service, options=options),
+                "edge": lambda: webdriver.Edge(service=service, options=options),
+            }
+
+            # Fallback to chrome if browser is not in the map
+            cls._driver = driver_map.get(BROWSER, driver_map["chrome"])()
 
         return cls._driver
