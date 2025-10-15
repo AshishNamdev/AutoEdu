@@ -141,6 +141,7 @@ class StudentImport:
             - Logs status messages for each student.
             - Triggers UI operations for import, release, or detail filling.
         """
+        logger.info("Starting Student Import workflow")
         ui = self.import_ui
         student_data_dict = self.student_data.get_student_data()
         use_dob_errors = bool(self.dob_error_students)
@@ -202,6 +203,7 @@ class StudentImport:
                     pen_no, {"Remark": status, "Import Status": "Yes"})
 
             student.set_current_school(current_school)
+            logger.info("Processing next student for import")
 
     def _try_import_student(self, student):
         """
@@ -230,6 +232,7 @@ class StudentImport:
                 - "dob_retry_skipped": Retry skipped due to identical DOBs.
                 - Other error codes as returned by the UI.
         """
+        logger.info("Attempting import for current student record")
         ui = self.import_ui
         pen_no = student.get_student_pen()
         searhced_pen_no = student.get_searched_pen_no()

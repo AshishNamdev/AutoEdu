@@ -231,7 +231,8 @@ class SearchPEN:
 
         Strategy:
         1. Use student DOB and Aadhaar DOB if available.
-        2. If both are missing, infer YOB from class using CLASS_AGE_MAP.
+        2. infer YOB from class using CLASS_AGE_MAP
+            regardless of birth_year or aadhaar_birth_year availability
         3. Expand each base YOB with ±MAX_YOB_TRIAL_RANGE and deduplicate.
 
         Returns:
@@ -242,29 +243,38 @@ class SearchPEN:
         yob_trial = [birth_year, aadhaar_birth_year]
         yob_trial = [yob for yob in yob_trial if yob is not None]
 
-        # If DOB is missing, infer YOB from class
+        pen_no = self.student.get_student_pen()
         if birth_year is None:
             logger.error(
-                "Student DOB is missing for PEN: %s. "
-                "Trying with class-age-based YOBs map.",
+                "Student DOB is missing for PEN: %s. ",
+                pen_no
+            )
+
+        if aadhaar_birth_year is None:
+            logger.error(
+                "Aadhaar DOB is missing for PEN: %s. ",
+                pen_no
+            )
+
+        # Infer Year of Birth (YOB) based on class level,
+        # regardless of birth_year or aadhaar_birth_year availability
+        logger.info("Trying with class-age-based YOBs map.")
+        class_level = self.student.get_class()
+        age_for_class = CLASS_AGE_MAP[class_level]
+
+        if age_for_class is not None:
+            base_yob = datetime.now().year - age_for_class
+            for yob in range(base_yob - MAX_YOB_TRIAL_RANGE,
+                             base_yob + MAX_YOB_TRIAL_RANGE + 1):
+                yob = str(yob)
+                if yob not in yob_trial:
+                    yob_trial.append(yob)
+        else:
+            logger.warning(
+                "Class level '%s' not found in CLASS_AGE_MAP for PEN: %s",
+                class_level,
                 self.student.get_student_pen()
             )
-            class_level = self.student.get_class()
-            age_for_class = CLASS_AGE_MAP[class_level]
-
-            if age_for_class is not None:
-                base_yob = datetime.now().year - age_for_class
-                for yob in range(base_yob - MAX_YOB_TRIAL_RANGE,
-                                 base_yob + MAX_YOB_TRIAL_RANGE + 1):
-                    yob = str(yob)
-                    if yob not in yob_trial:
-                        yob_trial.append(yob)
-            else:
-                logger.warning(
-                    "Class level '%s' not found in CLASS_AGE_MAP for PEN: %s",
-                    class_level,
-                    self.student.get_student_pen()
-                )
 
         logger.info(
             "YOB trials for student PEN %s: %s",
