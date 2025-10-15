@@ -111,11 +111,13 @@ def log_config(logger):
         - TIME_DELAY: Delay between actions or retries.
     """
 
-    logger.debug("DEBUG: %s", DEBUG)
+    logger.debug("SUPPORTED_BROWSERS: %s", SUPPORTED_BROWSERS)
+    logger.info("BROWSER: %s", BROWSER)
+    logger.info("DEBUG: %s", DEBUG)
     logger.debug("CONFIG_PATH: %s", CONFIG_PATH)
     logger.info("PORTAL: %s", PORTAL)
     logger.info("MODULE: %s", MODULE)
     logger.info("TASK: %s", TASK)
-    logger.debug("URL: %s", URL)
+    logger.info("URL: %s", URL)
     logger.debug("TIMEOUT: %s", TIMEOUT)
     logger.debug("TIME_DELAY: %s", TIME_DELAY)

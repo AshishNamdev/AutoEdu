@@ -8,7 +8,7 @@ It integrates with a shared driver instance and configurable timeout settings.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-09-18
+Last Modified: 2025-10-15
 
 Version: 1.0.1
 
@@ -35,7 +35,7 @@ def launch_browser(url):
     Returns:
         None
     """
-    logger.info("Opening Chrome Browser")
+    logger.info("Opening Browser")
     driver = WebDriverManager.get_driver()
     driver.get(url)
     driver.maximize_window()
