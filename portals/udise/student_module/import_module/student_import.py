@@ -236,6 +236,8 @@ class StudentImport:
                 self.pen_dob = dob
                 status = ui.get_student_status()
                 logger.info("%s : %s", pen_no, status)
+                self.student_data.update_student_data(
+                    student.get_student_pen(), {"PEN DOB": self.pen_dob})
                 return status
         return "dob_error"
 

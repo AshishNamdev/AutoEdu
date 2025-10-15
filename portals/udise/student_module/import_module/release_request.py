@@ -16,7 +16,7 @@ Includes:
 Author: Ashish Namdev(ashish28[at] sirt[dot] gmail[dot] com)
 
 Date Created:  2025-09-14
-Last Modified: 2025-10-03
+Last Modified: 2025-10-15
 
 Version: 1.0.0
 """
@@ -99,6 +99,8 @@ class ReleaseRequest:
         ui = self.ui
         for student in self.students:
             pen_no = student.get_student_pen()
+            searhced_pen_no = student.get_searched_pen_no()
+            pen_no = searhced_pen_no if searhced_pen_no else pen_no
             dob = student.get_pen_dob()
             ui.generate_release_request(pen_no, dob)
             student_name = ui.get_ui_student_name()
@@ -122,4 +124,4 @@ class ReleaseRequest:
             )
 
             self.student_data.update_student_data(
-                pen_no, {"Remark": status, "Import Status": "No"})
+                student.get_student_pen(), {"Remark": status, "Import Status": "No"})

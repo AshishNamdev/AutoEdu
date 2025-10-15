@@ -42,7 +42,7 @@ Example:
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-10-10
-Last Modified: 2025-10-14
+Last Modified: 2025-10-15
 
 Version: 1.0.0
 """
@@ -172,7 +172,7 @@ class SearchPEN:
             self.error_message = "Missing Aadhaar number"
             self.student_data.update_student_data(
                 pen_no,
-                {"Error": self.error_message, "Import Status": "No"}
+                {"Remark": self.error_message, "Import Status": "No"}
             )
             return
 
