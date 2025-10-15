@@ -11,7 +11,7 @@ purposes.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-10-03
+Last Modified: 2025-10-15
 
 Version: 1.0.0
 
@@ -59,12 +59,14 @@ if PORTAL == "udise":
 else:
     URL = _config.get("URL", {}).get(PORTAL, "default_url")
 
-
 # Options
 TIMEOUT = _config.get("OPTIONS", {}).get("timeout", 30)
 TIME_DELAY = float(_config.get("OPTIONS", {}).get("time_delay", 1))
 VERIFY_SSL = _config.get("OPTIONS", {}).get("verify_ssl", True)
 RETRIES = _config.get("OPTIONS", {}).get("retries", 3)
+
+CLASS_AGE_MAP = _config.get("CLASS_AGE_MAP")
+MAX_YOB_TRIAL_RANGE = _config.get("MAX_YOB_TRIAL_RANGE", 3)
 
 
 def log_config(logger):

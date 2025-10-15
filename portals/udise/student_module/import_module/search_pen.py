@@ -18,10 +18,6 @@ Fallback Strategy:
 
 Key Components:
     - SearchPEN class: Encapsulates PEN search logic and student state.
-    - CLASS_AGE_MAP: Maps class levels to expected student age
-        for YOB inference.
-    - MAX_YOB_TRIAL_RANGE: Controls the range of YOB trials around base year.
-    - CURRENT_YEAR: Used for class-based YOB inference.
 
 Dependencies:
     - Selenium-based SearchPENUI for UI automation.
@@ -49,18 +45,10 @@ Version: 1.0.0
 
 from datetime import datetime
 
+from common.config import CLASS_AGE_MAP, MAX_YOB_TRIAL_RANGE
 from common.logger import logger
 from ui.udise.search_pen_ui import SearchPENUI
 from utils.date_time_utils import get_year_from_date
-
-CLASS_AGE_MAP = {
-    "1": 6, "2": 7, "3": 8, "4": 9, "5": 10,
-    "6": 11, "7": 12, "8": 13, "9": 14, "10": 15,
-    "11": 16, "12": 17
-}
-
-MAX_YOB_TRIAL_RANGE = 3
-CURRENT_YEAR = datetime.now().year
 
 
 class SearchPEN:
@@ -96,16 +84,20 @@ class SearchPEN:
 
     def __init__(self, student, student_data):
         """
-        Initialize the SearchPEN instance with student context and data handler.
+        Initialize the SearchPEN instance with student context and
+        data handler.
 
         Args:
-            student (Student): The student object containing Aadhaar, DOB, class, and PEN metadata.
-            student_data (StudentData): The data handler used to update student records post-search.
+            student (Student): The student object containing Aadhaar, DOB,
+                                class, and PEN metadata.
+            student_data (StudentData): The data handler used to update
+                                        student records post-search.
 
         Attributes:
             pen_no (str | None): Retrieved PEN number after search, if found.
             dob (str | None): Retrieved or inferred date of birth, if found.
-            error_message (str | None): Error message encountered during search, if any.
+            error_message (str | None): Error message encountered during
+                                        search, if any.
         """
         self.student = student
         self.student_data = student_data
@@ -258,10 +250,10 @@ class SearchPEN:
                 self.student.get_student_pen()
             )
             class_level = self.student.get_class()
-            age_for_class = CLASS_AGE_MAP.get(class_level)
+            age_for_class = CLASS_AGE_MAP[class_level]
 
             if age_for_class is not None:
-                base_yob = CURRENT_YEAR - age_for_class
+                base_yob = datetime.now().year - age_for_class
                 for yob in range(base_yob - MAX_YOB_TRIAL_RANGE,
                                  base_yob + MAX_YOB_TRIAL_RANGE + 1):
                     yob = str(yob)
