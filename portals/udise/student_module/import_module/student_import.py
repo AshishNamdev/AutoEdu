@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-10-14
+Last Modified: 2025-10-15
 
 Version: 1.0.0
 """
@@ -103,15 +103,19 @@ class StudentImport:
         """
         self.import_ui.select_import_options()
         self._prepare_import_data()
-        self._import_students()
-        if self.release_requests:
-            ReleaseRequest(self.release_requests,
-                           self.student_data).start_release_request()
-
-        ReportExporter(self.student_data.get_student_data(),
-                       report_sub_dir="udise",
-                       filename="student_import_report"
-                       ).save(first_column="Student PEN Number")
+        try:
+            self._import_students()
+            if self.release_requests:
+                ReleaseRequest(self.release_requests,
+                               self.student_data).start_release_request()
+        except Exception as e:
+            logger.exception(
+                "UDISE Student Import encountered an error: %s", str(e))
+        finally:
+            ReportExporter(self.student_data.get_student_data(),
+                           report_sub_dir="udise",
+                           filename="student_import_report"
+                           ).save(first_column="Student PEN Number")
 
     def _import_students(self):
         """
