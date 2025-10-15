@@ -74,7 +74,7 @@ class StudentImport:
         }
         self.pen_dob = None
         self.student_data = None
-        self.invalid_pen_no = False
+        self.dob_error_students = {}
 
     def _prepare_import_data(self):
         """
@@ -105,6 +105,13 @@ class StudentImport:
         self._prepare_import_data()
         try:
             self._import_students()
+
+            # Try reimport students with DOB Error
+            if self.dob_error_students:
+                logger.info("retrying import for students: %s",
+                            self.dob_error_students.keys())
+                self._import_students()
+
             if self.release_requests:
                 ReleaseRequest(self.release_requests,
                                self.student_data).start_release_request()
@@ -135,9 +142,22 @@ class StudentImport:
             - Triggers UI operations for import, release, or detail filling.
         """
         ui = self.import_ui
-        for pen_no, student_data in self.student_data.get_student_data().items():
+        student_data_dict = self.student_data.get_student_data()
+        use_dob_errors = bool(self.dob_error_students)
+
+        # Unified source of PENs
+        pen_numbers = (
+            self.dob_error_students.keys()
+            if use_dob_errors else student_data_dict.keys()
+        )
+
+        for pen_no in pen_numbers:
             self.pen_dob = None
-            student = Student(pen_no, student_data)
+
+            student = (
+                self.dob_error_students.get(pen_no)
+                if use_dob_errors else Student(pen_no, student_data_dict.get(pen_no))
+            )
 
             if self._is_invalid_pen_no(pen_no):
                 self.search_pen_and_dob(student)
@@ -157,10 +177,18 @@ class StudentImport:
                     continue
 
                 self._prepare_release_request(student)
+
+            elif self._is_dob_error(pen_no):
+                # Handle DOB mismatch by re-searching PEN and DOB
+                self.search_pen_and_dob(student)
+                self.dob_error_students.update({pen_no: student})
+
             elif self._is_import_error(pen_no, status):
                 continue
+
             elif self._is_class_mismatch(pen_no, student.get_class()):
                 continue
+
             else:
                 current_school = ui.get_student_current_school().strip()
                 ui.submit_import_data(
@@ -367,6 +395,38 @@ class StudentImport:
             pen_no,
             {
                 "Remark": error_remark,
+                "Import Status": "No"
+            }
+        )
+        return True
+
+    def _is_dob_error(self, pen_no):
+        """
+        Checks whether the given import status indicates an
+        DOB error condition.
+
+        If the dob  exists in the `self.import_errors` dictionary keys
+        logs a warning, updates the import data with a remark and sets
+        the import status to "No".
+
+        Args:
+            pen_no (str): The student's PEN number used for logging
+                            and data update.
+
+        Returns:
+            bool: True if the status is recognized as an import error,
+                    False otherwise.
+        """
+        if not any("dob" in key.lower() for key in self.import_errors):
+            return False
+
+        error_msg = "DOB Error in Student Import (dob_error/aadhaar_dob_missing)"
+        logger.warning(
+            "%s : Skipping import due to %s issues", pen_no, error_msg)
+        self.student_data.update_student_data(
+            pen_no,
+            {
+                "Remark": error_msg,
                 "Import Status": "No"
             }
         )
