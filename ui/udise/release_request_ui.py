@@ -20,7 +20,7 @@ Includes:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-09-23
-Last Modified: 2025-09-27
+Last Modified: 2025-10-15
 
 Version: 1.0.0
 """
@@ -32,8 +32,8 @@ from selenium.webdriver.support.ui import Select
 
 from common.config import SECTIONS, TIME_DELAY
 from common.logger import logger
-from common.ui_handler import UIHandler as UI
 from ui.locators.udise import ReleaseRequestLocators
+from ui.ui_actions import UIActions as UI
 
 
 class ReleaseRequestUI:

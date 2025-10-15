@@ -1,8 +1,6 @@
 """
-ui_handler.py
-
-Provides a reusable, resilient UIHandler class for interacting with web elements
-using Selenium.
+Provides a reusable, resilient UIActions class for interacting with
+web elements using Selenium.
 
 This module centralizes common UI automation patterns such as waiting for
 elements, clicking, filling fields, scrolling, and verifying values. It is
@@ -17,7 +15,7 @@ Key Features:
 - Designed for schema-aware automation and CI/CD observability
 
 Usage Example:
-    from common.ui_handler import UIHandler as UI
+    from ui.ui_actions import UIActions as UI
 
     UI.fill_fields({
         (By.ID, "username"): "admin",
@@ -29,7 +27,7 @@ Intended for use in AutoEdu workflows and other scalable automation platforms.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-09-21
+Last Modified: 2025-10-15
 
 Version: 1.0.0
 """
@@ -49,7 +47,53 @@ from common.driver import WebDriverManager
 from common.logger import logger
 
 
-class UIHandler:
+class UIActions:
+    """
+    Utility class for resilient, reusable UI automation actions.
+
+    This class provides a suite of static interaction methods designed to:
+    - Abstract common Selenium operations like clicking, locating,
+        and filling fields
+    - Handle dynamic UI behavior with retries, scrolling, and popup dismissal
+    - Support robust automation pipelines with fallback logic and traceable
+        actions
+
+    Methods:
+        wait_and_click(locator, retries=2):
+            Waits for an element to be clickable and clicks it,
+            retrying if necessary.
+
+        wait_and_find_element(locator):
+            Waits for a single element to be present and returns it.
+
+        wait_and_find_elements(locator):
+            Waits for multiple elements matching the locator and returns them.
+
+        wait_for_first_match(locators, timeout=10):
+            Waits for the first matching locator from a list and returns
+            the element.
+
+        fill_fields(field_data):
+            Fills multiple fields using a dictionary of locator-value pairs.
+
+        clear_field(element):
+            Clears the content of a given input field element.
+
+        verify_field(expected_value, element, locator, scroll=False):
+            Verifies that a field contains the expected value, optionally
+            scrolling to it.
+
+        scroll_to_element(element):
+            Scrolls the page to bring the specified element into view.
+
+        dismiss_browser_popup():
+            Attempts to dismiss any active browser alert or popup.
+
+    Usage:
+        UIActions.wait_and_click(locator)
+        UIActions.fill_fields((username, StudentLoginLocators.USERNAME))
+    """
+
     @classmethod
     def wait_and_click(cls, locator, retries=2):
         """

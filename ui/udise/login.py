@@ -39,7 +39,7 @@ and navigate through the initial setup steps required to access student data.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-09-23
+Last Modified: 2025-10-15
 
 Version: 1.0.0
 """
@@ -48,8 +48,8 @@ import time
 
 from common.driver import WebDriverManager
 from common.logger import logger
-from common.ui_handler import UIHandler as UI
 from ui.locators.udise import StudentLoginLocators
+from ui.ui_actions import UIActions as UI
 
 
 class StudentLogin:
