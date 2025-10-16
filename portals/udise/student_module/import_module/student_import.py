@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-10-15
+Last Modified: 2025-10-16
 
 Version: 1.0.0
 """
@@ -74,6 +74,8 @@ class StudentImport:
         }
         self.pen_dob = None
         self.student_data = None
+        self.dob_errors = [
+            key for key in self.import_errors if "dob" in key]
         self.dob_error_students = {}
 
     def _prepare_import_data(self):
@@ -179,7 +181,7 @@ class StudentImport:
 
                 self._prepare_release_request(student)
 
-            elif self._is_dob_error(pen_no):
+            elif self._is_dob_error(pen_no, status):
                 # Handle DOB mismatch by re-searching PEN and DOB
                 self.search_pen_and_dob(student)
                 self.dob_error_students.update({pen_no: student})
@@ -403,7 +405,7 @@ class StudentImport:
         )
         return True
 
-    def _is_dob_error(self, pen_no):
+    def _is_dob_error(self, pen_no, status):
         """
         Checks whether the given import status indicates an
         DOB error condition.
@@ -415,12 +417,14 @@ class StudentImport:
         Args:
             pen_no (str): The student's PEN number used for logging
                             and data update.
+            status (str): The import status to validate against known
+                            dob error conditions.
 
         Returns:
-            bool: True if the status is recognized as an import error,
+            bool: True if the status is recognized as an dob error,
                     False otherwise.
         """
-        if not any("dob" in key.lower() for key in self.import_errors):
+        if status not in self.dob_errors:
             return False
 
         error_msg = "DOB Error in Student Import (dob_error/aadhaar_dob_missing)"
