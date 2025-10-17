@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-10-16
+Last Modified: 2025-10-17
 
 Version: 1.0.0
 """
@@ -105,6 +105,12 @@ class StudentImport:
         """
         self.import_ui.select_import_options()
         self._prepare_import_data()
+        total_students = len(self.student_data.get_student_data())
+        logger.info(
+            "[UDISEImport] Starting student import: %s records to process",
+            total_students
+        )
+
         try:
             self._import_students()
 
@@ -121,6 +127,12 @@ class StudentImport:
             logger.exception(
                 "UDISE Student Import encountered an error: %s", str(e))
         finally:
+            logger.info(
+                "[UDISEImport] Student import completed: "
+                "%s records successfully processed",
+                total_students
+            )
+
             ReportExporter(self.student_data.get_student_data(),
                            report_sub_dir="udise",
                            filename="student_import_report"
