@@ -11,7 +11,7 @@ purposes.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-10-15
+Last Modified: 2025-10-17
 
 Version: 1.0.0
 
@@ -44,6 +44,7 @@ Attributes:
     CLASS_AGE_MAP (dict): Mapping of class to expected age for YOB inference.
     MAX_YOB_TRIAL_RANGE (int): Maximum number of YOB trials allowed.
                                 Default is 3
+    HOLIDAY_MONTHS (list): List of Holiday Months
 """
 
 import json
@@ -90,6 +91,7 @@ RETRIES = _config.get("OPTIONS", {}).get("retries", 3)
 
 CLASS_AGE_MAP = _config.get("CLASS_AGE_MAP")
 MAX_YOB_TRIAL_RANGE = _config.get("MAX_YOB_TRIAL_RANGE", 3)
+HOLIDAY_MONTHS = _config.get("HOLIDAY_MONTHS", [5])
 
 
 def log_config(logger):
@@ -109,6 +111,7 @@ def log_config(logger):
         - URL: Target URL for automation.
         - TIMEOUT: Maximum wait time for operations.
         - TIME_DELAY: Delay between actions or retries.
+        - HOLIDAY_MONTH: Holiday Month.
     """
 
     logger.debug("SUPPORTED_BROWSERS: %s", SUPPORTED_BROWSERS)
@@ -121,3 +124,4 @@ def log_config(logger):
     logger.info("URL: %s", URL)
     logger.debug("TIMEOUT: %s", TIMEOUT)
     logger.debug("TIME_DELAY: %s", TIME_DELAY)
+    logger.debug("HOLIDAY_MONTHS: %s", HOLIDAY_MONTHS)

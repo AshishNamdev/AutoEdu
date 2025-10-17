@@ -14,14 +14,19 @@ Classes:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-21
-Last Modified: 2025-09-28
+Last Modified: 2025-10-17
 
 Version: 1.0.0
 """
 
 
+from common.config import HOLIDAY_MONTHS
 from utils.aadhaar_utils import AadhaarValidator
-from utils.date_time_utils import convert_to_ddmmyyyy
+from utils.date_time_utils import (
+    convert_to_ddmmyyyy,
+    generate_random_admission_date,
+    is_valid_admission_date,
+)
 
 
 class Student:
@@ -142,18 +147,19 @@ class Student:
         Retrieves the student's date of admission in DD/MM/YYYY format.
 
         This method accesses the 'admission_date' field from the imported data.
-        If the field is empty, it returns None. Otherwise, it converts the date
-        to DD/MM/YYYY format using the `convert_to_ddmmyyyy` utility.
+        check the filed using is_valid_admission_date utilitiy function, and if 
+        admission_date is not valid generate random admission date using
+        generate_random_admission_date utility function.
 
         Returns:
-            Optional[str]: The formatted admission date,
-                            or None if not available.
+            [str]: The formatted or generated admission date,
+                     which ever is the case.
         """
         doa = self.student_data["admission_date"]
         return (
-            None
-            if doa == "" or doa.lower() == "na"
-            else convert_to_ddmmyyyy(doa)
+            doa
+            if is_valid_admission_date(doa, HOLIDAY_MONTHS)
+            else generate_random_admission_date(HOLIDAY_MONTHS)
         )
 
     def get_name(self):

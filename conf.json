@@ -1,5 +1,5 @@
 {
-  "DEBUG": false,
+  "DEBUG": true,
   "SUPPORTED_BROWSERS": [
     "chrome",
     "edge",
@@ -112,5 +112,8 @@
     "11": 16,
     "12": 17
   },
-  "MAX_YOB_TRIAL_RANGE": 3
+  "MAX_YOB_TRIAL_RANGE": 3,
+  "HOLIDAY_MONTHS": [
+    5
+  ]
 }
