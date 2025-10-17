@@ -42,28 +42,25 @@ class WebDriverManager:
         use_local = DEBUG or force_local
         cwd = os.getcwd()
 
-        if browser == "chrome":
-            path = (
+        service_map = {
+            "chrome": lambda: ChromeService(
                 os.path.join(cwd, "driver", "chrome", "chromedriver.exe")
                 if use_local else ChromeDriverManager().install()
-            )
-            return ChromeService(path)
-
-        if browser == "firefox":
-            path = (
+            ),
+            "firefox": lambda: FirefoxService(
                 os.path.join(cwd, "driver", "firefox", "geckodriver.exe")
                 if use_local else GeckoDriverManager().install()
-            )
-            return FirefoxService(path)
-
-        if browser == "edge":
-            path = (
+            ),
+            "edge": lambda: EdgeService(
                 os.path.join(cwd, "driver", "edge", "msedgedriver.exe")
                 if use_local else EdgeChromiumDriverManager().install()
-            )
-            return EdgeService(path)
+            ),
+        }
 
-        raise ValueError(f"Unsupported browser: {browser}")
+        try:
+            return service_map[browser]()
+        except KeyError:
+            raise ValueError(f"Unsupported browser: {browser}")
 
     @classmethod
     def _get_options(cls, browser):
