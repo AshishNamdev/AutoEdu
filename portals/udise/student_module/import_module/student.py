@@ -22,11 +22,9 @@ Version: 1.0.0
 
 from common.config import HOLIDAY_MONTHS
 from utils.aadhaar_utils import AadhaarValidator
-from utils.date_time_utils import (
-    convert_to_ddmmyyyy,
-    generate_random_admission_date,
-    is_valid_admission_date,
-)
+from utils.date_time_utils import (convert_to_ddmmyyyy,
+                                   generate_random_admission_date,
+                                   is_valid_admission_date)
 
 
 class Student:
@@ -157,7 +155,7 @@ class Student:
         """
         doa = self.student_data["admission_date"]
         return (
-            doa
+            convert_to_ddmmyyyy(doa)
             if is_valid_admission_date(doa, HOLIDAY_MONTHS)
             else generate_random_admission_date(HOLIDAY_MONTHS)
         )
