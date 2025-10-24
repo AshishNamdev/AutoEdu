@@ -18,12 +18,13 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-08-20
-Last Modified: 2025-10-17
+Last Modified: 2025-10-24
 
 Version: 1.0.0
 """
 
 import os
+import re
 
 from common.logger import logger
 from common.student_data import StudentData
@@ -351,35 +352,25 @@ class StudentImport:
 
     def _is_invalid_pen_no(self, pen_no):
         """
-        Determines if the given PEN number is invalid.
-
-        A PEN number is considered invalid if it contains the substring
-        "na" (case-insensitive).
-        If invalid, logs an error and updates the import data with a remark
-        and status.
-
-        Args:
-            pen_no (str): The PEN number to validate.
-
-        Returns:
-            bool: True if the PEN number is invalid, False otherwise.
+        Returns True if the PEN number is invalid.
+        Criteria:
+        - Must be a non-empty string of digits
+        - Length must be between 11 and 14 characters
+        - Must not contain any alphabetic characters or known placeholders
         """
-        self.invalid_pen_no = False
-        if "na" in pen_no.lower():
-            logger.error(
-                "Invalid PEN no. retrying searching PEN with adhaar: %s",
-                pen_no)
-            self.student_data.update_student_data(
-                pen_no,
-                {
-                    "Remark": "Invalid PEN no.",
-                    "Import Status": "No"
-                }
-            )
-            self.invalid_pen_no = True
+        if not pen_no:
             return True
 
-        return False
+        pen_no = str(pen_no).strip().upper()
+
+        # Known invalid placeholders
+        invalid_placeholders = {"NA", "NS", "N/A", "NULL", "NONE", ""}
+
+        if pen_no in invalid_placeholders:
+            return True
+
+        # Regex: only digits, length 11 to 14
+        return not re.fullmatch(r"\d{11,14}", pen_no)
 
     def _is_import_error(self, pen_no, status):
         """
