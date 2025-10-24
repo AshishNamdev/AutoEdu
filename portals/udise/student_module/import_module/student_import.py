@@ -117,7 +117,8 @@ class StudentImport:
 
             # Try reimport students with DOB Error
             if self.dob_error_students:
-                logger.info("retrying import for students: %s",
+                logger.info("[UDISEStudentImport] Retrying import for "
+                            "students: %s",
                             self.dob_error_students.keys())
                 self._import_students()
 
