@@ -108,7 +108,7 @@ class StudentImport:
         self._prepare_import_data()
         total_students = len(self.student_data.get_student_data())
         logger.info(
-            "[UDISEImport] Starting student import: %s records to process",
+            "[UDISEStudentImport] Starting student import: %s records to process",
             total_students
         )
 
@@ -129,7 +129,7 @@ class StudentImport:
                 "UDISE Student Import encountered an error: %s", str(e))
         finally:
             logger.info(
-                "[UDISEImport] Student import completed: "
+                "[UDISEStudentImport] Student import completed: "
                 "%s records successfully processed",
                 total_students
             )
@@ -167,7 +167,10 @@ class StudentImport:
             if use_dob_errors else student_data_dict.keys()
         )
 
-        for pen_no in pen_numbers:
+        for count, pen_no in enumerate(pen_numbers):
+            logger.info(
+                "[UDISEStudentImport] Processing Student_%s",
+                count + 1)
             self.pen_dob = None
 
             student = (
