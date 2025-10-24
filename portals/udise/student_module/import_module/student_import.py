@@ -358,19 +358,33 @@ class StudentImport:
         - Length must be between 11 and 14 characters
         - Must not contain any alphabetic characters or known placeholders
         """
-        if not pen_no:
-            return True
-
+        # Normalize input
         pen_no = str(pen_no).strip().upper()
 
         # Known invalid placeholders
         invalid_placeholders = {"NA", "NS", "N/A", "NULL", "NONE", ""}
 
-        if pen_no in invalid_placeholders:
-            return True
+        # Check for placeholder or invalid format
+        is_invalid = (
+            not pen_no or
+            pen_no in invalid_placeholders or
+            # Regex: only digits, length 11 to 14
+            not re.fullmatch(r"\d{11,14}", pen_no)
+        )
 
-        # Regex: only digits, length 11 to 14
-        return not re.fullmatch(r"\d{11,14}", pen_no)
+        if is_invalid:
+            logger.error(
+                "%s : Invalid PEN no. retrying searching PEN with adhaar",
+                pen_no)
+            self.student_data.update_student_data(
+                pen_no,
+                {
+                    "Remark": "Invalid PEN no.",
+                    "Import Status": "No"
+                }
+            )
+
+        return is_invalid
 
     def _is_import_error(self, pen_no, status):
         """
