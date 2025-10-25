@@ -137,6 +137,6 @@ if __name__ == "__main__":
     finally:
         if not DEBUG:
             WebDriverManager.get_driver().quit()
-        logger.info("AutoEdu run completed in %s",
+        logger.info(" *********** AutoEdu run completed in [%s] *********** ",
                     get_time_duration(start_time, datetime.now()))
         log_end()
