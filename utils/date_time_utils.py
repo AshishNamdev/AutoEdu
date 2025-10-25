@@ -13,7 +13,7 @@ Designed to minimize external dependencies and avoid circular imports,
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-22
-Last Modified: 2025-10-17
+Last Modified: 2025-10-25
 
 Version: 1.0.0
 """
@@ -207,3 +207,26 @@ def generate_random_admission_date(holiday_months=None):
 
         # Return a random valid date
     return convert_to_ddmmyyyy(random.choice(valid_dates))
+
+
+def get_time_duration(start_time, end_time):
+    """
+    Calculates the duration between two datetime objects and returns it
+    as a human-readable string in minutes and seconds.
+
+    Parameters:
+        start_time (datetime): The start timestamp.
+        end_time (datetime): The end timestamp.
+
+    Returns:
+        str: Duration formatted as "X minutes Y seconds".
+    """
+    # Calculate the time difference
+    duration = end_time - start_time
+
+    # Convert total seconds to minutes and seconds
+    total_seconds = int(duration.total_seconds())
+    minutes, seconds = divmod(total_seconds, 60)
+
+    # Format the output string
+    return f"{minutes} minutes {seconds} seconds"

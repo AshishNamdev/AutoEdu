@@ -29,10 +29,12 @@ Example:
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-20
-Last Modified: 2025-09-18
+Last Modified: 2025-10-25
 
 Version: 1.0.0
 """
+
+from datetime import datetime
 
 from common import launch_browser
 from common.config import (
@@ -50,6 +52,7 @@ from common.logger import log_end, logger
 from portals.udise import StudentImport
 from ui import MainPage
 from ui.udise.login import StudentLogin
+from utils.date_time_utils import get_time_duration
 
 
 class AutoEdu:
@@ -115,6 +118,7 @@ class AutoEdu:
 
 
 if __name__ == "__main__":
+    start_time = datetime.now()
     log_config(logger)
     auto_edu = AutoEdu()
 
@@ -133,4 +137,6 @@ if __name__ == "__main__":
     finally:
         if not DEBUG:
             WebDriverManager.get_driver().quit()
+        logger.info("AutoEdu run completed in %s",
+                    get_time_duration(start_time, datetime.now()))
         log_end()
