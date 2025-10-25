@@ -38,7 +38,7 @@ Example:
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-10-10
-Last Modified: 2025-10-15
+Last Modified: 2025-10-25
 
 Version: 1.0.0
 """
@@ -282,4 +282,17 @@ class SearchPEN:
             yob_trial
         )
 
-        return yob_trial
+        return self._get_unique_years(yob_trial)
+
+    def _get_unique_years(self, year_list):
+        """
+        Removes duplicates from a list of year strings.
+
+        Parameters:
+            year_list (list[str]): List of year strings,
+                                    possibly with duplicates.
+
+        Returns:
+            list[str]: Unique year strings.
+        """
+        return list(set(year_list))
