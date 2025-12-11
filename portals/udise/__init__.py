@@ -16,7 +16,7 @@ workflow orchestration, automation scripts, or UI integration layers.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-10-14
+Last Modified: 2025-12-09
 
 Version: 1.0.0
 """
@@ -29,5 +29,7 @@ if MODULE == "student" and TASK == "import":
     from .student_module.import_module.search_pen import SearchPEN
     from .student_module.import_module.student import Student
     from .student_module.import_module.student_import import StudentImport
+    from .student_module.section_shift import StudentSectionShift
 
-    __all__ = ["StudentImport", "Student", "ReleaseRequest", "SearchPEN"]
+    __all__ = ["StudentImport", "Student",
+               "ReleaseRequest", "SearchPEN", "StudentSectionShift"]

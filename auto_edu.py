@@ -29,7 +29,7 @@ Example:
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-20
-Last Modified: 2025-10-25
+Last Modified: 2025-12-09
 
 Version: 1.0.0
 """
@@ -49,7 +49,7 @@ from common.config import (
 )
 from common.driver import WebDriverManager
 from common.logger import log_end, logger
-from portals.udise import StudentImport
+from portals.udise import StudentImport, StudentSectionShift
 from ui import MainPage
 from ui.udise.login import StudentLogin
 from utils.date_time_utils import get_time_duration
@@ -93,6 +93,8 @@ class AutoEdu:
                 pass
             elif TASK == "profile":
                 pass
+            elif TASK == "section_shift":
+                StudentSectionShift().start_section_shift()
         elif MODULE == "teacher":
             pass
 

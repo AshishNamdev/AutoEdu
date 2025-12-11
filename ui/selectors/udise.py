@@ -1,10 +1,8 @@
 """
-Module: student_import_selector
-
-Description:
+Module: ui.selectors.udise
 
 This module defines a collection of UI selectors used in the
-UDISE Student Import interface.
+UDISE Student Section Shift interface.
 Selectors are organized by strategy type
 (XPath, ID, CSS, Name, Class Name) and are used to
 locate and interact with specific elements on the web page during
@@ -16,7 +14,7 @@ automation scripts.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-10-09
+Last Modified: 2025-12-11
 
 Version: 1.0.0
 """
@@ -350,3 +348,73 @@ class SearchPENSelectors:
     ERROR_OK_BUTTON_XPATH = (
         "//button[contains(normalize-space(text()),'Okay')]"
     )
+
+
+class StudentSectionShiftSelectors:
+    """
+    Centralized selector definitions for the UDISE Student Section Shift page.
+
+    This class provides a structured collection of XPath and tag-based
+    selectors used to locate UI elements on the Student Section Shift
+    interface. These constants are consumed by automation scripts and Page
+    Object classes to interact with dropdowns, buttons, tables, confirmation
+    dialogs, and status messages in a consistent and maintainable way.
+
+    Attributes
+    ----------
+    SECTION_SHIFT_OPTION_XPATH : str
+        XPath for the 'Section Shift' menu option.
+    SELECT_CLASS_DROPDOWN_XPATH : str
+        XPath for the Class selection dropdown.
+    SELECT_SECTION_DROPDOWN_XPATH : str
+        XPath for the Section selection dropdown.
+    GO_BUTTON_XPATH : str
+        XPath for the 'Section Shift' Go button.
+    NEXT_PAGE_XPATH : str
+        XPath for the paginator Next button.
+    SECTION_SHIFT_TABLE_XPATH : tuple[str, str]
+        XPaths for locating the Section Shift data table container.
+    TABLE_ROW_XPATH : str
+        XPath for all table rows within the Section Shift table.
+    NEW_SECTION_XPATH : str
+        Relative XPath for the new Section dropdown inside each row.
+    UPDATE_BUTTON_XPATH : str
+        Relative XPath for the Update button inside each row.
+    OK_BUTTON_XPATH : str
+        XPath for the confirmation dialog OK button.
+    STATUS_MESSAGE_XPATH : str
+        XPath for the success message displayed after updating a section.
+    TABLE_COLUMN_TAG : str
+        Tag name used to identify table column elements.
+    """
+
+    SECTION_SHIFT_OPTION_XPATH = (
+        "//span[contains(normalize-space(text()), 'Section Shift')]")
+    SELECT_CLASS_DROPDOWN_XPATH = (
+        "//label[contains(normalize-space(text()), 'Class')]"
+        "/parent::li/following-sibling::li/select"
+    )
+    SELECT_SECTION_DROPDOWN_XPATH = (
+        "//label[contains(normalize-space(text()), 'Section')]"
+        "/parent::li/following-sibling::li/select"
+    )
+    GO_BUTTON_XPATH = (
+        "//button[contains(normalize-space(text()), 'Section Shift')]"
+    )
+    NEXT_PAGE_XPATH = "//mat-paginator//button[2]//span[3]"
+    SECTION_SHIFT_TABLE_XPATH = (
+        "//div[@id='page-content-wrapper']",
+        "//app-section-shift-cy//table"
+    )
+    TABLE_ROW_XPATH = "//tbody/tr"
+    NEW_SECTION_XPATH = "td[5]/select"
+    UPDATE_BUTTON_XPATH = "/td/button[normalize-space()='Update']"
+    OK_BUTTON_XPATH = "//button[contains(normalize-space(text()), 'Okay')]"
+    STATUS_MESSAGE_XPATH = (
+        "//h2[contains(@class, 'swal2-title') and "
+        "contains(normalize-space(text()), "
+        "'Section Successfully Updated')]"
+    )
+
+    # Tag selectors
+    TABLE_COLUMN_TAG = "td"

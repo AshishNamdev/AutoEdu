@@ -14,7 +14,7 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-10-09
+Last Modified: 2025-12-11
 
 Version: 1.0.0
 """
@@ -26,6 +26,7 @@ from ui.selectors.udise import (
     SearchPENSelectors,
     StudentImportSelectors,
     StudentLoginSelectors,
+    StudentSectionShiftSelectors,
 )
 
 
@@ -377,3 +378,48 @@ class SearchPENLocators:
         By.XPATH,
         SearchPENSelectors.ERROR_OK_BUTTON_XPATH
     )
+
+
+class StudentSectionShiftLocators:
+    """
+    Locators for the Student Section Shift page.
+
+    This class defines all Selenium locator tuples used to interact with
+    dropdowns, buttons, tables, and row-level actions on the Student Section
+    Shift interface. Each locator references an XPath or tag selector defined
+    in `StudentSectionShiftSelectors`, keeping the Page Object clean and
+    maintainable.
+
+    Attributes:
+        SECTION_SHIFT_OPTION: Locator for the main Section Shift option.
+        SELECT_CLASS_DROPDOWN: Locator for the Class selection dropdown.
+        SELECT_SECTION_DROPDOWN: Locator for the Section selection dropdown.
+        GO_BUTTON: Locator for the 'Go' button used to load table data.
+        NEXT_PAGE: Locator for the pagination 'Next' button.
+        SECTION_SHIFT_TABLE: Locator for the main table element.
+        TABLE_ROW: Locator for table rows within the Section Shift table.
+        NEW_SECTION: Locator for the dropdown used to select a new section.
+        UPDATE_BUTTON: Locator for the Update button inside each table row.
+        OK_BUTTON: Locator for the confirmation dialog OK button.
+        STATUS_MESSAGE: Locator for the status or success message element.
+        TABLE_COLUMN: Locator for table column elements (tag-based).
+    """
+
+    SECTION_SHIFT_OPTION = (
+        By.XPATH, StudentSectionShiftSelectors.SECTION_SHIFT_OPTION_XPATH)
+    SELECT_CLASS_DROPDOWN = (
+        By.XPATH, StudentSectionShiftSelectors.SELECT_CLASS_DROPDOWN_XPATH)
+    SELECT_SECTION_DROPDOWN = (
+        By.XPATH, StudentSectionShiftSelectors.SELECT_SECTION_DROPDOWN_XPATH)
+    GO_BUTTON = (By.XPATH, StudentSectionShiftSelectors.GO_BUTTON_XPATH)
+    NEXT_PAGE = (By.XPATH, StudentSectionShiftSelectors.NEXT_PAGE_XPATH)
+    SECTION_SHIFT_TABLE = (
+        By.XPATH, StudentSectionShiftSelectors.SECTION_SHIFT_TABLE_XPATH)
+    TABLE_ROW = (By.XPATH, StudentSectionShiftSelectors.TABLE_ROW_XPATH)
+    NEW_SECTION = (By.XPATH, StudentSectionShiftSelectors.NEW_SECTION_XPATH)
+    UPDATE_BUTTON = (
+        By.XPATH, StudentSectionShiftSelectors.UPDATE_BUTTON_XPATH)
+    OK_BUTTON = (By.XPATH, StudentSectionShiftSelectors.OK_BUTTON_XPATH)
+    STATUS_MESSAGE = (
+        By.XPATH, StudentSectionShiftSelectors.STATUS_MESSAGE_XPATH)
+    TABLE_COLUMN = (By.TAG_NAME, StudentSectionShiftSelectors.TABLE_COLUMN_TAG)

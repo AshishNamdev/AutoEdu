@@ -34,7 +34,8 @@
       "student": [
         "import",
         "progression",
-        "profile"
+        "profile",
+        "section_shift"
       ],
       "teacher": [
         "import",
