@@ -9,12 +9,17 @@ configuration.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-12-09
-Last Modified: 2025-12-09
+Last Modified: 2025-12-16
 
 Version: 1.0.0
 """
 
+import os
+
 from common.logger import logger
+from common.student_data import StudentData
+from ui.udise.section_shift_ui import StudentSectionShiftUI
+from utils.parser import StudentDataParser
 
 
 class StudentSectionShift:
@@ -29,7 +34,25 @@ class StudentSectionShift:
     """
 
     def __init__(self):
-        pass
+        self.section_shift_ui = StudentSectionShiftUI()
+        self.student_data = None
+
+    def _prepare_section_shift_data(self):
+        """
+        Prepares and retrieves student section shift data.
+
+        This method initializes a StudentDataParser instance,
+        parses the input data, and returns the structured student data
+        ready for further processing or storage.
+
+        Returns:
+            dict: A dictionary containing parsed student section shift data.
+        """
+        section_shift_data_file = os.path.join(
+            os.getcwd(), "input", "udise", "section_shift.xlsx")
+        data_parser = StudentDataParser(section_shift_data_file)
+        data_parser.parse_data()
+        self.student_data = StudentData(data_parser.get_parsed_data())
 
     def start_section_shift(self):
         """
@@ -43,3 +66,41 @@ class StudentSectionShift:
             None
         """
         logger.info("Starting UDISE Student Section Shift workflow.")
+        self._prepare_section_shift_data()
+        ui = self.section_shift_ui
+        ui.select_section_shift_options()
+        total_pages = ui.get_total_pages()
+        for page in range(1, total_pages + 1):
+            logger.info("Processing page %d of %d", page, total_pages)
+            self._process_section_shift_page()
+            if page < total_pages:
+                ui.go_to_next_page()
+
+    def _process_section_shift_page(self):
+        """
+        Processes a single page of the Section Shift table.
+
+        This method iterates through each student entry on the current
+        page, retrieves the necessary data, and performs the section shift
+        operation based on the prepared student data.
+
+        Returns:
+            None
+        """
+        ui = self.section_shift_ui
+        students = ui.get_section_shift_table_rows(
+            ui.get_section_shift_data_table())
+        for student in students:
+            student_pen = ui.get_ui_student_pen(student)
+            new_section = self.student_data.get_new_section(student_id)
+            if new_section:
+                ui.shift_student_section(row, new_section)
+                logger.info(
+                    "Shifted student ID %s to section %s",
+                    student_id, new_section
+                )
+            else:
+                logger.warning(
+                    "No new section found for student ID %s. Skipping.",
+                    student_id
+                )

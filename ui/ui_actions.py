@@ -27,7 +27,7 @@ Intended for use in AutoEdu workflows and other scalable automation platforms.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-10-15
+Last Modified: 2025-12-16
 
 Version: 1.0.0
 """
@@ -148,7 +148,7 @@ class UIActions:
             f"Failed to click element after {retries} attempts: {locator}")
 
     @classmethod
-    def wait_and_find_element(cls, locator):
+    def wait_and_find_element(cls, locator, parent_element=None):
         """
         Waits for a web element to become clickable and returns it.
 
@@ -160,6 +160,8 @@ class UIActions:
         Parameters:
             locator (tuple): A tuple specifying the strategy to locate the
                             element, e.g., (By.ID, "submit-button").
+            parent_element (WebElement, optional): Parent element to search
+                            within. Defaults to None.
         Returns:
             WebElement: The Selenium WebElement once it becomes clickable.
 
@@ -167,7 +169,11 @@ class UIActions:
             TimeoutException: If the element does not become clickable within
                                 the timeout.
         """
-        driver = WebDriverManager.get_driver()
+        driver = (
+            parent_element
+            if parent_element
+            else WebDriverManager.get_driver()
+        )
         elem = WebDriverWait(driver, TIMEOUT).until(
             EC.element_to_be_clickable(locator))
         logger.debug("Element found and clickable: %s", locator)
@@ -177,31 +183,31 @@ class UIActions:
         return elem
 
     @classmethod
-    def wait_and_find_elements(cls, locator):
+    def wait_and_find_elements(cls, locator, parent_element=None):
         """
-        Waits for all elements matching the locator to be present in the DOM
-        and returns them.
+        Wait until all elements matching the locator are present in the DOM.
 
-        This function uses WebDriverWait to wait until all elements specified
-        by the locator are present in the DOM. It does not guarantee that the
-        elements are visible or clickable, only that they exist in the page
-        structure.
+        This does not guarantee that the elements are visible or clickable,
+        only that they exist in the page structure.
 
-        Parameters:
-            locator (tuple): (
-                A tuple specifying the strategy to locate the elements,
-                e.g., (By.CLASS_NAME, "item-row").
-            )
+        Args:
+            locator (tuple): A tuple specifying the strategy to locate the
+                elements, e.g., (By.CLASS_NAME, "item-row").
+            parent_element (WebElement, optional): Parent element to search
+                within. Defaults to None.
 
         Returns:
-            list[WebElement]: A list of Selenium WebElements once they are
-                located.
+            list[WebElement]: A list of Selenium WebElements once located.
 
         Raises:
-            TimeoutException: If the elements are not found within the
-                timeout period.
+            TimeoutException: If the elements are not found within the timeout.
         """
-        driver = WebDriverManager.get_driver()
+        driver = (
+            parent_element
+            if parent_element
+            else WebDriverManager.get_driver()
+        )
+
         elements = WebDriverWait(driver, TIMEOUT).until(
             EC.presence_of_all_elements_located(locator)
         )

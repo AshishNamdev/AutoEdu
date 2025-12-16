@@ -14,20 +14,16 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-12-11
+Last Modified: 2025-12-16
 
 Version: 1.0.0
 """
 
 from selenium.webdriver.common.by import By
 
-from ui.selectors.udise import (
-    ReleaseRequestSelectors,
-    SearchPENSelectors,
-    StudentImportSelectors,
-    StudentLoginSelectors,
-    StudentSectionShiftSelectors,
-)
+from ui.selectors.udise import (ReleaseRequestSelectors, SearchPENSelectors,
+                                StudentImportSelectors, StudentLoginSelectors,
+                                StudentSectionShiftSelectors)
 
 
 class StudentLoginLocators:
@@ -395,7 +391,8 @@ class StudentSectionShiftLocators:
         SELECT_CLASS_DROPDOWN: Locator for the Class selection dropdown.
         SELECT_SECTION_DROPDOWN: Locator for the Section selection dropdown.
         GO_BUTTON: Locator for the 'Go' button used to load table data.
-        NEXT_PAGE: Locator for the pagination 'Next' button.
+        NEXT_PAGE_BUTTON: Locator for the pagination 'Next' button.
+        STUDENT_COUNT: Locator for the element displaying total student count.
         SECTION_SHIFT_TABLE: Locator for the main table element.
         TABLE_ROW: Locator for table rows within the Section Shift table.
         NEW_SECTION: Locator for the dropdown used to select a new section.
@@ -403,6 +400,8 @@ class StudentSectionShiftLocators:
         OK_BUTTON: Locator for the confirmation dialog OK button.
         STATUS_MESSAGE: Locator for the status or success message element.
         TABLE_COLUMN: Locator for table column elements (tag-based).
+        STUDENT_PEN_UI_ROW: Locator for the Student PEN cell within a
+                            table row.
     """
 
     SECTION_SHIFT_OPTION = (
@@ -412,7 +411,10 @@ class StudentSectionShiftLocators:
     SELECT_SECTION_DROPDOWN = (
         By.XPATH, StudentSectionShiftSelectors.SELECT_SECTION_DROPDOWN_XPATH)
     GO_BUTTON = (By.XPATH, StudentSectionShiftSelectors.GO_BUTTON_XPATH)
-    NEXT_PAGE = (By.XPATH, StudentSectionShiftSelectors.NEXT_PAGE_XPATH)
+    NEXT_PAGE_BUTTON = (
+        By.XPATH, StudentSectionShiftSelectors.NEXT_PAGE_BUTTON_XPATH)
+    STUDENT_COUNT = (
+        By.XPATH, StudentSectionShiftSelectors.STUDENT_COUNT_XPATH)
     SECTION_SHIFT_TABLE = (
         By.XPATH, StudentSectionShiftSelectors.SECTION_SHIFT_TABLE_XPATH)
     TABLE_ROW = (By.XPATH, StudentSectionShiftSelectors.TABLE_ROW_XPATH)
@@ -423,3 +425,5 @@ class StudentSectionShiftLocators:
     STATUS_MESSAGE = (
         By.XPATH, StudentSectionShiftSelectors.STATUS_MESSAGE_XPATH)
     TABLE_COLUMN = (By.TAG_NAME, StudentSectionShiftSelectors.TABLE_COLUMN_TAG)
+    STUDENT_PEN_UI_ROW = (
+        By.XPATH, StudentSectionShiftSelectors.STUDENT_PEN_UI_ROW_XPATH)

@@ -14,7 +14,7 @@ automation scripts.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-12-11
+Last Modified: 2025-12-16
 
 Version: 1.0.0
 """
@@ -370,8 +370,10 @@ class StudentSectionShiftSelectors:
         XPath for the Section selection dropdown.
     GO_BUTTON_XPATH : str
         XPath for the 'Section Shift' Go button.
-    NEXT_PAGE_XPATH : str
+    NEXT_PAGE_BUTTON_XPATH : str
         XPath for the paginator Next button.
+    STUDENT_COUNT_XPATH : str
+        XPath for the element displaying total student count.
     SECTION_SHIFT_TABLE_XPATH : tuple[str, str]
         XPaths for locating the Section Shift data table container.
     TABLE_ROW_XPATH : str
@@ -384,6 +386,8 @@ class StudentSectionShiftSelectors:
         XPath for the confirmation dialog OK button.
     STATUS_MESSAGE_XPATH : str
         XPath for the success message displayed after updating a section.
+    STUDENT_PEN_UI_ROW_XPATH : str
+        Relative XPath for the Student PEN cell within a table row.
     TABLE_COLUMN_TAG : str
         Tag name used to identify table column elements.
     """
@@ -401,7 +405,10 @@ class StudentSectionShiftSelectors:
     GO_BUTTON_XPATH = (
         "//button[contains(normalize-space(text()), 'Section Shift')]"
     )
-    NEXT_PAGE_XPATH = "//mat-paginator//button[2]//span[3]"
+    NEXT_PAGE_BUTTON_XPATH = "//mat-paginator//button[2]//span[3]"
+    STUDENT_COUNT_XPATH = (
+        "//div[contains(@class,'mat-mdc-paginator-range-label')]"
+    )
     SECTION_SHIFT_TABLE_XPATH = (
         "//div[@id='page-content-wrapper']",
         "//app-section-shift-cy//table"
@@ -415,6 +422,7 @@ class StudentSectionShiftSelectors:
         "contains(normalize-space(text()), "
         "'Section Successfully Updated')]"
     )
+    STUDENT_PEN_UI_ROW_XPATH = "./td[2]"
 
     # Tag selectors
     TABLE_COLUMN_TAG = "td"
