@@ -9,7 +9,7 @@ configuration.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-12-09
-Last Modified: 2025-12-16
+Last Modified: 2026-01-08
 
 Version: 1.0.0
 """
@@ -18,6 +18,7 @@ import os
 
 from common.logger import logger
 from common.student_data import StudentData
+from portals.udise import Student
 from ui.udise.section_shift_ui import StudentSectionShiftUI
 from utils.parser import StudentDataParser
 
@@ -88,19 +89,26 @@ class StudentSectionShift:
             None
         """
         ui = self.section_shift_ui
-        students = ui.get_section_shift_table_rows(
+        student_rows = ui.get_section_shift_table_rows(
             ui.get_section_shift_data_table())
-        for student in students:
-            student_pen = ui.get_ui_student_pen(student)
-            new_section = self.student_data.get_new_section(student_id)
-            if new_section:
-                ui.shift_student_section(row, new_section)
-                logger.info(
-                    "Shifted student ID %s to section %s",
-                    student_id, new_section
-                )
-            else:
-                logger.warning(
-                    "No new section found for student ID %s. Skipping.",
-                    student_id
-                )
+        for student_row in student_rows:
+            student_pen = ui.get_ui_student_pen(student_row)
+            ui_section = ui.get_ui_student_section(student_row)
+            student = Student(
+                student_pen, self.student_data.get_student_data())
+            student_section = student.get_section()
+
+            if self._is_section_mismatch(ui_section, student_section):
+                pass
+
+    def _is_section_mismatch(self, ui_section, student_section):
+        """
+        Checks if there is a mismatch between UI section and student data section.
+
+        Args:
+            ui_section (str): The section value retrieved from the UI.
+            student_section (str): The section value from the student data.
+        Returns:
+            True if there is a mismatch, False otherwise.
+        """
+        return ui_section != student_section

@@ -14,7 +14,7 @@ automation scripts.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-12-16
+Last Modified: 2026-01-08
 
 Version: 1.0.0
 """
@@ -388,6 +388,8 @@ class StudentSectionShiftSelectors:
         XPath for the success message displayed after updating a section.
     STUDENT_PEN_UI_ROW_XPATH : str
         Relative XPath for the Student PEN cell within a table row.
+    STUDENT_SECTION_UI_ROW_XPATH : str
+        Relative XPath for the Student Section cell within a table row.
     TABLE_COLUMN_TAG : str
         Tag name used to identify table column elements.
     """
@@ -423,6 +425,7 @@ class StudentSectionShiftSelectors:
         "'Section Successfully Updated')]"
     )
     STUDENT_PEN_UI_ROW_XPATH = "./td[2]"
+    STUDENT_SECTION_UI_ROW_XPATH = "./td[1]/ul/li[2]/span"
 
     # Tag selectors
     TABLE_COLUMN_TAG = "td"

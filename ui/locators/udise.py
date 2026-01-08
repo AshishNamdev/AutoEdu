@@ -14,16 +14,20 @@ Dependencies:
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2025-12-16
+Last Modified: 2026-01-08
 
 Version: 1.0.0
 """
 
 from selenium.webdriver.common.by import By
 
-from ui.selectors.udise import (ReleaseRequestSelectors, SearchPENSelectors,
-                                StudentImportSelectors, StudentLoginSelectors,
-                                StudentSectionShiftSelectors)
+from ui.selectors.udise import (
+    ReleaseRequestSelectors,
+    SearchPENSelectors,
+    StudentImportSelectors,
+    StudentLoginSelectors,
+    StudentSectionShiftSelectors,
+)
 
 
 class StudentLoginLocators:
@@ -402,6 +406,8 @@ class StudentSectionShiftLocators:
         TABLE_COLUMN: Locator for table column elements (tag-based).
         STUDENT_PEN_UI_ROW: Locator for the Student PEN cell within a
                             table row.
+        STUDENT_SECTION_UI_ROW: Locator for the Student Section cell within a
+                                table row.
     """
 
     SECTION_SHIFT_OPTION = (
@@ -427,3 +433,5 @@ class StudentSectionShiftLocators:
     TABLE_COLUMN = (By.TAG_NAME, StudentSectionShiftSelectors.TABLE_COLUMN_TAG)
     STUDENT_PEN_UI_ROW = (
         By.XPATH, StudentSectionShiftSelectors.STUDENT_PEN_UI_ROW_XPATH)
+    STUDENT_SECTION_UI_ROW = (
+        By.XPATH, StudentSectionShiftSelectors.STUDENT_SECTION_UI_ROW_XPATH)

@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-12-11
-Last Modified: 2025-12-16
+Last Modified: 2026-01-08
 
 Version: 1.0.0
 """
@@ -153,6 +153,20 @@ class StudentSectionShiftUI:
         """
         return UI.wait_and_find_element(
             StudentSectionShiftLocators.STUDENT_PEN_UI_ROW, student_row
+        ).get_attribute("innerHTML").strip()
+
+    def get_ui_student_section(self, student_row):
+        """
+        Retrieves the Section of a student from the
+        given table row.
+
+        Args:
+            student_row (WebElement): The table row element for the student.
+        Returns:
+            str: The student's Section.
+        """
+        return UI.wait_and_find_element(
+            StudentSectionShiftLocators.STUDENT_SECTION_UI_ROW, student_row
         ).get_attribute("innerHTML").strip()
 
     def shift_section(self, student_pen, dob):
