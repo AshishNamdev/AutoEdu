@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-12-11
-Last Modified: 2026-01-08
+Last Modified: 2026-01-09
 
 Version: 1.0.0
 """
@@ -169,14 +169,14 @@ class StudentSectionShiftUI:
             StudentSectionShiftLocators.STUDENT_SECTION_UI_ROW, student_row
         ).get_attribute("innerHTML").strip()
 
-    def shift_section(self, student_pen, dob):
+    def shift_section(self, student_pen, section, student_row):
         """
         Automates the student import process by entering PEN and DOB,
         then triggering the import action.
 
         Args:
             student_pen(str): The student's Permanent Enrollment Number.
-            dob (str): The student's date of birth in DD/MM/YYYY format.
+            section (str): The section the student will be shifted into.
 
         Side Effects:
             - Fills input fields using Selenium.
@@ -184,58 +184,72 @@ class StudentSectionShiftUI:
             - Clicks the import button and waits for UI transition.
         """
         try:
-            field_data = [
-                (student_pen, StudentImportLocators.STUDENT_PEN),
-                (dob, StudentImportLocators.DOB),
-            ]
-            UI.fill_fields(field_data)
+            logger.info("Student PEN No: %s, Section: %s",
+                        student_pen, section)
+            self._select_new_section(section, student_row)
 
-            logger.info("Student PEN No: %s, DOB: %s", student_pen, dob)
-
-            UI.wait_and_click(StudentImportLocators.IMPORT_GO_BUTTON)
-            logger.debug("Clicked Import button")
             logger.debug("Waiting for %s seconds", TIME_DELAY)
             time.sleep(TIME_DELAY)
+
+            self._update_section(student_row)
         except ValueError as ve:
             logger.warning("Validation error during student import: %s", ve)
         except Exception as e:
             logger.error("Unexpected error during student import: %s", e)
 
-    def select_new_section(self, student_class, section, doa):
+    def _select_new_section(self, section, student_row):
         """
-        Fills and submits the student import form with specified class,
-        section, and date of admission.
+        Selects a new section for the given student row in the
+        section shift UI.
 
         Parameters:
-            student_class (str): The class value to select from the dropdown.
-            section (str): The section value to select from the dropdown.
-            doa (str): Date of admission in the expected input format
-                        (e.g., 'DD/MM/YYYY').
+            section (str): The section key used to look up the
+                corresponding value in SECTIONS.
+            student_row (WebElement): The row element representing
+                the student in the UI.
 
         Workflow:
-            - Selects the appropriate class and section from
-                dropdowns using `select_by_value`.
-            - Clears and inputs the date of admission into the
-                corresponding field.
-            - Clicks the import button to submit the form.
-            - Clicks the Confirm button to import student.
+            - Locates the "New Section" dropdown within the student row.
+            - Selects the section using `select_by_value`.
+            - Logs the selected section.
 
         Assumes:
-            - All locators are defined in `StudentImportLocators`.
-            - `wait_and_find_element()` and `wait_and_click()` are
-                utility functions that handle element presence and interaction.
+            - `StudentSectionShiftLocators.NEW_SECTION` is defined.
+            - `UI.wait_and_find_element()` is available to locate elements.
+            - `SECTIONS` contains a mapping of section keys to dropdown values.
         """
-        for value, locator in [
-            (student_class, StudentImportLocators.SELECT_CLASS),
-            (SECTIONS[section], StudentImportLocators.SELECT_SECTION),
-        ]:
-            logger.debug("Selecting value %s for %s", value, locator)
-            Select(UI.wait_and_find_element(locator)).select_by_value(value)
 
-        UI.fill_fields([(doa, StudentImportLocators.DOA)])
-        logger.debug("Entered Date of Admission: %s", doa)
+        Select(
+            UI.wait_and_find_element(
+                StudentSectionShiftLocators.NEW_SECTION, student_row
+            )).select_by_value(SECTIONS[section])
+        logger.info("Selected New Section: %s", section)
+        time.sleep(TIME_DELAY)
+        self._update_section(student_row)
 
-        self.confirm_section_shift()
+    def _update_section(self, student_row):
+        """
+        Clicks the "Update" button for the given student row to
+        apply a section change in the UI.
+
+        Parameters:
+            student_row (WebElement): The row element representing
+                the student whose section is being updated.
+
+        Workflow:
+            - Locates the Update button within the provided student row.
+            - Clicks the button to trigger the section update action.
+            - Logs the action for debugging purposes.
+
+        Assumes:
+            - `StudentSectionShiftLocators.UPDATE_BUTTON` is defined.
+            - `UI.wait_and_click()` is available to handle element
+            presence and interaction.
+        """
+
+        UI.wait_and_click(
+            StudentSectionShiftLocators.UPDATE_BUTTON, student_row)
+        logger.debug("Clicked Update Button")
 
     def get_section_shift_message(self):
         """
@@ -260,10 +274,10 @@ class StudentSectionShiftUI:
         ).get_attribute("innerHTML")
         logger.info("Section Shift Message: %s", status_message)
 
-        self.confirm_section_shift()
+        self._confirm_section_shift()
         return status_message
 
-    def confirm_section_shift(self):
+    def _confirm_section_shift(self):
         """
         Automates the student section shift workflow by
         confirming the action, and acknowledging the success

@@ -14,7 +14,7 @@ automation scripts.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2026-01-08
+Last Modified: 2026-01-09
 
 Version: 1.0.0
 """
@@ -416,14 +416,17 @@ class StudentSectionShiftSelectors:
         "//app-section-shift-cy//table"
     )
     TABLE_ROW_XPATH = "//tbody/tr"
-    NEW_SECTION_XPATH = "td[5]/select"
-    UPDATE_BUTTON_XPATH = "/td/button[normalize-space()='Update']"
+    NEW_SECTION_XPATH = "./td[5]/select"
+    UPDATE_BUTTON_XPATH = "./td[6]/button[normalize-space()='Update']"
     OK_BUTTON_XPATH = "//button[contains(normalize-space(text()), 'Okay')]"
+    '''
     STATUS_MESSAGE_XPATH = (
         "//h2[contains(@class, 'swal2-title') and "
         "contains(normalize-space(text()), "
         "'Section Successfully Updated')]"
     )
+    '''
+    STATUS_MESSAGE_XPATH = "//html/body/div[4]/div/h2"
     STUDENT_PEN_UI_ROW_XPATH = "./td[2]"
     STUDENT_SECTION_UI_ROW_XPATH = "./td[1]/ul/li[2]/span"
 

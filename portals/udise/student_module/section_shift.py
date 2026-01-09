@@ -9,13 +9,15 @@ configuration.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-12-09
-Last Modified: 2026-01-08
+Last Modified: 2026-01-09
 
 Version: 1.0.0
 """
 
 import os
+import time
 
+from common.config import TIME_DELAY
 from common.logger import logger
 from common.student_data import StudentData
 from portals.udise import Student
@@ -74,6 +76,9 @@ class StudentSectionShift:
         for page in range(1, total_pages + 1):
             logger.info("Processing page %d of %d", page, total_pages)
             self._process_section_shift_page()
+            logger.debug("Waiting for %s seconds", TIME_DELAY)
+            time.sleep(TIME_DELAY)
+
             if page < total_pages:
                 ui.go_to_next_page()
 
@@ -99,11 +104,38 @@ class StudentSectionShift:
             student_section = student.get_section()
 
             if self._is_section_mismatch(ui_section, student_section):
-                pass
+                logger.info(
+                    "%s: Section Mismatch, UDISE Section-%s, "
+                    "Student Section-%s",
+                    student_pen,
+                    ui_section,
+                    student_section,
+                )
+                ui.shift_section(student_pen, student_section, student_row)
+                status = ui.get_section_shift_message()
+                logger.info("%s: Section Shift Status: %s",
+                            student_pen, status)
+                section_shift_status = "Yes" if "Successfully" in status else "No"
+            else:
+                status = "Section Matched Already"
+                section_shift_status = "Yes"
+
+            self.student_data.update_student_data(
+                student_pen,
+                {
+                    "Section Shift Status": section_shift_status,
+                    "Remark": status,
+                    "Old Section": ui_section,
+                    "Updated Section": student_section,
+                },
+            )
+            logger.debug("Waiting for %s seconds", TIME_DELAY)
+            time.sleep(TIME_DELAY)
 
     def _is_section_mismatch(self, ui_section, student_section):
         """
-        Checks if there is a mismatch between UI section and student data section.
+        Checks if there is a mismatch between UI section and
+        student data section.
 
         Args:
             ui_section (str): The section value retrieved from the UI.
