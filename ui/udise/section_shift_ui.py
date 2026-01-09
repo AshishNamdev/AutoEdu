@@ -225,7 +225,6 @@ class StudentSectionShiftUI:
             )).select_by_value(SECTIONS[section])
         logger.info("Selected New Section: %s", section)
         time.sleep(TIME_DELAY)
-        self._update_section(student_row)
 
     def _update_section(self, student_row):
         """
