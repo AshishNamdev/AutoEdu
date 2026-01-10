@@ -85,6 +85,8 @@ class StudentSectionShiftUI:
                                     within the expected time.
         """
         try:
+            UI.wait_until_ready(
+                StudentSectionShiftLocators.SELECT_CLASS_DROPDOWN)
             Select(
                 UI.wait_and_find_element(
                     StudentSectionShiftLocators.SELECT_CLASS_DROPDOWN)

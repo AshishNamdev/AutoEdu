@@ -432,7 +432,9 @@ class UIActions:
     @staticmethod
     def wait_until_ready(locator, timeout: int = 10, parent: WebElement = None):
         """
-        Wait until the given element is present and clickable.
+        Wait until the given element is present, visible, and ready for
+        interaction.
+        Supports all element types (select, button, checkbox, radio, etc.).
 
         Args:
             locator (tuple): A locator tuple (By.<method>, "selector").
@@ -449,9 +451,26 @@ class UIActions:
         try:
             # assumes UI.driver is your WebDriver instance
             driver = parent if parent else WebDriverManager.get_driver()
+            # Wait until element is present and visible
             element = WebDriverWait(driver, timeout).until(
-                EC.element_to_be_clickable(locator)
-            )
+                EC.presence_of_element_located(locator))
+            element = WebDriverWait(driver, timeout).until(
+                EC.visibility_of_element_located(locator))
+
+            # For interactable elements (buttons, inputs, selects, etc.), also ensure clickable
+            try:
+                element = WebDriverWait(driver, timeout).until(
+                    EC.element_to_be_clickable(locator)
+                )
+            except TimeoutException:
+                # Not all elements need to be clickable (e.g., labels, spans)
+                logger.debug(
+                    "Element %s is visible but not clickable; continuing.",
+                    locator)
+
+            # Add a short delay once element is ready
+            logger.debug("Element %s is ready for interaction.", locator)
+            time.sleep(0.5)
             return element
         except TimeoutException:
             logger.error("Element %s not ready within %s seconds",

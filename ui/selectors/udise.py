@@ -14,7 +14,7 @@ automation scripts.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2026-01-09
+Last Modified: 2026-01-10
 
 Version: 1.0.0
 """
@@ -405,16 +405,13 @@ class StudentSectionShiftSelectors:
         "/parent::li/following-sibling::li/select"
     )
     GO_BUTTON_XPATH = (
-        "//button[contains(normalize-space(text()), 'Section Shift')]"
+        "//button[contains(normalize-space(text()), 'Go')]"
     )
     NEXT_PAGE_BUTTON_XPATH = "//mat-paginator//button[2]//span[3]"
     STUDENT_COUNT_XPATH = (
         "//div[contains(@class,'mat-mdc-paginator-range-label')]"
     )
-    SECTION_SHIFT_TABLE_XPATH = (
-        "//div[@id='page-content-wrapper']",
-        "//app-section-shift-cy//table"
-    )
+    SECTION_SHIFT_TABLE_XPATH = "//table[@role='table' and contains(@class,'mat-mdc-table')]"
     TABLE_ROW_XPATH = "//tbody/tr"
     NEW_SECTION_XPATH = "./td[5]/select"
     UPDATE_BUTTON_XPATH = "./td[6]/button[normalize-space()='Update']"

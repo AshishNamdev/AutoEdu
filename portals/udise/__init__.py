@@ -24,12 +24,15 @@ Version: 1.0.0
 
 from common.config import MODULE, TASK
 
-if MODULE == "student" and TASK == "import":
-    from .student_module.import_module.release_request import ReleaseRequest
-    from .student_module.import_module.search_pen import SearchPEN
-    from .student_module.import_module.student import Student
-    from .student_module.import_module.student_import import StudentImport
-    from .student_module.section_shift import StudentSectionShift
-
-    __all__ = ["StudentImport", "Student",
-               "ReleaseRequest", "SearchPEN", "StudentSectionShift"]
+if MODULE == "student":
+    if TASK == "import":
+        from .student_module.import_module.release_request import ReleaseRequest
+        from .student_module.import_module.search_pen import SearchPEN
+        from .student_module.import_module.student import Student
+        from .student_module.import_module.student_import import StudentImport
+        __all__ = ["StudentImport", "Student",
+                   "ReleaseRequest", "SearchPEN"]
+    elif TASK == "section_shift":
+        from .student_module.import_module.student import Student
+        from .student_module.section_shift import StudentSectionShift
+        __all__ = ["StudentSectionShift", "Student"]

@@ -49,7 +49,6 @@ from common.config import (
 )
 from common.driver import WebDriverManager
 from common.logger import log_end, logger
-from portals.udise import StudentImport, StudentSectionShift
 from ui import MainPage
 from ui.udise.login import StudentLogin
 from utils.date_time_utils import get_time_duration
@@ -88,12 +87,14 @@ class AutoEdu:
             login.student_login(USERNAME, PASSWORD, max_attempts=3)
             logged_in_school = login.get_logged_in_school()
             if TASK == "import":
+                from portals.udise import StudentImport
                 StudentImport(logged_in_school).start_student_import()
             elif TASK == "progression":
                 pass
             elif TASK == "profile":
                 pass
             elif TASK == "section_shift":
+                from portals.udise import StudentSectionShift
                 StudentSectionShift().start_section_shift()
         elif MODULE == "teacher":
             pass
