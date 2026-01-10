@@ -11,7 +11,7 @@ purposes.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-10-17
+Last Modified: 2026-01-10
 
 Version: 1.0.0
 
@@ -92,6 +92,8 @@ RETRIES = _config.get("OPTIONS", {}).get("retries", 3)
 CLASS_AGE_MAP = _config.get("CLASS_AGE_MAP")
 MAX_YOB_TRIAL_RANGE = _config.get("MAX_YOB_TRIAL_RANGE", 3)
 HOLIDAY_MONTHS = _config.get("HOLIDAY_MONTHS", [5])
+
+PAGE_SIZE = 10  # entries per page
 
 
 def log_config(logger):

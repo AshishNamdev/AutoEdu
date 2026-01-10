@@ -18,16 +18,21 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-12-11
-Last Modified: 2026-01-09
+Last Modified: 2026-01-10
 
 Version: 1.0.0
 """
 
 import time
 
+from selenium.common.exceptions import (
+    ElementClickInterceptedException,
+    NoSuchElementException,
+    TimeoutException,
+)
 from selenium.webdriver.support.ui import Select
 
-from common.config import CLASS, SECTIONS, TIME_DELAY
+from common.config import CLASS, PAGE_SIZE, SECTIONS, TIME_DELAY
 from common.logger import logger
 from ui.locators.udise import StudentSectionShiftLocators
 from ui.ui_actions import UIActions as UI
@@ -50,22 +55,25 @@ class StudentSectionShiftUI:
 
     def select_section_shift_options(self):
         """
-        Selects keSection Shift options in the UDISE Student Module UI.
+        Selects Section Shift options in the UDISE Student Module UI.
 
         Steps:
-        - Clicks on 'Class / Section Shift'
-
-
-        includes logging and a delay to ensure UI stability.
+            - Clicks on 'Class / Section Shift' option.
+            - Logs the action.
+            - Calls helper to select the section shift class.
 
         Raises:
             TimeoutException if any element is not clickable
                                     within the expected time.
         """
-        UI.wait_and_click(
-            StudentSectionShiftLocators.SECTION_SHIFT_OPTION)
-        logger.info("Selected Class / Section Shift Option")
-        self._select_section_shift_class()
+        try:
+            UI.wait_and_click(
+                StudentSectionShiftLocators.SECTION_SHIFT_OPTION)
+            logger.info("Selected Class / Section Shift Option")
+            self._select_section_shift_class()
+        except Exception as e:
+            logger.error("Error selecting Section Shift options: %s", str(e))
+            raise
 
     def _select_section_shift_class(self):
         """
@@ -76,13 +84,18 @@ class StudentSectionShiftUI:
             TimeoutException if the dropdown is not found
                                     within the expected time.
         """
-        Select(
-            UI.wait_and_find_element(
-                StudentSectionShiftLocators.SELECT_CLASS_DROPDOWN)
-        ).select_by_value(CLASS)
-        logger.info("Selected Class: %s", CLASS)
-        UI.wait_and_click(StudentSectionShiftLocators.GO_BUTTON)
-        logger.debug("Clicked on Go Button")
+        try:
+            Select(
+                UI.wait_and_find_element(
+                    StudentSectionShiftLocators.SELECT_CLASS_DROPDOWN)
+            ).select_by_value(CLASS)
+            logger.info("Selected Class: %s", CLASS)
+
+            UI.wait_and_click(StudentSectionShiftLocators.GO_BUTTON)
+            logger.debug("Clicked on Go Button")
+        except TimeoutException as e:
+            logger.error("Error selecting Section Shift class: %s", str(e))
+            raise
 
     def _get_total_students_count(self):
         """
@@ -95,10 +108,16 @@ class StudentSectionShiftUI:
         Raises:
             ValueError: If the count cannot be converted to an integer.
         """
-        count_text = str(UI.wait_and_find_element(
+        count_text = UI.wait_and_find_element(
             StudentSectionShiftLocators.STUDENT_COUNT
-        ).get_attribute("innerHTML"))
-        student_count = int(count_text.split()[-1])
+        ).text.strip()
+        try:
+            student_count = int(count_text.split()[-1])
+        except (ValueError, IndexError) as e:
+            logger.error(
+                "Failed to parse student count from text: %s", count_text)
+            raise ValueError("Invalid student count format") from e
+
         logger.info("Total Students Count: %s", count_text)
         return student_count
 
@@ -111,7 +130,12 @@ class StudentSectionShiftUI:
             ValueError: If the page count cannot be converted to an integer.
         """
         student_count = self._get_total_students_count()
-        total_pages = (student_count + 9) // 10  # Assuming 10 entries per page
+        if student_count == 0:
+            logger.info("No students found, total pages = 0")
+            return 0
+
+        # Assuming PAGE_SIZE entries per page
+        total_pages = (student_count + PAGE_SIZE - 1) // PAGE_SIZE
         logger.info("Total Pages Count: %s", total_pages)
         return total_pages
 
@@ -125,37 +149,65 @@ class StudentSectionShiftUI:
             TimeoutException: If the table element is not found
                                 within the wait period.
         """
-        return UI.wait_and_find_element(
-            StudentSectionShiftLocators.SECTION_SHIFT_TABLE
-        )
+        try:
+            table = UI.wait_and_find_element(
+                StudentSectionShiftLocators.SECTION_SHIFT_TABLE)
+            logger.debug("Section shift data table retrieved successfully.")
+            return table
+        except TimeoutException as e:
+            logger.error("Failed to locate section shift data table: %s", e)
+            raise
 
     def get_section_shift_table_rows(self, table):
         """
-        Retrieves the rows of the section shift data table.
+        Retrieve all row elements from the section shift data table.
+
+        Args:
+            table (WebElement): The table element containing student rows.
 
         Returns:
-            list: A list of WebElement objects representing the
-                    rows in the table.
+            List[WebElement]: A list of row elements in the table.
         """
-        return UI.wait_and_find_elements(
-            StudentSectionShiftLocators.TABLE_ROW, table
+        rows = UI.wait_and_find_elements(
+            StudentSectionShiftLocators.TABLE_ROW, table)
+        if not rows:
+            logger.warning("No rows found in section shift data table.")
+        else:
+            logger.debug(
+                "Retrieved %d rows from section shift data table.", len(rows))
+        return rows
+
+    def get_ui_student_pen_and_section(self, student_row):
+        """
+        Retrieves the Permanent Enrollment Number (PEN)
+        and Section of a student from the given table row.
+
+        Args:
+            student_row (WebElement): The table row element for the student.
+        Returns:
+            tuple: A tuple containing the student's PEN and Section.
+        """
+        return (
+            self._get_ui_student_pen(student_row),
+            self._get_ui_student_section(student_row)
         )
 
-    def get_ui_student_pen(self, student_row):
+    def _get_ui_student_pen(self, student_row):
         """
         Retrieves the Permanent Enrollment Number (PEN)
         of a student from the given table row.
 
         Args:
             student_row (WebElement): The table row element for the student.
+
         Returns:
             str: The student's Permanent Enrollment Number (PEN).
         """
         return UI.wait_and_find_element(
             StudentSectionShiftLocators.STUDENT_PEN_UI_ROW, student_row
-        ).get_attribute("innerHTML").strip()
+        ).text.strip()
 
-    def get_ui_student_section(self, student_row):
+    def _get_ui_student_section(self, student_row):
         """
         Retrieves the Section of a student from the
         given table row.
@@ -167,24 +219,24 @@ class StudentSectionShiftUI:
         """
         return UI.wait_and_find_element(
             StudentSectionShiftLocators.STUDENT_SECTION_UI_ROW, student_row
-        ).get_attribute("innerHTML").strip()
+        ).text.strip()
 
     def shift_section(self, student_pen, section, student_row):
         """
-        Automates the student import process by entering PEN and DOB,
-        then triggering the import action.
+        Shift a student to a new section in the UDISE UI.
 
         Args:
             student_pen(str): The student's Permanent Enrollment Number.
             section (str): The section the student will be shifted into.
+            student_row (WebElement): The table row element for the student.
 
         Side Effects:
-            - Fills input fields using Selenium.
+            - Selects new section using Selenium.
             - Logs debug and info messages.
-            - Clicks the import button and waits for UI transition.
+            - Updates section in the UI.
         """
         try:
-            logger.info("Student PEN No: %s, Section: %s",
+            logger.info("Shifting Student PEN No: %s, Section: %s",
                         student_pen, section)
             self._select_new_section(section, student_row)
 
@@ -194,6 +246,10 @@ class StudentSectionShiftUI:
             self._update_section(student_row)
         except ValueError as ve:
             logger.warning("Validation error during student import: %s", ve)
+        except (TimeoutException, NoSuchElementException) as se:
+            logger.error(
+                "UI error during section shift for PEN=%s: %s",
+                student_pen, se)
         except Exception as e:
             logger.error("Unexpected error during student import: %s", e)
 
@@ -202,11 +258,15 @@ class StudentSectionShiftUI:
         Selects a new section for the given student row in the
         section shift UI.
 
-        Parameters:
+        Args:
             section (str): The section key used to look up the
                 corresponding value in SECTIONS.
             student_row (WebElement): The row element representing
                 the student in the UI.
+        Raises:
+            KeyError: If the section key is not found in SECTIONS.
+            TimeoutException: If the dropdown element is not found within
+                                the wait period.
 
         Workflow:
             - Locates the "New Section" dropdown within the student row.
@@ -219,10 +279,20 @@ class StudentSectionShiftUI:
             - `SECTIONS` contains a mapping of section keys to dropdown values.
         """
 
-        Select(
-            UI.wait_and_find_element(
-                StudentSectionShiftLocators.NEW_SECTION, student_row
-            )).select_by_value(SECTIONS[section])
+        if section not in SECTIONS:
+            raise KeyError(
+                f"Section '{section}' not found in SECTIONS mapping.")
+        try:
+            Select(
+                UI.wait_and_find_element(
+                    StudentSectionShiftLocators.NEW_SECTION, student_row
+                )).select_by_value(SECTIONS[section])
+        except TimeoutException as e:
+            logger.error(
+                "Failed to locate New Section dropdown for section '%s': %s",
+                section, e)
+            raise
+
         logger.info("Selected New Section: %s", section)
         time.sleep(TIME_DELAY)
 
@@ -231,9 +301,14 @@ class StudentSectionShiftUI:
         Clicks the "Update" button for the given student row to
         apply a section change in the UI.
 
-        Parameters:
+        Args:
             student_row (WebElement): The row element representing
                 the student whose section is being updated.
+
+        Raises:
+            TimeoutException: If the Update button is not found within
+                                the wait period.
+            NoSuchElementException: If the Update button cannot be located.
 
         Workflow:
             - Locates the Update button within the provided student row.
@@ -245,10 +320,15 @@ class StudentSectionShiftUI:
             - `UI.wait_and_click()` is available to handle element
             presence and interaction.
         """
-
-        UI.wait_and_click(
-            StudentSectionShiftLocators.UPDATE_BUTTON, student_row)
-        logger.debug("Clicked Update Button")
+        try:
+            UI.wait_and_click(
+                StudentSectionShiftLocators.UPDATE_BUTTON, student_row)
+            logger.debug(
+                "Clicked Update button for student row: %s", student_row)
+        except (TimeoutException, NoSuchElementException) as e:
+            logger.error(
+                "Failed to click Update button for student row: %s", e)
+            raise
 
     def get_section_shift_message(self):
         """
@@ -261,41 +341,48 @@ class StudentSectionShiftUI:
         Raises:
             TimeoutException: If the success message element is not found
                                 within the wait period.
-            AttributeError: If the element does not support
-                                'get_dom_attribute'.
-
-        Note:
-            This method assumes that the import flow has already been
-            completed and the success message is visible in the DOM.
+            AttributeError: If the element does not support text extraction.
         """
-        status_message = UI.wait_and_find_element(
-            StudentSectionShiftLocators.STATUS_MESSAGE
-        ).get_attribute("innerHTML")
-        logger.info("Section Shift Message: %s", status_message)
+        try:
+            status_message = UI.wait_and_find_element(
+                StudentSectionShiftLocators.STATUS_MESSAGE
+            ).text.strip()
 
-        self._confirm_section_shift()
-        return status_message
+            logger.info("Section Shift Message: %s", status_message)
+
+            self._confirm_section_shift()
+            return status_message
+        except TimeoutException as e:
+            logger.error("Failed to locate section shift message: %s", e)
+            raise
+        except AttributeError as e:
+            logger.error("Element does not support text extraction: %s", e)
+            raise
 
     def _confirm_section_shift(self):
         """
-        Automates the student section shift workflow by
-        confirming the action, and acknowledging the success
-        message.
-
-        Clicks the confirmation button to proceed with the import.
+        Confirm the section shift workflow by clicking the OK button
+        in the success dialog.
 
         Raises:
-            TimeoutException: If any of the expected elements are not found
-                                within the wait period.
-            ElementClickInterceptedException: If an element is obstructed
-                                or not clickable.
+            TimeoutException: If the OK button is not found within the wait period.
+            ElementClickInterceptedException: If the OK button is obstructed or not clickable.
 
         Note:
             Ensure that the StudentSectionShiftLocators are correctly
             defined and visible before invoking this method.
         """
-        UI.wait_and_click(StudentSectionShiftLocators.OK_BUTTON)
-        logger.debug("Clicked Okay Button")
+        try:
+            UI.wait_and_click(StudentSectionShiftLocators.OK_BUTTON)
+            logger.debug("Clicked OK button to confirm section shift.")
+        except TimeoutException as e:
+            logger.error(
+                "Failed to locate OK button for section shift confirmation: %s", e)
+            raise
+        except ElementClickInterceptedException as e:
+            logger.error(
+                "OK button was not clickable due to obstruction: %s", e)
+            raise
 
     def go_to_next_page(self):
         """
@@ -304,8 +391,16 @@ class StudentSectionShiftUI:
         Raises:
             TimeoutException: If the Next Page button is not found
                                 within the wait period.
-            ElementClickInterceptedException: If the button is obstructed
-                                or not clickable.
+            ElementClickInterceptedException: If the button is
+                                bstructed or not clickable.
         """
-        UI.wait_and_click(StudentSectionShiftLocators.NEXT_PAGE_BUTTON)
-        logger.debug("Navigated to the next page")
+        try:
+            logger.debug("Attempting to navigate to the next page...")
+            UI.wait_and_click(StudentSectionShiftLocators.NEXT_PAGE_BUTTON)
+            logger.info("Successfully navigated to the next page.")
+        except TimeoutException as e:
+            logger.error("Next Page button not found: %s", e)
+            raise
+        except ElementClickInterceptedException as e:
+            logger.error("Next Page button not clickable: %s", e)
+            raise

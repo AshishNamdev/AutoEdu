@@ -27,18 +27,22 @@ Intended for use in AutoEdu workflows and other scalable automation platforms.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2025-12-16
+Last Modified: 2026-01-10
 
 Version: 1.0.0
 """
 
 import time
 
-from selenium.common.exceptions import (ElementClickInterceptedException,
-                                        NoSuchElementException,
-                                        StaleElementReferenceException)
+from selenium.common.exceptions import (
+    ElementClickInterceptedException,
+    NoSuchElementException,
+    StaleElementReferenceException,
+    TimeoutException,
+)
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -424,3 +428,32 @@ class UIActions:
             logger.debug("Sent ESCAPE key to dismiss browser popup")
         except Exception as e:
             logger.warning("Failed to dismiss popup with ESCAPE key: %s", e)
+
+    @staticmethod
+    def wait_until_ready(locator, timeout: int = 10, parent: WebElement = None):
+        """
+        Wait until the given element is present and clickable.
+
+        Args:
+            locator (tuple): A locator tuple (By.<method>, "selector").
+            timeout (int): Maximum time to wait in seconds. Default is 10.
+            parent (WebElement, optional): Parent element to search within.
+                                            Defaults to None.
+
+        Returns:
+            WebElement: The element once it is ready.
+
+        Raises:
+            TimeoutException: If the element is not ready within the timeout.
+        """
+        try:
+            # assumes UI.driver is your WebDriver instance
+            driver = parent if parent else WebDriverManager.get_driver()
+            element = WebDriverWait(driver, timeout).until(
+                EC.element_to_be_clickable(locator)
+            )
+            return element
+        except TimeoutException:
+            logger.error("Element %s not ready within %s seconds",
+                         locator, timeout)
+            raise
