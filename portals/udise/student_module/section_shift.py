@@ -122,6 +122,13 @@ class StudentSectionShift:
             student_pen, ui_section = ui.get_ui_student_pen_and_section(
                 student_row)
 
+            if self._student_pen_exists(student_pen) is False:
+                logger.warning(
+                    "Student PEN %s not found in prepared data. Skipping.",
+                    student_pen,
+                )
+                continue
+
             logger.info("Processing Student PEN: %s", student_pen)
 
             student = Student(
@@ -156,6 +163,20 @@ class StudentSectionShift:
             )
 
             self._wait_between_students()
+
+    def _student_pen_exists(self, student_pen):
+        """
+        Check whether the given student PEN exists
+        in the prepared student data.
+
+        Args:
+            student_pen (str): The PEN number of the student to check.
+
+        Returns:
+            bool: True if the PEN is present in the student data,
+                    False otherwise.
+        """
+        return student_pen in self.student_data.get_student_data()
 
     def _wait_between_students(self):
         """Helper to log and wait between student processing."""
