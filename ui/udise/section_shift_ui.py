@@ -240,22 +240,24 @@ class StudentSectionShiftUI:
             - Updates section in the UI.
         """
         try:
-            logger.info("Shifting Student PEN No: %s, Section: %s",
+            logger.info("Shifting Student PEN No: %s to Section: %s",
                         student_pen, section)
             self._select_new_section(section, student_row)
 
-            logger.debug("Waiting for %s seconds", TIME_DELAY)
-            time.sleep(TIME_DELAY)
+            logger.debug("Waiting for %s seconds", TIME_DELAY / 3)
+            time.sleep(TIME_DELAY / 3)
 
             self._update_section(student_row)
         except ValueError as ve:
-            logger.warning("Validation error during student import: %s", ve)
+            logger.warning(
+                "Validation error during student section shift: %s", ve)
         except (TimeoutException, NoSuchElementException) as se:
             logger.error(
                 "UI error during section shift for PEN=%s: %s",
                 student_pen, se)
         except Exception as e:
-            logger.error("Unexpected error during student import: %s", e)
+            logger.error(
+                "Unexpected error during student section shift: %s", e)
 
     def _select_new_section(self, section, student_row):
         """
@@ -298,7 +300,7 @@ class StudentSectionShiftUI:
             raise
 
         logger.info("Selected New Section: %s", section)
-        time.sleep(TIME_DELAY)
+        time.sleep(TIME_DELAY / 3)
 
     def _update_section(self, student_row):
         """
@@ -326,12 +328,17 @@ class StudentSectionShiftUI:
         """
         try:
             UI.wait_and_click(
-                StudentSectionShiftLocators.UPDATE_BUTTON, student_row)
+                StudentSectionShiftLocators.UPDATE_BUTTON,
+                parent_element=student_row)
             logger.debug(
                 "Clicked Update button for student row: %s", student_row)
         except (TimeoutException, NoSuchElementException) as e:
             logger.error(
                 "Failed to click Update button for student row: %s", e)
+            raise
+        except Exception as e:
+            logger.error(
+                "Unexpected error while clicking Update button: %s", e)
             raise
 
     def get_section_shift_message(self):

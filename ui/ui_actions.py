@@ -27,19 +27,17 @@ Intended for use in AutoEdu workflows and other scalable automation platforms.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2026-01-10
+Last Modified: 2026-01-13
 
 Version: 1.0.0
 """
 
 import time
 
-from selenium.common.exceptions import (
-    ElementClickInterceptedException,
-    NoSuchElementException,
-    StaleElementReferenceException,
-    TimeoutException,
-)
+from selenium.common.exceptions import (ElementClickInterceptedException,
+                                        NoSuchElementException,
+                                        StaleElementReferenceException,
+                                        TimeoutException)
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webelement import WebElement
@@ -99,7 +97,7 @@ class UIActions:
     """
 
     @classmethod
-    def wait_and_click(cls, locator, retries=2):
+    def wait_and_click(cls, locator, retries=2, parent_element=None):
         """
         Waits for an element to become clickable, scrolls to it, and
         attempts to click it.
@@ -114,6 +112,8 @@ class UIActions:
             the element, e.g., (By.XPATH, "//button[@id='submit']").
             retries (int): Number of retry attempts if the standard
             click is intercepted. Defaults to 2.
+            parent_element (WebElement, optional): Parent element to search
+                            within. Defaults to None.
 
         Returns:
             None
@@ -122,12 +122,21 @@ class UIActions:
             Exception: If the element cannot be clicked after the
             specified number of retries.
         """
+        by, value = locator
         driver = WebDriverManager.get_driver()
         for attempt in range(retries):
             try:
-                element = WebDriverWait(driver, TIMEOUT).until(
-                    EC.element_to_be_clickable(locator)
-                )
+                if parent_element is not None:
+                    # Scoped search inside the parent element
+                    element = WebDriverWait(
+                        driver, TIMEOUT).until(
+                        lambda d: parent_element.find_element(by, value)
+                    )
+                else:
+                    # Global search
+                    element = WebDriverWait(driver, TIMEOUT).until(
+                        EC.element_to_be_clickable(locator)
+                    )
 
                 # Scroll to element using ActionChains
                 ActionChains(driver).scroll_to_element(element).perform()

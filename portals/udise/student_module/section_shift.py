@@ -150,7 +150,8 @@ class StudentSectionShift:
             )
             self._wait_between_students()
 
-    def _handle_section_shift(self, student_pen, ui_section, student_section, student_row):
+    def _handle_section_shift(self, student_pen, ui_section,
+                              student_section, student_row):
         """
         Handle the section shift logic for a single student row.
 
@@ -201,8 +202,8 @@ class StudentSectionShift:
 
     def _wait_between_students(self):
         """Helper to log and wait between student processing."""
-        logger.debug("Waiting for %s seconds", TIME_DELAY)
-        time.sleep(TIME_DELAY)
+        logger.debug("Waiting for %s seconds", TIME_DELAY / 3)
+        time.sleep(TIME_DELAY / 3)
 
     def _is_section_mismatch(self, ui_section, student_section):
         """
