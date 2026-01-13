@@ -121,7 +121,6 @@ class StudentSectionShift:
 
             student_pen, ui_section = ui.get_ui_student_pen_and_section(
                 student_row)
-
             if self._student_pen_exists(student_pen) is False:
                 logger.warning(
                     "Student PEN %s not found in prepared data. Skipping.",
@@ -131,38 +130,60 @@ class StudentSectionShift:
 
             logger.info("Processing Student PEN: %s", student_pen)
 
-            student = Student(
-                student_pen, self.student_data.get_student_data().get(student_pen))
+            student_data = self.student_data.get_student_data().get(
+                student_pen)
+            student = Student(student_pen, student_data)
             student_section = student.get_section()
 
-            if self._is_section_mismatch(ui_section, student_section):
-                logger.info(
-                    "%s: Section Mismatch, UDISE Section-%s, "
-                    "Student Section-%s",
-                    student_pen,
-                    ui_section,
-                    student_section,
-                )
-                ui.shift_section(student_pen, student_section, student_row)
-                status = ui.get_section_shift_message()
-                section_shift_status = "Yes" if "Successfully" in status else "No"
-            else:
-                status = "Section Matched Already"
-                section_shift_status = "Yes"
+            status, section_shift_status = self._handle_section_shift(
+                student_pen, ui_section, student_section, student_row)
 
             logger.info("%s: Section Shift Status: %s", student_pen, status)
-
             self.student_data.update_student_data(
                 student_pen,
                 {
                     "Section Shift Status": section_shift_status,
                     "Remark": status,
                     "Old Section": ui_section,
-                    "Updated Section": student_section,
+                    "Updated Section": student_section
                 },
             )
-
             self._wait_between_students()
+
+    def _handle_section_shift(self, student_pen, ui_section, student_section, student_row):
+        """
+        Handle the section shift logic for a single student row.
+
+        This method compares the section value from the UI with the section
+        value from prepared student data. If a mismatch is detected, it
+        triggers a section shift operation in the UI and retrieves the
+        resulting status message. Otherwise, it returns a message indicating
+        that the section is already matched.
+
+        Args:
+            student_pen (str): The PEN number of the student being processed.
+            ui_section (str): The section value retrieved from the UI table.
+            student_section (str): The section value from prepared student data.
+            student_row (WebElement): The table row element corresponding to the student.
+
+        Returns:
+            tuple[str, str]: A tuple containing:
+                - status (str): The message describing the result of the section shift.
+                - section_shift_status (str): "Yes" if the section shift was successful
+                or already matched, "No" otherwise.
+        """
+        ui = self.section_shift_ui
+        if self._is_section_mismatch(ui_section, student_section):
+            logger.info(
+                "%s: Section Mismatch, UDISE Section-%s, Student Section-%s",
+                student_pen,
+                ui_section,
+                student_section,
+            )
+            ui.shift_section(student_pen, student_section, student_row)
+            status = ui.get_section_shift_message()
+            return status, "Yes" if "Successfully" in status else "No"
+        return "Section Matched Already", "Yes"
 
     def _student_pen_exists(self, student_pen):
         """
