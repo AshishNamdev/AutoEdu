@@ -18,18 +18,16 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-12-11
-Last Modified: 2026-01-10
+Last Modified: 2026-01-13
 
 Version: 1.0.0
 """
 
 import time
 
-from selenium.common.exceptions import (
-    ElementClickInterceptedException,
-    NoSuchElementException,
-    TimeoutException,
-)
+from selenium.common.exceptions import (ElementClickInterceptedException,
+                                        NoSuchElementException,
+                                        TimeoutException)
 from selenium.webdriver.support.ui import Select
 
 from common.config import CLASS, PAGE_SIZE, SECTIONS, TIME_DELAY
@@ -110,6 +108,10 @@ class StudentSectionShiftUI:
         Raises:
             ValueError: If the count cannot be converted to an integer.
         """
+        logger.info("Retrieving total students count from UI...")
+        logger.info("Waiting for %s seconds", TIME_DELAY)
+        time.sleep(TIME_DELAY)
+
         count_text = UI.wait_and_find_element(
             StudentSectionShiftLocators.STUDENT_COUNT
         ).text.strip()

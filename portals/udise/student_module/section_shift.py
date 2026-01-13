@@ -9,7 +9,7 @@ configuration.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-12-09
-Last Modified: 2026-01-10
+Last Modified: 2026-01-13
 
 Version: 1.0.0
 """
@@ -121,8 +121,11 @@ class StudentSectionShift:
 
             student_pen, ui_section = ui.get_ui_student_pen_and_section(
                 student_row)
+
+            logger.info("Processing Student PEN: %s", student_pen)
+
             student = Student(
-                student_pen, self.student_data.get_student_data())
+                student_pen, self.student_data.get_student_data().get(student_pen))
             student_section = student.get_section()
 
             if self._is_section_mismatch(ui_section, student_section):
