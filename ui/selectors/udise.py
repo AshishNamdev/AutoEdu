@@ -14,7 +14,7 @@ automation scripts.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-19
-Last Modified: 2026-01-10
+Last Modified: 2026-01-14
 
 Version: 1.0.0
 """
@@ -423,7 +423,10 @@ class StudentSectionShiftSelectors:
         "'Section Successfully Updated')]"
     )
     '''
-    STATUS_MESSAGE_XPATH = "//html/body/div[4]/div/h2"
+    STATUS_MESSAGE_XPATH = (
+        "//h2[@id='swal2-title' or "
+        "contains(@class,'swal2-title')]"
+    )
     STUDENT_PEN_UI_ROW_XPATH = "./td[2]"
     STUDENT_SECTION_UI_ROW_XPATH = "./td[1]/ul/li[2]/span"
 
