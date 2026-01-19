@@ -9,7 +9,7 @@ configuration.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-12-09
-Last Modified: 2026-01-13
+Last Modified: 2026-01-19
 
 Version: 1.0.0
 """
@@ -40,6 +40,7 @@ class StudentSectionShift:
     def __init__(self):
         self.section_shift_ui = StudentSectionShiftUI()
         self.student_data = None
+        self.shifted_students = []
 
     def _prepare_section_shift_data(self):
         """
@@ -96,59 +97,136 @@ class StudentSectionShift:
 
     def _process_section_shift_page(self):
         """
-        Processes a single page of the Section Shift table.
+        Process all student rows on the current Section Shift UI page.
 
-        This method iterates through each student entry on the current
-        page, retrieves the necessary data, and performs the section shift
-        operation based on the prepared student data.
-
-        Returns:
-            None
+        Iterates through the Section Shift table, attempts section shifts,
+        and updates student data. Handles UI refreshes after successful shifts
+        and exits once all students are processed.
         """
         ui = self.section_shift_ui
-        student_rows = ui.get_section_shift_table_rows(
-            ui.get_section_shift_data_table())
+        processed = set()
 
-        students_count = len(student_rows)
-        if students_count == 0:
-            logger.warning("No students found on this page.")
-            return
+        while True:
+            student_rows = self._fetch_student_rows()
+            if not student_rows:
+                logger.warning("No students found on this page.")
+                break
 
-        logger.info("Total Students on this page: %d", students_count)
+            logger.info("Total Students currently on this page: %d",
+                        len(student_rows))
+            progress_made = False
 
-        for index, student_row in enumerate(student_rows, start=1):
-            logger.info("Processing  [%d/%d] Student", index, students_count)
+            for student_row in student_rows:
+                if self._skip_student(student_row, processed):
+                    continue
 
-            student_pen, ui_section = ui.get_ui_student_pen_and_section(
-                student_row)
-            if self._student_pen_exists(student_pen) is False:
-                logger.warning(
-                    "Student PEN %s not found in prepared data. Skipping.",
-                    student_pen,
-                )
-                continue
+                student_pen, ui_section = ui.get_ui_student_pen_and_section(
+                    student_row)
+                status = self._process_single_student(
+                    student_row, student_pen, ui_section)
 
-            logger.info("Processing Student PEN: %s", student_pen)
+                processed.add(student_pen)
 
-            student_data = self.student_data.get_student_data().get(
+                if "SUCCESS" in status.upper():
+                    self.shifted_students.append(student_pen)
+                    progress_made = True
+                    break  # refresh immediately
+
+            if not progress_made:
+                break
+
+    def _fetch_student_rows(self):
+        """
+        Retrieve the current list of student rows from the
+        Section Shift UI table.
+
+        Calls the UI helper to access the data table and
+        returns all row elements for further processing.
+        """
+        ui = self.section_shift_ui
+        return ui.get_section_shift_table_rows(
+            ui.get_section_shift_data_table()
+        )
+
+    def _skip_student(self, student_row, processed):
+        """
+        Determine whether a student row should be skipped
+        during section shift processing.
+
+        A student is skipped if:
+        * Their PEN is not found in the prepared data.
+        * Their PEN has already been shifted in a previous iteration.
+        * Their PEN has already been processed in the current pass.
+
+        Args:
+            student_row: The UI row element representing the student entry.
+            processed (set): Collection of student PENs already handled in this pass.
+
+        Returns:
+            bool: True if the student should be skipped, False otherwise.
+        """
+        student_pen, _ = self.section_shift_ui.get_ui_student_pen_and_section(
+            student_row)
+
+        if not self._student_pen_exists(student_pen):
+            logger.warning(
+                "Student PEN %s not found in prepared data. Skipping.",
                 student_pen)
-            student = Student(student_pen, student_data)
-            student_section = student.get_section()
+            return True
 
-            status, section_shift_status = self._handle_section_shift(
-                student_pen, ui_section, student_section, student_row)
+        if student_pen in self.shifted_students or student_pen in processed:
+            logger.info(
+                "Student PEN %s already handled. Skipping.", student_pen)
+            return True
 
-            logger.info("%s: Section Shift Status: %s", student_pen, status)
-            self.student_data.update_student_data(
-                student_pen,
-                {
-                    "Section Shift Status": section_shift_status,
-                    "Remark": status,
-                    "Old Section": ui_section,
-                    "Updated Section": student_section
-                },
-            )
-            self._wait_between_students()
+        return False
+
+    def _process_single_student(self, student_row, student_pen, ui_section):
+        """
+        Handle section shift processing for a single student row.
+
+        This method:
+        * Logs the student being processed.
+        * Retrieves the student's prepared data and current section.
+        * Attempts a section shift operation via the UI.
+        * Updates the internal student data store with the outcome,
+            including status, remarks, and section changes.
+        * Waits briefly to respect UI timing before returning.
+
+        Args:
+            student_row: The UI row element representing the student entry.
+            student_pen (str): Unique PEN identifier for the student.
+            ui_section (str): Section value retrieved from the UI for
+                                the student.
+
+        Returns:
+            str: The status message from the section shift attempt
+                (e.g., "SUCCESS", "Already Matched", "Skipped").
+        """
+
+        logger.info("Processing Student PEN: %s", student_pen)
+
+        student_data = self.student_data.get_student_data().get(student_pen)
+        student = Student(student_pen, student_data)
+        student_section = student.get_section()
+
+        status, section_shift_status = self._handle_section_shift(
+            student_pen, ui_section, student_section, student_row
+        )
+
+        logger.info("%s: Section Shift Status: %s", student_pen, status)
+        self.student_data.update_student_data(
+            student_pen,
+            {
+                "Section Shift Status": section_shift_status,
+                "Remark": status,
+                "Old Section": ui_section,
+                "Updated Section": student_section,
+            },
+        )
+
+        self._wait_between_students()
+        return status
 
     def _handle_section_shift(self, student_pen, ui_section,
                               student_section, student_row):
