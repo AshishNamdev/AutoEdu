@@ -9,7 +9,7 @@ configuration.
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-12-09
-Last Modified: 2026-01-19
+Last Modified: 2026-01-21
 
 Version: 1.0.0
 """
@@ -155,11 +155,12 @@ class StudentSectionShift:
             progress_made = False
 
             for student_row in student_rows:
-                if self._skip_student(student_row, processed):
-                    continue
-
                 student_pen, ui_section = ui.get_ui_student_pen_and_section(
                     student_row)
+
+                if self._skip_student(student_pen, processed):
+                    continue
+
                 status = self._process_single_student(
                     student_row, student_pen, ui_section)
 
@@ -186,7 +187,7 @@ class StudentSectionShift:
             ui.get_section_shift_data_table()
         )
 
-    def _skip_student(self, student_row, processed):
+    def _skip_student(self, student_pen, processed):
         """
         Determine whether a student row should be skipped
         during section shift processing.
@@ -197,15 +198,12 @@ class StudentSectionShift:
         * Their PEN has already been processed in the current pass.
 
         Args:
-            student_row: The UI row element representing the student entry.
+            student_pen (str): The PEN number of the student being processed.
             processed (set): Collection of student PENs already handled in this pass.
 
         Returns:
             bool: True if the student should be skipped, False otherwise.
         """
-        student_pen, _ = self.section_shift_ui.get_ui_student_pen_and_section(
-            student_row)
-
         if not self._student_pen_exists(student_pen):
             logger.warning(
                 "Student PEN %s not found in prepared data. Skipping.",
