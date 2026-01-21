@@ -117,8 +117,11 @@ class StudentSectionShift:
             total_pages = ui.get_total_pages()
             if total_pages == 0:
                 logger.warning(
-                    "No pages found for section shift in class %s.", class_to_select)
-                continue  # skip instead of returning, so other classes can still be processed
+                    "No pages found for section shift in class %s.",
+                    class_to_select)
+                # Skip instead of returning,
+                # so other classes can still be processed
+                continue
 
             for page in range(1, total_pages + 1):
                 logger.info("Processing page %d of %d for class %s",
@@ -127,7 +130,8 @@ class StudentSectionShift:
 
                 if page < total_pages:
                     logger.debug(
-                        "Waiting for %s seconds before moving to next page", TIME_DELAY / 3)
+                        "Waiting for %s seconds before moving to next page",
+                        TIME_DELAY / 3)
                     time.sleep(TIME_DELAY / 3)
                     ui.go_to_next_page()
 
@@ -189,17 +193,18 @@ class StudentSectionShift:
 
     def _skip_student(self, student_pen, processed):
         """
-        Determine whether a student row should be skipped
-        during section shift processing.
+        Check whether a student should be skipped during section shift
+        processing.
 
         A student is skipped if:
-        * Their PEN is not found in the prepared data.
-        * Their PEN has already been shifted in a previous iteration.
-        * Their PEN has already been processed in the current pass.
+        - Their PEN is not present in the prepared data.
+        - Their PEN has already been shifted in a previous iteration.
+        - Their PEN has already been processed in the current pass.
 
         Args:
-            student_pen (str): The PEN number of the student being processed.
-            processed (set): Collection of student PENs already handled in this pass.
+            student_pen (str): Unique PEN identifier of the student.
+            processed (set[str]): Set of PENs already handled in the
+                                 current pass.
 
         Returns:
             bool: True if the student should be skipped, False otherwise.
@@ -210,9 +215,16 @@ class StudentSectionShift:
                 student_pen)
             return True
 
-        if student_pen in self.shifted_students or student_pen in processed:
+        if student_pen in self.shifted_students:
             logger.info(
-                "Student PEN %s already handled. Skipping.", student_pen)
+                "Student PEN %s already shifted earlier. Skipping.",
+                student_pen)
+            return True
+
+        if student_pen in processed:
+            logger.info(
+                "Student PEN %s already processed in this pass. Skipping.",
+                student_pen)
             return True
 
         return False
