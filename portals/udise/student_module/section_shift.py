@@ -38,9 +38,23 @@ class StudentSectionShift:
     """
 
     def __init__(self):
+        """
+        Initialize the UDISE Student Section Shift workflow handler.
+
+        Attributes:
+            section_shift_ui (StudentSectionShiftUI): UI controller for interacting
+                with the Section Shift interface.
+            student_data (object or None): Container for student-related data,
+                initialized externally before use.
+            shifted_students (set): Tracks PENs of students successfully shifted
+                across all pages and classes to prevent re-processing.
+            total_processed (int): Counter for the total number of students
+                processed during the workflow run.
+        """
         self.section_shift_ui = StudentSectionShiftUI()
         self.student_data = None
-        self.shifted_students = []
+        self.shifted_students = set()
+        self.total_processed = 0
 
     def _prepare_section_shift_data(self):
         """
@@ -65,77 +79,98 @@ class StudentSectionShift:
 
     def start_section_shift(self):
         """
-        Executes the UDISE Student Section Shift workflow.
+        Execute the UDISE Student Section Shift workflow across one or more classes.
 
-        Workflow:
-            1. Prepares section shift data.
-            2. Opens the Section Shift UI option.
-            3. Iterates through one or more classes provided in CLASSES.
-            4. For each class:
-                - Selects the class from the dropdown.
-                - Determines the total number of pages.
-                - Processes each page sequentially.
-                - Navigates to the next page with a delay, if applicable.
-            5. Exports the final section shift report.
+        This method orchestrates the entire workflow:
+        1. Prepares section shift data.
+        2. Opens the Section Shift UI option.
+        3. Iterates through classes defined in `CLASSES`.
+        4. For each class:
+            - Selects the class from the dropdown.
+            - Determines the total number of pages.
+            - Processes each page sequentially via `_process_section_shift_page`.
+            - Navigates to the next page with a delay, if applicable.
+        5. Logs a final summary of total processed and successfully shifted students.
+        6. Exports the final section shift report.
 
         Notes:
-            - If CLASSES is not a non-empty list, falls back to single-class selection.
-            - Logs progress and warnings at each step for traceability.
+            - Supports both single-class and multi-class modes.
+            - Skips classes with no pages instead of terminating the workflow.
+            - Provides detailed logging for traceability and debugging.
 
         Raises:
             TimeoutException: If UI elements are not found or clickable within expected time.
             Exception: Propagates unexpected errors during workflow execution.
         """
-        logger.info("Starting UDISE Student Section Shift workflow.")
 
+        logger.info("Starting UDISE Student Section Shift workflow.")
         self._prepare_section_shift_data()
         ui = self.section_shift_ui
 
-        multi_class_mode = isinstance(CLASSES, list) and bool(CLASSES)
-
-        # Decide whether to select class immediately or defer until loop
+        multi_class_mode = isinstance(CLASSES, list) and CLASSES
         ui.select_section_shift_options(select_class=not multi_class_mode)
 
-        # Log mode information
-        if multi_class_mode:
-            logger.info(
-                "Multi-class mode enabled. Classes to process: %s", CLASSES)
-        else:
-            logger.info(
-                "Single-class mode enabled. Using class from config: %s",
-                CLASSES)
-
-        logger.debug("Type of CLASSES : %s", type(CLASSES))
-        logger.debug("Length of CLASSES : %s", len(CLASSES)
-                     if isinstance(CLASSES, list) else "N/A")
-        logger.debug("Class value from config : %s", CLASSES)
+        logger.info(
+            "%s-class mode enabled. Classes: %s",
+            "Multi" if multi_class_mode else "Single",
+            CLASSES,
+        )
+        logger.debug("CLASSES details: type=%s, length=%s, value=%s",
+                     type(CLASSES),
+                     len(CLASSES) if isinstance(CLASSES, list) else "N/A",
+                     CLASSES)
 
         for class_to_select in CLASSES:
-            logger.info("Processing Class: %s", class_to_select)
-            ui.select_section_shift_class(class_to_select)
+            self._process_class_pages(ui, class_to_select)
 
-            total_pages = ui.get_total_pages()
-            if total_pages == 0:
-                logger.warning(
-                    "No pages found for section shift in class %s.",
-                    class_to_select)
-                # Skip instead of returning,
-                # so other classes can still be processed
-                continue
-
-            for page in range(1, total_pages + 1):
-                logger.info("Processing page %d of %d for class %s",
-                            page, total_pages, class_to_select)
-                self._process_section_shift_page()
-
-                if page < total_pages:
-                    logger.debug(
-                        "Waiting for %s seconds before moving to next page",
-                        TIME_DELAY / 3)
-                    time.sleep(TIME_DELAY / 3)
-                    ui.go_to_next_page()
-
+        logger.info(
+            "Section Shift Summary: Total processed=%d, Successfully shifted=%d",
+            self.total_processed, len(self.shifted_students)
+        )
+        logger.info("Section shift processing completed. Exporting report.")
         self._export_section_shift_report()
+
+    def _process_class_pages(self, ui, class_to_select):
+        """
+        Process all Section Shift pages for a given class.
+
+        For the selected class:
+        - Retrieves the total number of pages.
+        - Iterates through each page sequentially.
+        - Calls `_process_section_shift_page` to process student rows.
+        - Navigates to the next page with a delay, if applicable.
+        - Logs progress and warnings for visibility.
+
+        Args:
+            ui (SectionShiftUI): UI handler for section shift operations.
+            class_to_select (str): The class identifier to process.
+
+        Notes:
+            - If no pages are found for the class, logs a warning and skips it.
+            - Ensures each page is processed in order, with controlled delays between transitions.
+        """
+
+        logger.info("Processing Class: %s", class_to_select)
+        ui.select_section_shift_class(class_to_select)
+
+        total_pages = ui.get_total_pages()
+        if total_pages == 0:
+            logger.warning(
+                "No pages found for section shift in class %s.",
+                class_to_select)
+            return
+
+        for page in range(1, total_pages + 1):
+            logger.info("Processing page %d of %d for class %s",
+                        page, total_pages, class_to_select)
+            self._process_section_shift_page()
+
+            if page < total_pages:
+                logger.debug(
+                    "Waiting %s seconds before moving to next page",
+                    TIME_DELAY / 3)
+                time.sleep(TIME_DELAY / 3)
+                ui.go_to_next_page()
 
     def _process_section_shift_page(self):
         """
@@ -171,12 +206,13 @@ class StudentSectionShift:
                 processed.add(student_pen)
 
                 if "SUCCESS" in status.upper():
-                    self.shifted_students.append(student_pen)
+                    self.shifted_students.add(student_pen)
                     progress_made = True
                     break  # refresh immediately
 
             if not progress_made:
                 break
+        self.total_processed += len(processed)
 
     def _fetch_student_rows(self):
         """
