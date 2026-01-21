@@ -18,7 +18,7 @@ Usage:
 Author: Ashish Namdev (ashish28 [at] sirt [dot] gmail [dot] com)
 
 Date Created:  2025-12-11
-Last Modified: 2026-01-13
+Last Modified: 2026-01-20
 
 Version: 1.0.0
 """
@@ -51,45 +51,70 @@ class StudentSectionShiftUI:
         reliable execution.
     """
 
-    def select_section_shift_options(self):
+    def select_section_shift_options(self, select_class=True):
         """
-        Selects Section Shift options in the UDISE Student Module UI.
+        Opens the 'Class / Section Shift' option in the UDISE Student Module UI.
 
-        Steps:
-            - Clicks on 'Class / Section Shift' option.
-            - Logs the action.
-            - Calls helper to select the section shift class.
+        Args:
+            select_class (bool, optional): Whether to also select a class from the 
+                dropdown after opening the option. Defaults to True.
 
         Raises:
-            TimeoutException if any element is not clickable
-                                    within the expected time.
+            TimeoutException: If the option or subsequent elements are not clickable 
+                within the expected wait time.
+            Exception: Propagates any unexpected errors encountered during execution.
+
+        Side Effects:
+            - Clicks on the 'Class / Section Shift' option.
+            - Logs the action.
+            - Optionally calls the helper to select the section shift class.
         """
         try:
-            UI.wait_and_click(
-                StudentSectionShiftLocators.SECTION_SHIFT_OPTION)
-            logger.info("Selected Class / Section Shift Option")
-            self._select_section_shift_class()
+            UI.wait_and_click(StudentSectionShiftLocators.SECTION_SHIFT_OPTION)
+            logger.info("Clicked 'Class / Section Shift' option")
+
+            if select_class:
+                self.select_section_shift_class()
+
+        except TimeoutException as e:
+            logger.error(
+                "Timeout while selecting Section Shift options: %s", e)
+            raise
         except Exception as e:
-            logger.error("Error selecting Section Shift options: %s", str(e))
+            logger.error(
+                "Unexpected error selecting Section Shift options: %s", e)
             raise
 
-    def _select_section_shift_class(self):
+    def select_section_shift_class(self, class_to_select=None):
         """
-        Selects the specified class from the Class dropdown
-        in the Section Shift UI.
+        Selects a class from the Section Shift dropdown and triggers the shift.
+
+        Args:
+            class_to_select (str, optional): The class value to select. 
+                Defaults to the global CLASS constant if not provided.
 
         Raises:
-            TimeoutException if the dropdown is not found
-                                    within the expected time.
+            TimeoutException: If the class dropdown or Go button is not found 
+                within the expected wait time.
+
+        Side Effects:
+            - Logs the selected class and user actions.
+            - Clicks the "Go" button to confirm the selection.
         """
+
+        class_to_select = class_to_select if class_to_select else CLASS
+        logger.debug("Selecting Section Shift Class: %s", class_to_select)
         try:
+            UI.refresh_page()
+
             UI.wait_until_ready(
                 StudentSectionShiftLocators.SELECT_CLASS_DROPDOWN)
             Select(
                 UI.wait_and_find_element(
                     StudentSectionShiftLocators.SELECT_CLASS_DROPDOWN)
-            ).select_by_value(CLASS)
-            logger.info("Selected Class: %s", CLASS)
+            ).select_by_value(class_to_select)
+
+            logger.info("Selected Class: %s", class_to_select)
 
             UI.wait_and_click(StudentSectionShiftLocators.GO_BUTTON)
             logger.debug("Clicked on Go Button")

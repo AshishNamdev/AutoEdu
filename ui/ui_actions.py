@@ -27,7 +27,7 @@ Intended for use in AutoEdu workflows and other scalable automation platforms.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2026-01-13
+Last Modified: 2026-01-20
 
 Version: 1.0.0
 """
@@ -485,3 +485,15 @@ class UIActions:
             logger.error("Element %s not ready within %s seconds",
                          locator, timeout)
             raise
+
+    @staticmethod
+    def refresh_page():
+        """
+        Refreshes the current browser page using Selenium WebDriver.
+
+        Raises:
+            WebDriverException: If the driver is not available or refresh fails.
+        """
+        driver = WebDriverManager.get_driver()
+        driver.refresh()
+        logger.debug("Browser page refreshed")

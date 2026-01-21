@@ -11,7 +11,7 @@ purposes.
 Author: Ashish Namdev (ashish28 [dot] sirt [at] gmail [dot] com)
 
 Date Created: 2025-08-18
-Last Modified: 2026-01-10
+Last Modified: 2026-01-19
 
 Version: 1.0.0
 
@@ -65,6 +65,7 @@ BROWSER = BROWSER if BROWSER in SUPPORTED_BROWSERS else "chrome"
 
 PORTAL = _config.get("PORTAL", "udise")
 CLASS = _config.get("CLASS", "9")
+CLASSES = _config.get("CLASSES", None)
 SECTION = _config.get("SECTION", "A")
 SECTIONS = _config.get("SECTIONS",
                        {"A": "1", "B": "2", "C": "3",

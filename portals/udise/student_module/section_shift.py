@@ -17,7 +17,7 @@ Version: 1.0.0
 import os
 import time
 
-from common.config import TIME_DELAY
+from common.config import CLASSES, TIME_DELAY
 from common.logger import logger
 from common.student_data import StudentData
 from portals.udise import Student
@@ -65,34 +65,72 @@ class StudentSectionShift:
 
     def start_section_shift(self):
         """
-        Initiates the Student Section Shift workflow.
+        Executes the UDISE Student Section Shift workflow.
 
-        This method launches the browser, logs into the UDISE portal,
-        navigates to the section shift module, and performs the section
-        shifting task.
+        Workflow:
+            1. Prepares section shift data.
+            2. Opens the Section Shift UI option.
+            3. Iterates through one or more classes provided in CLASSES.
+            4. For each class:
+                - Selects the class from the dropdown.
+                - Determines the total number of pages.
+                - Processes each page sequentially.
+                - Navigates to the next page with a delay, if applicable.
+            5. Exports the final section shift report.
 
-        Returns:
-            None
+        Notes:
+            - If CLASSES is not a non-empty list, falls back to single-class selection.
+            - Logs progress and warnings at each step for traceability.
+
+        Raises:
+            TimeoutException: If UI elements are not found or clickable within expected time.
+            Exception: Propagates unexpected errors during workflow execution.
         """
         logger.info("Starting UDISE Student Section Shift workflow.")
 
         self._prepare_section_shift_data()
         ui = self.section_shift_ui
-        ui.select_section_shift_options()
 
-        total_pages = ui.get_total_pages()
-        if total_pages == 0:
-            logger.warning("No pages found for section shift.")
-            return
+        multi_class_mode = isinstance(CLASSES, list) and bool(CLASSES)
 
-        for page in range(1, total_pages + 1):
-            logger.info("Processing page %d of %d", page, total_pages)
-            self._process_section_shift_page()
+        # Decide whether to select class immediately or defer until loop
+        ui.select_section_shift_options(select_class=not multi_class_mode)
 
-            if page < total_pages:
-                logger.debug("Waiting for %s seconds", TIME_DELAY)
-                time.sleep(TIME_DELAY)
-                ui.go_to_next_page()
+        # Log mode information
+        if multi_class_mode:
+            logger.info(
+                "Multi-class mode enabled. Classes to process: %s", CLASSES)
+        else:
+            logger.info(
+                "Single-class mode enabled. Using class from config: %s",
+                CLASSES)
+
+        logger.debug("Type of CLASSES : %s", type(CLASSES))
+        logger.debug("Length of CLASSES : %s", len(CLASSES)
+                     if isinstance(CLASSES, list) else "N/A")
+        logger.debug("Class value from config : %s", CLASSES)
+
+        for class_to_select in CLASSES:
+            logger.info("Processing Class: %s", class_to_select)
+            ui.select_section_shift_class(class_to_select)
+
+            total_pages = ui.get_total_pages()
+            if total_pages == 0:
+                logger.warning(
+                    "No pages found for section shift in class %s.", class_to_select)
+                continue  # skip instead of returning, so other classes can still be processed
+
+            for page in range(1, total_pages + 1):
+                logger.info("Processing page %d of %d for class %s",
+                            page, total_pages, class_to_select)
+                self._process_section_shift_page()
+
+                if page < total_pages:
+                    logger.debug(
+                        "Waiting for %s seconds before moving to next page", TIME_DELAY / 3)
+                    time.sleep(TIME_DELAY / 3)
+                    ui.go_to_next_page()
+
         self._export_section_shift_report()
 
     def _process_section_shift_page(self):
